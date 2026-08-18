@@ -87,8 +87,9 @@ tests because it is the rule that failed.
 **It toggles tasks, and the row is the target.** It shipped view-only on
 the argument that a completion target millimetres from a launcher icon gets
 tapped by accident. The worry was right and the conclusion was wrong — the
-fix is a target big enough to hit on purpose. A row is ~58dp on a real 4×2
-placement, against a 14dp mark and Android's 48dp minimum.
+fix is a target big enough to hit on purpose. At 4×2 a row is about 40dp
+tall and the full width of the card — a 14dp mark would sit under Android's
+48dp minimum, and the row does not.
 
 **It reads the same day rule as the app.** It did not, once: the widget
 kept using `LocalDate.now()` after the app moved its boundary, so between

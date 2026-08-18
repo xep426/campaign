@@ -75,7 +75,7 @@ import java.util.Locale
  * That is a real loss on the app's one flourish, and it is the price of
  * the act being possible without unlocking into the app at all.
  *
- * SIZE IS THE DESIGN HERE. The card defaults to 4×3 because at 3×2 it read
+ * SIZE IS THE DESIGN HERE. The card defaults to 4×2 because at 3×2 it read
  * as a note pinned to the home screen rather than as the day's three
  * things — and this app has exactly one surface competing with a wall of
  * app icons for the user's attention. Every dimension below comes from

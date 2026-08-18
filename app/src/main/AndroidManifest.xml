@@ -49,8 +49,9 @@
             </intent-filter>
         </activity>
 
-        <!-- Today's three slots on the home screen — view-only; see
-             CampaignWidget's class doc for why it does not take taps. -->
+        <!-- Today's three slots on the home screen. Tapping a row toggles
+             it without opening the app; see CampaignWidget's class doc for
+             why the ROW is the target and not the mark. -->
         <receiver
             android:name=".widget.CampaignWidgetReceiver"
             android:exported="false">
