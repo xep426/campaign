@@ -15,7 +15,6 @@
     <string name="format_date_header">EEEE d MMMM</string>
     <string name="format_day_label">EEE d MMM</string>
     <string name="format_month_day">d MMM</string>
-    <string name="format_weekday">EEEE</string>
     <string name="format_widget_date">EEE d MMM</string>
     <string name="format_clock">%1$02d:%2$02d</string>
 
@@ -41,7 +40,6 @@
          tomorrow" any more: the Tomorrow pane now has a button by that
          name doing a different job, and two identical labels one above the
          other is the app contradicting itself. -->
-    <string name="open_end_of_day">End of day</string>
     <string name="today_foot_empty">Nothing set for today.\nThe evening screen is where this usually starts.</string>
     <string name="today_foot_open_slot">One slot still open.\nIt\'s fine to leave it that way.</string>
     <string name="today_foot_all_done">That\'s the day.\nNothing more is asked.</string>
@@ -86,9 +84,6 @@
         <item quantity="other">%1$d steps</item>
     </plurals>
 
-    <string name="campaign_next_step">Next step</string>
-    <string name="campaign_next_step_empty">Tap to set what comes next</string>
-    <string name="campaign_next_step_placeholder">What carries this forward?</string>
     <string name="campaign_notes">Notes</string>
     <string name="campaign_notes_hide">Hide notes</string>
     <string name="campaign_notes_placeholder">Anything worth remembering</string>
@@ -97,10 +92,6 @@
     <string name="campaign_rename_placeholder">What is this effort called?</string>
     <string name="campaign_complete">Mark complete</string>
     <string name="campaign_archive">Archive</string>
-    <string name="campaign_pull">Pull into today</string>
-    <string name="campaign_pull_in_today">In today</string>
-    <string name="campaign_pull_no_step">No next step</string>
-    <string name="campaign_pull_day_full">Today is full</string>
 
     <!-- ── History ─────────────────────────────────────────────────── -->
     <string name="history_title">History</string>
@@ -131,7 +122,6 @@
     <string name="picker_waiting_since">set %1$s</string>
     <string name="picker_dismiss">Never mind</string>
     <string name="campaign_open_none">Nothing outstanding.</string>
-    <string name="campaign_carry">Bring into today</string>
 
     <!-- ── Dialogs ─────────────────────────────────────────────────── -->
     <string name="dialog_cancel">Cancel</string>
@@ -140,23 +130,15 @@
 
     <!-- ── Snackbar messages ───────────────────────────────────────── -->
     <string name="msg_removed">Removed</string>
-    <string name="msg_already_campaign">Already part of %1$s</string>
     <!-- Same message where the campaign's name could not be read. A
          separate string rather than a placeholder filled with another
          string: German needs the article to agree, and "Gehört schon zu
          eine Kampagne" is what substitution would produce. -->
-    <string name="msg_already_campaign_generic">Already part of a campaign</string>
-    <string name="msg_promoted">“%1$s” is a campaign now</string>
     <string name="msg_no_open_slot">No open slot today</string>
     <string name="msg_pulled">Pulled into slot %1$s</string>
-    <string name="msg_set_next_step_first">Set a next step first</string>
     <string name="msg_day_full">Today is full</string>
-    <string name="msg_tomorrow_full">Tomorrow is full</string>
     <string name="msg_completed">“%1$s” completed</string>
     <string name="msg_archived">“%1$s” archived</string>
-    <string name="msg_tomorrow_open">Tomorrow left open</string>
-    <string name="msg_tomorrow_set_one">One thing set for tomorrow</string>
-    <string name="msg_tomorrow_set_many">%1$d things set for tomorrow</string>
     <string name="msg_asking_at">Asking at %1$s</string>
 
     <!-- ── Widget ──────────────────────────────────────────────────── -->

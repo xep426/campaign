@@ -28,7 +28,6 @@
     <string name="format_date_header">EEEE, d. MMMM</string>
     <string name="format_day_label">EEE, d. MMM</string>
     <string name="format_month_day">d. MMM</string>
-    <string name="format_weekday">EEEE</string>
     <string name="format_widget_date">EEE, d. MMM</string>
 
     <!-- ── Navigation ──────────────────────────────────────────────── -->
@@ -45,7 +44,6 @@
     <!-- ── Heute ───────────────────────────────────────────────────── -->
     <string name="today_title">Heute</string>
     <string name="today_progress">%1$d von %2$d erledigt</string>
-    <string name="open_end_of_day">Tagesabschluss</string>
     <string name="today_foot_empty">Für heute ist nichts gesetzt.\nSonst fängt das abends an.</string>
     <string name="today_foot_open_slot">Ein Platz ist noch frei.\nDas darf so bleiben.</string>
     <string name="today_foot_all_done">Das war der Tag.\nMehr wird nicht verlangt.</string>
@@ -88,9 +86,6 @@
         <item quantity="other">%1$d Schritte</item>
     </plurals>
 
-    <string name="campaign_next_step">Nächster Schritt</string>
-    <string name="campaign_next_step_empty">Tippen, um den nächsten Schritt zu setzen</string>
-    <string name="campaign_next_step_placeholder">Was bringt das weiter?</string>
     <string name="campaign_notes">Notizen</string>
     <string name="campaign_notes_hide">Notizen ausblenden</string>
     <string name="campaign_notes_placeholder">Was du dir merken willst</string>
@@ -99,10 +94,6 @@
     <string name="campaign_rename_placeholder">Wie heißt dieses Vorhaben?</string>
     <string name="campaign_complete">Als abgeschlossen markieren</string>
     <string name="campaign_archive">Archivieren</string>
-    <string name="campaign_pull">In heute holen</string>
-    <string name="campaign_pull_in_today">In heute</string>
-    <string name="campaign_pull_no_step">Kein nächster Schritt</string>
-    <string name="campaign_pull_day_full">Heute ist voll</string>
 
     <!-- ── Verlauf ─────────────────────────────────────────────────── -->
     <string name="history_title">Verlauf</string>
@@ -133,7 +124,6 @@
     <string name="picker_waiting_since">gesetzt %1$s</string>
     <string name="picker_dismiss">Doch nicht</string>
     <string name="campaign_open_none">Nichts offen.</string>
-    <string name="campaign_carry">In heute holen</string>
 
     <!-- ── Dialoge ─────────────────────────────────────────────────── -->
     <string name="dialog_cancel">Abbrechen</string>
@@ -142,19 +132,11 @@
 
     <!-- ── Snackbar-Meldungen ──────────────────────────────────────── -->
     <string name="msg_removed">Entfernt</string>
-    <string name="msg_already_campaign">Gehört schon zu %1$s</string>
-    <string name="msg_already_campaign_generic">Gehört schon zu einer Kampagne</string>
-    <string name="msg_promoted">„%1$s“ ist jetzt eine Kampagne</string>
     <string name="msg_no_open_slot">Heute ist kein Platz frei</string>
     <string name="msg_pulled">In Platz %1$s geholt</string>
-    <string name="msg_set_next_step_first">Setz erst einen nächsten Schritt</string>
     <string name="msg_day_full">Heute ist voll</string>
-    <string name="msg_tomorrow_full">Morgen ist voll</string>
     <string name="msg_completed">„%1$s“ abgeschlossen</string>
     <string name="msg_archived">„%1$s“ archiviert</string>
-    <string name="msg_tomorrow_open">Morgen bleibt offen</string>
-    <string name="msg_tomorrow_set_one">Eine Sache für morgen gesetzt</string>
-    <string name="msg_tomorrow_set_many">%1$d Sachen für morgen gesetzt</string>
     <string name="msg_asking_at">Fragt um %1$s</string>
 
     <!-- ── Widget ──────────────────────────────────────────────────── -->

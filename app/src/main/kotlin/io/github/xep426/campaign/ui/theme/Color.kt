@@ -3,7 +3,7 @@ package io.github.xep426.campaign.ui.theme
 import androidx.compose.ui.graphics.Color
 
 // ═══════════════════════════════════════════════════════════════════════
-//  The dusk palette — lifted from the approved HTML mock (campaign-mock.html).
+//  The dusk palette — lifted from the design study (docs/design-study.html).
 //
 //  Warm near-black rather than neutral grey: every value below carries a
 //  little red and yellow, so the screen reads as lamplight rather than as

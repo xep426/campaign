@@ -1,44 +1,45 @@
 # Campaign
 
-Three things a day, chosen deliberately. Some of them become campaigns —
-longer efforts carried forward one step at a time.
+Three deliberate tasks a day, carried by longer campaigns.
+
+An Android app for one person: no accounts, no sync, no server. Everything
+lives on the device.
 
 ## What it is
 
-A hard limit of **three** tasks per day, and no fourth. The evening screen
-is the heart of it: at a time you set, the app asks what tomorrow is for,
-and shows you today one last time so anything worth continuing can be
-promoted into a campaign.
+A hard limit of **three** tasks a day, and no fourth. The list is not a
+backlog you work down — it is a choice you make once a day and then live
+with.
 
-A **campaign** is a longer effort. It carries exactly one next step, in
-free text. Pulling that step drops it into an open slot on a day and clears
-it from the campaign — what comes after is a decision you make when you get
-there, not a backlog you accumulate.
+**The day turns at an hour you pick**, 22:00 by default, not at midnight.
+At that moment the list empties and you choose the next three. Between the
+turn and midnight the app knows they are tomorrow's: it shows *"Three
+things for tomorrow."*, drops the completion marks, and a tap edits instead
+of completing. Claiming to have finished something on a day that has not
+begun is not a thing the app will record.
 
-There are no streaks, no points, no charts, no tags, no priorities and no
-subtasks. History is a record to read back, not a scoreboard.
+A **campaign** is a longer effort. It is not something you write — it is
+the overview of the tasks assigned to it that are still outstanding.
+Finishing one is the thing worth looking back on, which is why History
+opens on campaigns rather than on individual tasks.
+
+No streaks, no points, no charts, no tags, no priorities, no subtasks.
 
 ## Screens
 
 | Screen | What it does |
 | --- | --- |
-| **End of day** | Tomorrow's three slots, today in review, promote, confirm |
-| **Today** | The three slots; tap a row to complete it |
-| **Campaigns** | Active campaigns, each with one next step to pull |
-| **History** | Past days and finished campaigns |
-| **Widget** | Today's three slots on the home screen, view-only |
-
-The design comes from `campaign-mock.html` in this repo — open it in a
-browser to see all five screens side by side. It is the reference for
-palette, type and copy.
+| **Today** | The three slots. Tap to complete, drag to reorder, ⋯ to edit, assign or delete |
+| **Campaigns** | Active campaigns, each showing its outstanding tasks |
+| **History** | Finished campaigns, and finished tasks that belonged to none |
+| **Widget** | Today's three on the home screen, tappable |
 
 ## Building
 
-Open in Android Studio and run, the same as Kalimetra. `local.properties`
-points at the Android SDK and is untracked, since the path differs per
-machine.
+Open in Android Studio and run. `local.properties` points at the Android
+SDK and is untracked, since the path differs per machine.
 
-Requires an Android SDK with **compileSdk 36**; minSdk is 26.
+Requires an SDK with **compileSdk 36**; minSdk is 26.
 
 ```bash
 ./gradlew :app:installDebug
@@ -46,106 +47,94 @@ Requires an Android SDK with **compileSdk 36**; minSdk is 26.
 
 ## Structure
 
-One module, deliberately — see the note in `settings.gradle.kts`. Packages
-carry the shape a split would use, and promote to modules cleanly if the
-app ever grows into them.
+One module. Packages carry the shape a split would use and promote to
+modules cleanly if the app ever grows into them.
 
 | Package | Holds |
 | --- | --- |
 | `domain` | Models and repository interfaces — no Android imports |
 | `data` | Room database, DataStore settings, repository implementations |
-| `ui` | Theme, shared components, and the four screens |
+| `ui` | Theme, shared components, and the three screens |
 | `widget` | The Glance home-screen widget |
 | `notify` | The evening alarm, its receivers and the notification |
 | `di` | Hilt wiring |
 
 ## Decisions worth knowing
 
-**Dark only.** The product's centre of gravity is a notification at 21:00
-in a dim room. A light theme would put a white rectangle in your face at
-exactly that moment. The corollary is a rule: no `values-night` resources
-anywhere.
+Most of these were arrived at by getting them wrong first. The reasoning
+lives next to the code; this is the short version.
 
-**The three-slot limit lives in the schema**, as a unique index on
-`(date, slot)` — not in a view model. A limit enforced only in the UI holds
-until the first race.
+**The day boundary is the load-bearing idea.** `CampaignDay.of(now, turnsAt)`
+is four lines and it removed a Tomorrow pane, a draft-and-confirm button, a
+separate end-of-day screen and a rule for what happened when the two
+disagreed. All of that existed to bridge the gap between when you decide
+and when the calendar agrees with you. Move the boundary to the moment you
+actually decide and the gap closes.
 
-**The evening alarm asks to be exact, and degrades if refused.** It was
-inexact at first, on the reasoning that "the day is over" needn't land on
-the minute. A live `dumpsys alarm` disproved that: the platform gave the
-21:00 alarm a delivery window of a **full hour**. It now uses
-`setExactAndAllowWhileIdle` where `canScheduleExactAlarms()` allows and
-falls back otherwise, so the app works without the grant and is punctual
-with it. Grant it under **Settings → Apps → Campaign → Alarms & reminders**.
+**One setting, two jobs.** The same hour turns the list over and fires the
+notification. Splitting them would let the app prompt you to choose
+tomorrow while still showing you today — the mismatch the second screen
+existed to paper over.
 
-**Opening the app must not cancel a prompt that is about to fire.** The
-scheduler leaves a booked alarm alone while its delivery window is still
-open; only a fire, a reboot, or a settings change forces a re-book. Without
-that rule the failure is self-reinforcing — a late notification makes you
-open the app, and opening the app is what guarantees it never arrives.
-`EndOfDayScheduler.isStillDeliverable` is the rule, kept pure and tested.
+**Dark only.** The centre of gravity is a prompt at 22:00 in a dim room. A
+light theme would put a white rectangle in your face at exactly that
+moment. The corollary is a rule: no `values-night` resources anywhere.
 
-**The widget toggles tasks in place, and the row is the target.** This
-shipped view-only first, on the argument that a completion target
-millimetres from a launcher icon gets tapped by accident. The worry was
-right; the conclusion was wrong. The fix is a target big enough to hit on
-purpose: a row is the full card width and ~58dp tall on a real 4×2
-placement, against a 14dp mark and Android's 48dp minimum. Rows toggle
-(same grammar as Today), the header opens the app, an empty row opens the
-app at that slot. The cost is the tick animation — RemoteViews cannot draw
-a path, so the mark swaps instead of drawing itself.
+**The evening prompt is inexact.** Google Play restricts exact alarms to
+apps whose core function is one — clocks, timers, calendars. A tasks app is
+none of those, so the prompt can arrive up to an hour late. Correctness does
+not depend on it: the day turns because `CampaignDay` reads the clock, not
+because an alarm fired.
 
-**The widget collects its data inside the composition, never above it.**
-This is the bug that took three wrong fixes to find, so it is worth stating
-plainly: loading the slots in `provideGlance` and closing over the result
-gives the composition a *snapshot*. Glance keeps a session alive per
-widget, and a redraw on a live session recomposes that same captured
-value — so the card faithfully redrew identical content and the toggle
-looked dead, while the database had already changed. It only appeared to
-work in testing because a killed process forced `provideGlance` to re-run.
+**The widget toggles tasks, and the row is the target.** It shipped
+view-only on the argument that a completion target millimetres from a
+launcher icon gets tapped by accident. The worry was right and the
+conclusion was wrong — the fix is a target big enough to hit on purpose. A
+row is ~58dp on a real 4×2 placement, against a 14dp mark and Android's
+48dp minimum.
 
-`todaySlotsFlow` + `collectAsState` inside `provideContent` makes the Room
-flow the source, so a write recomposes with the new value. `loadTodaySlots`
-survives only to seed the first paint.
+**The widget reads the same day rule as the app.** It did not, once, and
+between 22:00 and midnight the two disagreed about which day it was. There
+is one rule and it lives in `CampaignDay`.
 
-`ToggleTaskAction` still calls `update(context, glanceId)` afterwards, for
-the cold case where no session is alive to recompose. `GlanceWidgetRefresher`
-**logs** its failures now; the silent `runCatching` is part of why this took
-so long to see.
+**Reordering hands over to the data during composition, not in an effect.**
+A drop cannot commit and reset in the same breath — the write is
+asynchronous and the rows fall back for a frame. Nor can the local order be
+kept, or it applies twice. `ReorderableColumn` holds the permutation and
+drops it the moment `keys` supersede it, decided in composition because an
+effect runs one frame late.
 
-**Nothing is saved as you type on the evening screen.** The three fields
-are drafts until "Set tomorrow". Everywhere else in the app a tap takes
-effect immediately; here the button is the commitment, because deliberation
-is the point.
+**The index on (date, slot) is plain, not unique.** It was unique on the
+theory that the schema should enforce the limit of three, which it never
+did — there is no CHECK on slot. What it did do was force every reorder to
+park rows on negative slots before writing the real ones.
 
 ## Conventions
 
 - Comments explain **why**, not what. A comment that restates the code is
   noise; one that records the decision behind it survives the next rewrite.
+  Several here exist specifically to stop a future reader undoing a fix.
 - Colours and fonts come from `ui/theme` tokens. No raw hex and no
-  `FontFamily.Serif` anywhere else. The five values in `colors.xml` are the
-  exception — a drawable cannot read a Compose `Color` — and are kept in
-  step by hand.
-- Strings live in `strings.xml` with an English and a German locale.
-  German is informal *du*. The app name stays "Campaign"; the concept is
-  "Kampagne".
-- Fonts are system stacks; the mock's Fraunces and IBM Plex Mono are not
-  bundled. `ui/theme/AppFonts.kt` documents the three-step swap.
+  `FontFamily.Serif` anywhere else. The handful of values in `colors.xml`
+  are the exception — a drawable cannot read a Compose `Color`.
+- Strings live in `strings.xml` with an English and a German locale. German
+  is informal *du*. Date **patterns** are localised too, not just text:
+  `EEEE d MMMM` against `EEEE, d. MMMM`.
+- View models emit `UiMessage` (a resource id plus args) rather than
+  `String`, so they hold no `Context` and a snackbar resolves in the
+  language being read now.
+- Fonts are system stacks. `ui/theme/AppFonts.kt` documents the three-step
+  swap to bundled Fraunces and IBM Plex Mono.
 
-## Localisation notes
+## The design study
 
-Three things here are not the usual string extraction:
+`docs/design-study.html` is the HTML mock the app was built from — five
+screens on one board, and the source of the palette and type. It is kept as
+the original artefact and **is not current**: it predates the day-turn
+boundary, campaigns-as-overview, the interactive widget and drag-to-reorder,
+and it still shows an end-of-day screen that no longer exists. Read it for
+the visual language, not the structure.
 
-**Date patterns are resources, not constants.** `format_date_header` is
-`EEEE d MMMM` in English and `EEEE, d. MMMM` in German — word order and
-punctuation are part of the translation. Month and weekday names come from
-the device locale on their own. See `ui/components/Formats.kt`.
+## Licence
 
-**View models emit `UiMessage`, not `String`.** A view model naming a
-resource id instead of holding a `Context` keeps it testable off-device,
-and means a snackbar resolves in the language the user is reading *now*
-rather than the one in force when the view model was built.
-
-**"Tuesday evening" is one word in German.** `eod_eyebrow` is a format
-string (`%1$s evening` / `%1$sabend`) rather than a concatenation at the
-call site, which is the only way both languages come out right.
+MIT. See [LICENSE](LICENSE).
