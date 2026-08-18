@@ -1,139 +1,90 @@
 # Campaign
 
-Three deliberate tasks a day, carried by longer campaigns.
+**Three things a day. There is nowhere to put a fourth.**
 
-An Android app for one person: no accounts, no sync, no server. Everything
-lives on the device.
+An Android app for choosing what matters instead of collecting what might.
+Everything stays on the device — no account, no sync, no server.
 
-## What it is
+## Why
 
-A hard limit of **three** tasks a day, and no fourth. The list is not a
-backlog you work down — it is a choice you make once a day and then live
-with.
+Most task apps are excellent at capture and useless at choosing. They make
+it frictionless to write everything down, so you do, and then you carry a
+list you will never finish. The list grows, the important things sink, and
+opening the app starts to feel like being handed a bill.
 
-**The day turns at an hour you pick**, 22:00 by default, not at midnight.
-At that moment the list empties and you choose the next three. Between the
-turn and midnight the app knows they are tomorrow's: it shows *"Three
-things for tomorrow."*, drops the completion marks, and a tap edits instead
-of completing. Claiming to have finished something on a day that has not
-begun is not a thing the app will record.
+You usually already know which two or three things would actually move you
+forward this week. Nothing in a normal to-do app makes you say so.
 
-A **campaign** is a longer effort. It is not something you write — it is
-the overview of the tasks assigned to it that are still outstanding.
-Finishing one is the thing worth looking back on, which is why History
-opens on campaigns rather than on individual tasks.
+Campaign is built around that one act. It gives you exactly three slots a
+day and no way to add a fourth. Choosing what goes in them is the work; the
+app has no other feature to distract from it.
 
-No streaks, no points, no charts, no tags, no priorities, no subtasks.
+## How it works
+
+**Three slots, and the day empties them.** At an hour you pick — 22:00 by
+default — the list clears and you choose again. Nothing rolls over on its
+own. If something mattered yesterday and you did not do it, you have to
+decide, today, whether it still matters enough to spend one of three slots
+on. That decision is the entire point.
+
+**The evening is when you decide.** Because the day turns at 22:00 rather
+than at midnight, the app spends those hours knowing the list belongs to
+tomorrow. It says *"Three things for tomorrow."*, hides the completion
+marks, and a tap edits rather than completes. You cannot tick off a day
+that has not started, so it does not offer to let you pretend.
+
+**Campaigns are for what does not fit in a day.** Selling a flat, learning
+a language, fixing the damp — assign a task to a campaign and it stops
+being a loose end. A campaign is not something you write and maintain: it
+is simply the view of its tasks that are still outstanding, and you pull
+one into today when you are ready for it. Campaigns are the only way work
+survives a day boundary, which is what keeps the daily list honest.
+
+## What it refuses to do
+
+No backlog. No inbox. No tags, folders, projects or priorities. No streaks,
+points or charts. No fourth slot. No account, no cloud, no telemetry.
+
+Every one of these is a deliberate absence. A tool that can hold everything
+you might do is a tool that never makes you say what you will do.
 
 ## Screens
 
-| Screen | What it does |
+| Screen | |
 | --- | --- |
 | **Today** | The three slots. Tap to complete, drag to reorder, ⋯ to edit, assign or delete |
-| **Campaigns** | Active campaigns, each showing its outstanding tasks |
-| **History** | Finished campaigns, and finished tasks that belonged to none |
+| **Campaigns** | Longer efforts, each showing what is still outstanding |
+| **History** | Campaigns you finished, and one-off tasks that belonged to none |
 | **Widget** | Today's three on the home screen, tappable |
 
-## Building
+English and German, informal *du*. Dark only — the app's centre of gravity
+is a prompt at 22:00 in a dim room.
 
-Open in Android Studio and run. `local.properties` points at the Android
-SDK and is untracked, since the path differs per machine.
+## Install
 
-Requires an SDK with **compileSdk 36**; minSdk is 26.
+Open in Android Studio and run, or:
 
 ```bash
 ./gradlew :app:installDebug
 ```
 
-## Structure
+Requires an SDK with **compileSdk 36**; minSdk is 26. `local.properties`
+points at your SDK and is untracked.
 
-One module. Packages carry the shape a split would use and promote to
-modules cleanly if the app ever grows into them.
+## Under the hood
 
-| Package | Holds |
-| --- | --- |
-| `domain` | Models and repository interfaces — no Android imports |
-| `data` | Room database, DataStore settings, repository implementations |
-| `ui` | Theme, shared components, and the three screens |
-| `widget` | The Glance home-screen widget |
-| `notify` | The evening alarm, its receivers and the notification |
-| `di` | Hilt wiring |
+Kotlin, Jetpack Compose, Room, Hilt, Glance for the widget. One module;
+packages carry the shape a split would use (`domain`, `data`, `ui`,
+`widget`, `notify`, `di`).
 
-## Decisions worth knowing
+The interesting decisions — the day boundary that removed three screens,
+why the widget's row is the tap target, why reordering hands over to the
+data during composition — are written up in
+[docs/decisions.md](docs/decisions.md), along with the ones that were only
+arrived at by getting them wrong first.
 
-Most of these were arrived at by getting them wrong first. The reasoning
-lives next to the code; this is the short version.
-
-**The day boundary is the load-bearing idea.** `CampaignDay.of(now, turnsAt)`
-is four lines and it removed a Tomorrow pane, a draft-and-confirm button, a
-separate end-of-day screen and a rule for what happened when the two
-disagreed. All of that existed to bridge the gap between when you decide
-and when the calendar agrees with you. Move the boundary to the moment you
-actually decide and the gap closes.
-
-**One setting, two jobs.** The same hour turns the list over and fires the
-notification. Splitting them would let the app prompt you to choose
-tomorrow while still showing you today — the mismatch the second screen
-existed to paper over.
-
-**Dark only.** The centre of gravity is a prompt at 22:00 in a dim room. A
-light theme would put a white rectangle in your face at exactly that
-moment. The corollary is a rule: no `values-night` resources anywhere.
-
-**The evening prompt is inexact.** Google Play restricts exact alarms to
-apps whose core function is one — clocks, timers, calendars. A tasks app is
-none of those, so the prompt can arrive up to an hour late. Correctness does
-not depend on it: the day turns because `CampaignDay` reads the clock, not
-because an alarm fired.
-
-**The widget toggles tasks, and the row is the target.** It shipped
-view-only on the argument that a completion target millimetres from a
-launcher icon gets tapped by accident. The worry was right and the
-conclusion was wrong — the fix is a target big enough to hit on purpose. A
-row is ~58dp on a real 4×2 placement, against a 14dp mark and Android's
-48dp minimum.
-
-**The widget reads the same day rule as the app.** It did not, once, and
-between 22:00 and midnight the two disagreed about which day it was. There
-is one rule and it lives in `CampaignDay`.
-
-**Reordering hands over to the data during composition, not in an effect.**
-A drop cannot commit and reset in the same breath — the write is
-asynchronous and the rows fall back for a frame. Nor can the local order be
-kept, or it applies twice. `ReorderableColumn` holds the permutation and
-drops it the moment `keys` supersede it, decided in composition because an
-effect runs one frame late.
-
-**The index on (date, slot) is plain, not unique.** It was unique on the
-theory that the schema should enforce the limit of three, which it never
-did — there is no CHECK on slot. What it did do was force every reorder to
-park rows on negative slots before writing the real ones.
-
-## Conventions
-
-- Comments explain **why**, not what. A comment that restates the code is
-  noise; one that records the decision behind it survives the next rewrite.
-  Several here exist specifically to stop a future reader undoing a fix.
-- Colours and fonts come from `ui/theme` tokens. No raw hex and no
-  `FontFamily.Serif` anywhere else. The handful of values in `colors.xml`
-  are the exception — a drawable cannot read a Compose `Color`.
-- Strings live in `strings.xml` with an English and a German locale. German
-  is informal *du*. Date **patterns** are localised too, not just text:
-  `EEEE d MMMM` against `EEEE, d. MMMM`.
-- View models emit `UiMessage` (a resource id plus args) rather than
-  `String`, so they hold no `Context` and a snackbar resolves in the
-  language being read now.
-- Fonts are system stacks. `ui/theme/AppFonts.kt` documents the three-step
-  swap to bundled Fraunces and IBM Plex Mono.
-
-## The design study
-
-`docs/design-study.html` is the HTML mock the app was built from — five
-screens on one board, and the source of the palette and type. It is kept as
-the original artefact and **is not current**: it predates the day-turn
-boundary, campaigns-as-overview, the interactive widget and drag-to-reorder,
-and it still shows an end-of-day screen that no longer exists. Read it for
-the visual language, not the structure.
+[docs/design-study.html](docs/design-study.html) is the HTML mock the app
+was built from. It is kept as the original artefact and is **not current**.
 
 ## Licence
 
