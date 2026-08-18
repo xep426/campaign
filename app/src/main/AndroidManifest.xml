@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- The one nudge the app sends. Runtime-requested on 33+; the app is
+         fully usable if it is declined (see MainActivity). -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Alarms do not survive a reboot, and the end-of-day chain is booked
+         one day at a time — without this the ritual would stop at the next
+         restart and nothing would say so. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- NO EXACT-ALARM PERMISSION, and that is a Play Store constraint
+         rather than a technical choice.
+
+         Google restricts SCHEDULE_EXACT_ALARM to apps whose CORE function
+         is an exact alarm — clocks, timers, calendars showing event
+         notifications — and refuses listings that declare it otherwise.
+         A three-tasks-a-day app is none of those. It was declared here
+         while this was a sideloaded personal build, where Play policy did
+         not apply; publishing reverses that.
+
+         What this costs is punctuality, not correctness: the day still
+         turns at the chosen hour because CampaignDay reads the clock, not
+         the alarm. Only the prompt can arrive late. -->
+
+    <application
+        android:name=".CampaignApplication"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Campaign">
+
+        <!-- singleTask: a notification or widget tap while the app is alive
+             re-delivers its extras through onNewIntent instead of stacking
+             a second instance. -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Today's three slots on the home screen — view-only; see
+             CampaignWidget's class doc for why it does not take taps. -->
+        <receiver
+            android:name=".widget.CampaignWidgetReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/campaign_widget_info" />
+        </receiver>
+
+        <!-- The evening alarm. Not exported: only our own PendingIntent
+             ever fires it. -->
+        <receiver
+            android:name=".notify.EndOfDayReceiver"
+            android:exported="false" />
+
+        <!-- exported=true is required for the system's BOOT_COMPLETED
+             broadcast to reach it at all. -->
+        <receiver
+            android:name=".notify.BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+
+</manifest>

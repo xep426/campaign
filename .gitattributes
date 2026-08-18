@@ -1,0 +1,19 @@
+# Line endings are normalised to LF in the repository and checked out
+# native. Without this, moving between machines rewrites whole files as
+# CRLF/LF churn and every diff becomes unreadable — which is exactly the
+# failure mode a second computer introduces.
+* text=auto eol=lf
+
+# Windows-only scripts must keep CRLF or cmd.exe mis-parses them.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary: never touch, never diff as text.
+*.png binary
+*.jpg binary
+*.webp binary
+*.ttf binary
+*.otf binary
+*.jar binary
+*.keystore binary
+*.jks binary

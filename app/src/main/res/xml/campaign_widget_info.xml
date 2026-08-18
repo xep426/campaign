@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Today's three slots.
+
+     4×2 IS THE DESIGN, not a default to be tuned away. At 3×2 the card
+     read as a note pinned to the home screen; the three things of the day
+     deserve to hold their own against a wall of app icons, and this is the
+     app's only surface that ever gets to. The extra WIDTH is what buys
+     that — bigger type, the roman numerals, and titles that finish rather
+     than truncate. All of it CampaignWidget derives from the slot it is
+     actually given, so a resize changes the design rather than stretching
+     it.
+
+     Width earns more than height does, which is why this is 4×2 and not
+     4×3: three rows of one-line titles is what the card has to show, and
+     past about 190dp of height the extra space is air, not information. A
+     drag upward is still worth making — at 3 cells the titles go to two
+     lines — but that is a bonus for someone who wants it, not the default
+     shape.
+
+     minWidth/minHeight are the DEFAULT on API < 31, where targetCell* is
+     ignored — 70·n − 30 gives 250dp for four columns and 110dp for two
+     rows, so those devices open at 4×2 too rather than at some smaller
+     size the layout was not drawn for.
+
+     minResizeWidth lets a drag take it back to ~3 columns on a crowded
+     home screen; below 240dp the numerals drop out, which is handled.
+     minResizeHeight matches minHeight on purpose: the card can GROW
+     vertically and use it, but three rows plus a header have nowhere to go
+     below two cells.
+
+     updatePeriodMillis is the system minimum, 30 minutes, and doubles as
+     the midnight-rollover trigger. Every write pushes an update sooner —
+     see GlanceWidgetRefresher. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="250dp"
+    android:minHeight="110dp"
+    android:minResizeWidth="180dp"
+    android:minResizeHeight="110dp"
+    android:targetCellWidth="4"
+    android:targetCellHeight="2"
+    android:updatePeriodMillis="1800000"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen"
+    android:description="@string/widget_description" />

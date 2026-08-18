@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campaign — MVP screen mock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Karla:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#0E0C0A;
+  --ink:#15120E;
+  --surface:#1D1913;
+  --surface-2:#262019;
+  --line:rgba(240,233,219,.10);
+  --line-strong:rgba(240,233,219,.18);
+  --paper:#F0E9DB;
+  --paper-dim:#A79D8B;
+  --muted:#736A5C;
+  --ember:#E5913C;
+  --ember-deep:#B5651F;
+  --sage:#93A97E;
+  --r:14px;
+  --frame-w:390px;
+  --frame-h:788px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body{
+  background:var(--void);
+  color:var(--paper);
+  font-family:'Karla','Helvetica Neue',sans-serif;
+  font-size:15px;
+  line-height:1.5;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+/* dusk glow + grain */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(900px 520px at 18% -8%, rgba(229,145,60,.13), transparent 62%),
+    radial-gradient(700px 480px at 88% 4%, rgba(110,120,154,.09), transparent 60%);
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:99;opacity:.055;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.wrap{position:relative;z-index:1;max-width:1640px;margin:0 auto;padding:76px 40px 120px}
+
+/* ─── board header ─────────────────────────────── */
+.eyebrow{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--ember);
+}
+.masthead{max-width:760px;margin-bottom:16px}
+.masthead h1{
+  font-family:'Fraunces',Georgia,serif;
+  font-variation-settings:'SOFT' 20,'WONK' 1,'opsz' 144;
+  font-weight:400;font-size:clamp(58px,8vw,104px);line-height:.92;
+  letter-spacing:-.025em;margin:18px 0 22px;
+}
+.masthead h1 em{font-style:italic;color:var(--ember);font-variation-settings:'SOFT' 40,'WONK' 1}
+.masthead p{color:var(--paper-dim);font-size:19px;max-width:52ch;font-weight:300}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:30px}
+.chip{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;
+  color:var(--paper-dim);border:1px solid var(--line);border-radius:999px;
+  padding:6px 13px;background:rgba(240,233,219,.02);
+}
+.rule{height:1px;background:linear-gradient(90deg,var(--line-strong),transparent 78%);margin:56px 0 60px}
+
+/* ─── board grid ───────────────────────────────── */
+.board{
+  display:grid;gap:64px 52px;
+  grid-template-columns:repeat(auto-fit,minmax(var(--frame-w),max-content));
+  justify-content:center;
+}
+.slate{
+  width:var(--frame-w);
+  opacity:0;animation:rise .9s cubic-bezier(.16,.84,.3,1) forwards;
+}
+.slate:nth-child(1){animation-delay:.05s}
+.slate:nth-child(2){animation-delay:.14s}
+.slate:nth-child(3){animation-delay:.23s}
+.slate:nth-child(4){animation-delay:.32s}
+.slate:nth-child(5){animation-delay:.41s}
+@keyframes rise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+
+.slate-head{display:flex;align-items:baseline;gap:12px;margin-bottom:18px}
+.slate-num{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.1em;
+}
+.slate-title{
+  font-family:'Fraunces',Georgia,serif;font-variation-settings:'SOFT' 20,'opsz' 40;
+  font-size:21px;font-weight:400;letter-spacing:-.01em;
+}
+.slate-note{margin-top:16px;color:var(--muted);font-size:13.5px;font-weight:300;max-width:36ch}
+.slate-note b{color:var(--paper-dim);font-weight:500}
+.ref{color:var(--ember);font-family:'IBM Plex Mono',monospace;font-size:10px;vertical-align:super}
+
+/* ─── device ───────────────────────────────────── */
+.device{
+  position:relative;padding:11px;border-radius:54px;
+  background:linear-gradient(160deg,#3a342c,#191510 42%,#0d0b09);
+  box-shadow:0 42px 80px -28px rgba(0,0,0,.9),0 0 0 1px rgba(240,233,219,.06),inset 0 1px 1px rgba(255,255,255,.14);
+}
+.screen{
+  position:relative;height:var(--frame-h);border-radius:43px;overflow:hidden;
+  background:var(--ink);display:flex;flex-direction:column;
+}
+.screen::after{
+  content:'';position:absolute;inset:0;pointer-events:none;border-radius:43px;
+  box-shadow:inset 0 0 0 1px rgba(240,233,219,.07);
+}
+.notch{
+  position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:112px;height:29px;background:#000;border-radius:16px;z-index:6;
+}
+.statusbar{
+  flex:0 0 auto;display:flex;justify-content:space-between;align-items:center;
+  padding:17px 30px 0;font-family:'IBM Plex Mono',monospace;font-size:12px;
+  color:var(--paper);letter-spacing:.03em;z-index:7;position:relative;
+}
+.statusbar .sig{display:flex;gap:5px;align-items:center;opacity:.85}
+.bar{width:3px;background:currentColor;border-radius:1px}
+.batt{width:22px;height:11px;border:1px solid currentColor;border-radius:3px;position:relative;opacity:.85}
+.batt::before{content:'';position:absolute;inset:1.5px;right:6px;background:currentColor;border-radius:1px}
+.batt::after{content:'';position:absolute;right:-3px;top:3px;width:2px;height:5px;background:currentColor;border-radius:0 1px 1px 0}
+
+.view{flex:1;overflow-y:auto;overflow-x:hidden;padding:44px 30px 30px;scrollbar-width:none}
+.view::-webkit-scrollbar{display:none}
+.view.tight{padding-top:34px}
+
+.h-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--ember);margin-bottom:14px}
+.h-eyebrow.dim{color:var(--muted)}
+.h1{
+  font-family:'Fraunces',Georgia,serif;font-variation-settings:'SOFT' 24,'WONK' 1,'opsz' 90;
+  font-weight:400;font-size:36px;line-height:1.08;letter-spacing:-.02em;
+}
+.h1.sm{font-size:31px}
+.sub{color:var(--muted);font-size:14px;font-weight:300;margin-top:12px;line-height:1.55}
+
+/* ─── slots ────────────────────────────────────── */
+.slots{margin-top:34px;display:flex;flex-direction:column}
+.slot{position:relative;padding:19px 0 20px;border-bottom:1px solid var(--line);display:flex;gap:16px;align-items:flex-start}
+.slot:first-child{border-top:1px solid var(--line)}
+.numeral{
+  font-family:'Fraunces',Georgia,serif;font-variation-settings:'opsz' 40;
+  font-size:14px;letter-spacing:.04em;color:var(--ember-deep);
+  flex:0 0 24px;padding-top:3px;
+}
+.slot-body{flex:1;min-width:0}
+.slot input{
+  width:100%;background:none;border:none;outline:none;color:var(--paper);
+  font-family:'Karla',sans-serif;font-size:16.5px;font-weight:400;letter-spacing:-.005em;padding:0;
+}
+.slot input::placeholder{color:#4E463B;font-weight:300}
+.slot input:focus{caret-color:var(--ember)}
+.slot:focus-within .numeral{color:var(--ember)}
+.slot-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:11px}
+
+.tag{
+  display:inline-flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;
+  font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ember);
+  background:rgba(229,145,60,.10);border:1px solid rgba(229,145,60,.22);
+  border-radius:6px;padding:4px 8px;
+}
+.tag.sage{color:var(--sage);background:rgba(147,169,126,.09);border-color:rgba(147,169,126,.22)}
+.tag svg{width:9px;height:9px}
+
+.ghost{
+  background:none;border:none;cursor:pointer;font-family:'IBM Plex Mono',monospace;
+  font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+  padding:4px 0;transition:color .25s;display:inline-flex;align-items:center;gap:6px;
+}
+.ghost:hover{color:var(--ember)}
+.ghost::before{content:'';width:11px;height:1px;background:currentColor;transition:width .25s}
+.ghost:hover::before{width:18px}
+
+/* task rows (Today / review / history) */
+.task{display:flex;gap:14px;align-items:flex-start;width:100%;text-align:left;background:none;border:none;cursor:pointer;padding:0;font:inherit;color:inherit}
+.box{
+  flex:0 0 21px;height:21px;border-radius:50%;border:1px solid var(--line-strong);
+  margin-top:2px;display:grid;place-items:center;transition:background .3s,border-color .3s;
+}
+.box svg{width:11px;height:11px;stroke:var(--ink);stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:16;stroke-dashoffset:16;transition:stroke-dashoffset .35s ease .06s}
+.task:hover .box{border-color:var(--paper-dim)}
+.label{font-size:16px;letter-spacing:-.005em;transition:color .3s;line-height:1.4}
+.done .box{background:var(--sage);border-color:var(--sage)}
+.done .box svg{stroke-dashoffset:0}
+.done .label{color:var(--muted);text-decoration:line-through;text-decoration-color:rgba(115,106,92,.55);text-decoration-thickness:1px}
+
+.divider{display:flex;align-items:center;gap:14px;margin:34px 0 22px}
+.divider span{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.divider::after{content:'';flex:1;height:1px;background:var(--line)}
+
+.review{display:flex;flex-direction:column;gap:17px}
+.review-row{display:flex;align-items:center;gap:12px}
+.review-row .task{flex:1}
+.review-row .label{font-size:14.5px}
+.promote{
+  background:none;border:1px solid var(--line-strong);border-radius:7px;cursor:pointer;
+  font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--paper-dim);padding:5px 9px;white-space:nowrap;transition:all .28s;
+}
+.promote:hover{color:var(--ember);border-color:rgba(229,145,60,.45);background:rgba(229,145,60,.07)}
+.promote[disabled]{color:var(--sage);border-color:rgba(147,169,126,.3);background:rgba(147,169,126,.08);cursor:default}
+
+.btn{
+  width:100%;border:none;border-radius:var(--r);cursor:pointer;
+  background:linear-gradient(178deg,#EEA050,var(--ember-deep));color:#1B1409;
+  font-family:'Karla',sans-serif;font-size:15px;font-weight:600;letter-spacing:.01em;
+  padding:16px;margin-top:36px;transition:transform .2s,box-shadow .3s,filter .3s;
+  box-shadow:0 12px 26px -14px rgba(229,145,60,.85);
+}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
+.btn:active{transform:translateY(0)}
+.btn.set{background:none;border:1px solid rgba(147,169,126,.4);color:var(--sage);box-shadow:none}
+.btn-quiet{
+  display:block;width:100%;margin-top:15px;background:none;border:none;cursor:pointer;
+  color:var(--muted);font-family:'Karla',sans-serif;font-size:13px;padding:6px;transition:color .25s;
+}
+.btn-quiet:hover{color:var(--paper-dim)}
+
+/* progress dots */
+.progress{display:flex;gap:5px;align-items:center;margin-top:14px}
+.pip{width:22px;height:3px;border-radius:2px;background:var(--line-strong)}
+.pip.on{background:var(--sage)}
+.progress span{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--muted);margin-left:8px;letter-spacing:.08em}
+
+/* ─── campaign cards ───────────────────────────── */
+.cards{margin-top:30px;display:flex;flex-direction:column;gap:13px}
+.card{
+  border:1px solid var(--line);border-radius:16px;padding:18px 18px 15px;
+  background:linear-gradient(168deg,rgba(240,233,219,.035),rgba(240,233,219,.008));
+  transition:border-color .3s;
+}
+.card:hover{border-color:var(--line-strong)}
+.card.fresh{animation:pop .55s cubic-bezier(.16,.84,.3,1)}
+@keyframes pop{from{opacity:0;transform:translateY(-10px) scale(.98)}to{opacity:1;transform:none}}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.card h3{
+  font-family:'Fraunces',Georgia,serif;font-variation-settings:'SOFT' 20,'opsz' 40;
+  font-weight:400;font-size:19px;letter-spacing:-.01em;line-height:1.2;
+}
+.card-meta{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.09em;color:var(--muted);margin-top:7px;text-transform:uppercase}
+.more{background:none;border:none;color:var(--muted);cursor:pointer;font-size:17px;line-height:1;padding:2px 4px;transition:color .25s}
+.more:hover{color:var(--paper)}
+.next{
+  margin-top:15px;padding:11px 13px;border-radius:9px;background:rgba(0,0,0,.28);
+  border-left:2px solid var(--ember-deep);
+}
+.next em{
+  display:block;font-family:'IBM Plex Mono',monospace;font-style:normal;font-size:9.5px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;
+}
+.next p{font-size:14.5px;color:var(--paper);line-height:1.4}
+.card-actions{display:flex;gap:9px;margin-top:14px}
+.pull{
+  flex:1;background:rgba(229,145,60,.12);border:1px solid rgba(229,145,60,.3);border-radius:9px;
+  color:var(--ember);cursor:pointer;font-family:'Karla',sans-serif;font-weight:600;font-size:13px;
+  padding:10px;transition:all .28s;
+}
+.pull:hover{background:rgba(229,145,60,.2)}
+.pull[disabled]{color:var(--sage);background:rgba(147,169,126,.1);border-color:rgba(147,169,126,.28);cursor:default}
+.archive{
+  background:none;border:1px solid var(--line);border-radius:9px;color:var(--muted);cursor:pointer;
+  font-family:'Karla',sans-serif;font-size:13px;padding:10px 14px;transition:all .28s;
+}
+.archive:hover{color:var(--paper-dim);border-color:var(--line-strong)}
+.foot-note{
+  margin-top:26px;text-align:center;color:var(--muted);font-size:12.5px;font-weight:300;
+  line-height:1.6;padding:0 16px;
+}
+
+/* ─── history ──────────────────────────────────── */
+.seg{display:flex;gap:2px;background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:10px;padding:3px;margin-top:26px}
+.seg button{
+  flex:1;background:none;border:none;border-radius:7px;cursor:pointer;padding:8px;
+  font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);transition:all .25s;
+}
+.seg button.on{background:rgba(240,233,219,.07);color:var(--paper)}
+.days{margin-top:8px}
+.day{padding:18px 0;border-bottom:1px solid var(--line)}
+.day-top{display:flex;justify-content:space-between;align-items:center}
+.day-date{font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--paper-dim)}
+.day-score{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);display:flex;align-items:center;gap:7px}
+.dots{display:flex;gap:4px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--line-strong)}
+.dot.on{background:var(--sage)}
+.day ul{list-style:none;margin-top:11px;display:flex;flex-direction:column;gap:6px}
+.day li{font-size:13.5px;color:var(--paper-dim);font-weight:300;display:flex;gap:9px;align-items:baseline}
+.day li::before{content:'—';color:var(--muted);font-size:11px}
+.day li.miss{color:var(--muted);opacity:.6}
+.day li.miss::before{content:'·'}
+
+/* ─── tab bar ──────────────────────────────────── */
+.tabbar{
+  flex:0 0 auto;display:flex;padding:12px 24px 26px;gap:6px;
+  border-top:1px solid var(--line);background:rgba(14,12,10,.82);backdrop-filter:blur(18px);
+}
+.tab{
+  flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;
+  align-items:center;gap:6px;color:var(--muted);padding:7px 0;transition:color .25s;
+}
+.tab.on{color:var(--ember)}
+.tab:hover{color:var(--paper-dim)}
+.tab svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.tab span{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase}
+.homebar{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);width:126px;height:4px;border-radius:2px;background:rgba(240,233,219,.28);z-index:8}
+
+/* ─── toast ────────────────────────────────────── */
+.toast{
+  position:absolute;left:50%;bottom:104px;transform:translate(-50%,14px);
+  background:rgba(24,20,15,.96);border:1px solid rgba(147,169,126,.35);border-radius:11px;
+  padding:11px 17px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;
+  color:var(--sage);white-space:nowrap;opacity:0;pointer-events:none;transition:all .4s cubic-bezier(.16,.84,.3,1);
+  z-index:9;box-shadow:0 18px 40px -18px #000;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ─── home screen + widget ─────────────────────── */
+.home{
+  flex:1;position:relative;display:flex;flex-direction:column;padding:30px 24px 24px;
+  background:
+    radial-gradient(120% 70% at 50% 0%, #3B2E20 0%, #211A13 42%, #0C0A08 100%);
+}
+.home::before{
+  content:'';position:absolute;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.6' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E");
+  opacity:.07;mix-blend-mode:overlay;pointer-events:none;
+}
+.home-clock{position:relative;text-align:center;margin:26px 0 34px}
+.home-clock .d{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:rgba(240,233,219,.62)}
+.home-clock .t{font-family:'Fraunces',Georgia,serif;font-variation-settings:'SOFT' 20,'opsz' 144;font-size:66px;font-weight:300;line-height:1;letter-spacing:-.03em;margin-top:6px}
+
+/* 4×2. Width is what gives the card weight against a wall of icons —
+   past two rows the extra height is air, not information. */
+.widget{
+  position:relative;border-radius:24px;padding:15px 20px 14px;
+  background:linear-gradient(168deg,rgba(30,25,19,.94),rgba(18,15,11,.96));
+  border:1px solid rgba(240,233,219,.13);
+  box-shadow:0 24px 44px -22px rgba(0,0,0,.95);cursor:pointer;
+  transition:transform .3s cubic-bezier(.16,.84,.3,1);
+}
+.widget:hover{transform:scale(1.017)}
+.widget-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}
+.widget-top b{font-family:'Fraunces',Georgia,serif;font-variation-settings:'SOFT' 20,'opsz' 30;font-weight:400;font-size:16px;letter-spacing:.01em}
+.widget-top i{font-family:'IBM Plex Mono',monospace;font-style:normal;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ember)}
+/* The ROW is the tap target, not the mark. At 4×2 a row is ~58dp on a
+   real phone; the mark is 14dp, under Android's 48dp minimum. */
+.wrow{display:flex;gap:11px;align-items:center;padding:8px 0;cursor:pointer;border-radius:8px;transition:background .2s}
+.wrow:not(.empty):hover{background:rgba(240,233,219,.04)}
+.wrow+.wrow{border-top:1px solid rgba(240,233,219,.06)}
+/* The numerals only earn their gutter at this width — below it they
+   come out of the title, which is the only part anyone reads. */
+.wnum{
+  flex:0 0 17px;font-family:'Fraunces',Georgia,serif;font-variation-settings:'opsz' 30;
+  font-size:12px;letter-spacing:.04em;color:var(--ember-deep);
+}
+.wrow.empty .wnum{color:#4A4237}
+.wbox{flex:0 0 16px;height:16px;border-radius:50%;border:1px solid rgba(240,233,219,.26);display:grid;place-items:center}
+.wrow.done .wbox{background:var(--sage);border-color:var(--sage)}
+.wrow.done .wbox svg{width:9px;height:9px;stroke:var(--ink);stroke-width:2.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
+/* One line per task at this height — nowrap rather than clamping to two,
+   because the card is exactly as tall as three single lines want. */
+.wrow p{font-size:14px;line-height:1.3;color:var(--paper);letter-spacing:-.005em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wrow.done p{color:var(--muted);text-decoration:line-through;text-decoration-color:rgba(115,106,92,.5)}
+.wrow.empty p{color:#4A4237;font-weight:300}
+
+.icons{display:grid;grid-template-columns:repeat(4,1fr);gap:20px 18px;margin-top:34px;position:relative}
+.appicon{aspect-ratio:1;border-radius:22%;background:rgba(240,233,219,.06);border:1px solid rgba(240,233,219,.05);filter:blur(.3px)}
+.appicon.a{background:linear-gradient(150deg,rgba(229,145,60,.3),rgba(181,101,31,.14))}
+.appicon.b{background:linear-gradient(150deg,rgba(147,169,126,.24),rgba(147,169,126,.08))}
+.appicon.c{background:linear-gradient(150deg,rgba(120,132,168,.24),rgba(120,132,168,.07))}
+.dock{
+  margin-top:auto;position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;
+  padding:14px;border-radius:26px;background:rgba(240,233,219,.06);backdrop-filter:blur(10px);
+}
+
+/* ─── legend ───────────────────────────────────── */
+.legend{margin-top:104px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:34px 46px;max-width:1180px}
+.legend h4{
+  font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ember);font-weight:500;margin-bottom:14px;
+}
+.legend p{color:var(--paper-dim);font-size:14px;font-weight:300;line-height:1.65}
+.legend ol{margin:0;padding-left:16px;color:var(--paper-dim);font-size:14px;font-weight:300;line-height:1.65}
+.legend li{margin-bottom:9px}
+.legend li::marker{color:var(--ember);font-family:'IBM Plex Mono',monospace;font-size:11px}
+.legend strong{color:var(--paper);font-weight:500}
+
+@media (max-width:520px){
+  .wrap{padding:44px 16px 70px}
+  :root{--frame-w:340px;--frame-h:720px}
+  .device{padding:9px;border-radius:46px}
+  .screen,.screen::after{border-radius:37px}
+  .view{padding:36px 22px 24px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  .slate{opacity:1}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ══ masthead ══ -->
+  <header class="masthead">
+    <div class="eyebrow">PRD v1.0 &nbsp;·&nbsp; MVP screen mock &nbsp;·&nbsp; August 2026</div>
+    <h1>Campaign<em>.</em></h1>
+    <p>Three things a day, chosen deliberately. Some of them become campaigns — longer efforts carried forward one step at a time.</p>
+    <div class="chips">
+      <span class="chip">5 SCREENS</span>
+      <span class="chip">HARD LIMIT: 3 / DAY</span>
+      <span class="chip">LOCAL STORAGE ONLY</span>
+      <span class="chip">SINGLE USER</span>
+      <span class="chip">NO STREAKS · NO CHARTS</span>
+    </div>
+  </header>
+  <div class="rule"></div>
+
+  <!-- ══ board ══ -->
+  <div class="board">
+
+    <!-- ─────────── 1. END OF DAY ─────────── -->
+    <section class="slate">
+      <div class="slate-head"><span class="slate-num">01</span><h2 class="slate-title">End-of-Day Entry</h2></div>
+      <div class="device">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar">
+            <span>21:04</span>
+            <span class="sig">
+              <span class="bar" style="height:5px"></span><span class="bar" style="height:7px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px;opacity:.35"></span>
+              <span class="batt" style="margin-left:5px"></span>
+            </span>
+          </div>
+          <div class="view">
+            <div class="h-eyebrow">Tuesday evening</div>
+            <h1 class="h1">Three things<br>for tomorrow.</h1>
+            <p class="sub">Choose the ones that move you forward. You can only pick three.</p>
+
+            <div class="slots">
+              <div class="slot">
+                <div class="numeral">I</div>
+                <div class="slot-body">
+                  <input value="Draft the pool schedule email" aria-label="Task one">
+                </div>
+              </div>
+              <div class="slot">
+                <div class="numeral">II</div>
+                <div class="slot-body">
+                  <input value="30 min on the Ruby chapter" aria-label="Task two">
+                  <div class="slot-meta">
+                    <span class="tag"><svg viewBox="0 0 12 12"><path d="M2 1v10M2 2h8l-2 2 2 2H2" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linejoin="round"/></svg>Read Ruby book · day 7</span>
+                  </div>
+                </div>
+              </div>
+              <div class="slot">
+                <div class="numeral">III</div>
+                <div class="slot-body">
+                  <input placeholder="Something that matters…" aria-label="Task three">
+                  <div class="slot-meta">
+                    <button class="ghost">Pull from a campaign</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="divider"><span>Today, in review</span></div>
+            <div class="review">
+              <div class="review-row">
+                <button class="task done"><span class="box"><svg viewBox="0 0 12 12"><path d="M2 6.2 4.6 8.8 10 3.2"/></svg></span><span class="label">Finish the invoice for K.</span></button>
+              </div>
+              <div class="review-row">
+                <button class="task done"><span class="box"><svg viewBox="0 0 12 12"><path d="M2 6.2 4.6 8.8 10 3.2"/></svg></span><span class="label">Swim — 40 lengths</span></button>
+                <button class="promote" id="promoteBtn">Promote ↑</button>
+              </div>
+              <div class="review-row">
+                <button class="task"><span class="box"><svg viewBox="0 0 12 12"><path d="M2 6.2 4.6 8.8 10 3.2"/></svg></span><span class="label">Call the letting agent</span></button>
+                <button class="promote">Promote ↑</button>
+              </div>
+            </div>
+
+            <button class="btn" id="confirmBtn">Set tomorrow</button>
+            <button class="btn-quiet">Not tonight</button>
+          </div>
+          <div class="toast" id="toast1">Promoted to a campaign</div>
+          <div class="homebar"></div>
+        </div>
+      </div>
+      <p class="slate-note"><b>Flow A.</b> Fires from the end-of-day notification at a user-set time.<span class="ref">1</span> The only screen where tomorrow gets decided — and where today's tasks can be promoted.</p>
+    </section>
+
+    <!-- ─────────── 2. TODAY ─────────── -->
+    <section class="slate">
+      <div class="slate-head"><span class="slate-num">02</span><h2 class="slate-title">Today</h2></div>
+      <div class="device">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar">
+            <span>08:12</span>
+            <span class="sig">
+              <span class="bar" style="height:5px"></span><span class="bar" style="height:7px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span>
+              <span class="batt" style="margin-left:5px"></span>
+            </span>
+          </div>
+          <div class="view">
+            <div class="h-eyebrow dim">Wednesday 19 August</div>
+            <h1 class="h1 sm">Today</h1>
+            <div class="progress" id="prog">
+              <span class="pip on"></span><span class="pip"></span><span class="pip"></span>
+              <span id="progText">1 of 3 done</span>
+            </div>
+
+            <div class="slots" id="todaySlots">
+              <div class="slot">
+                <div class="numeral">I</div>
+                <div class="slot-body">
+                  <button class="task done"><span class="box"><svg viewBox="0 0 12 12"><path d="M2 6.2 4.6 8.8 10 3.2"/></svg></span><span class="label">Draft the pool schedule email</span></button>
+                </div>
+                <button class="more">⋯</button>
+              </div>
+              <div class="slot">
+                <div class="numeral">II</div>
+                <div class="slot-body">
+                  <button class="task"><span class="box"><svg viewBox="0 0 12 12"><path d="M2 6.2 4.6 8.8 10 3.2"/></svg></span><span class="label">30 min on the Ruby chapter</span></button>
+                  <div class="slot-meta"><span class="tag"><svg viewBox="0 0 12 12"><path d="M2 1v10M2 2h8l-2 2 2 2H2" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linejoin="round"/></svg>Read Ruby book · day 7</span></div>
+                </div>
+                <button class="more">⋯</button>
+              </div>
+              <div class="slot" id="slot3">
+                <div class="numeral">III</div>
+                <div class="slot-body" id="slot3body">
+                  <div class="slot-meta" style="margin-top:2px;gap:18px">
+                    <button class="ghost">Add a task</button>
+                    <button class="ghost">Pull from a campaign</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <p class="foot-note" style="margin-top:38px">One slot still open.<br>It's fine to leave it that way.</p>
+          </div>
+          <div class="tabbar">
+            <button class="tab on"><svg viewBox="0 0 20 20"><circle cx="10" cy="4.5" r="1.6"/><circle cx="10" cy="10" r="1.6"/><circle cx="10" cy="15.5" r="1.6"/></svg><span>Today</span></button>
+            <button class="tab"><svg viewBox="0 0 20 20"><path d="M4.5 17V3.2M4.5 4h11l-2.6 3.2L15.5 11h-11"/></svg><span>Campaigns</span></button>
+            <button class="tab"><svg viewBox="0 0 20 20"><path d="M3.5 5h13M3.5 10h13M3.5 15h8"/></svg><span>History</span></button>
+          </div>
+          <div class="homebar"></div>
+        </div>
+      </div>
+      <p class="slate-note"><b>Flow B.</b> Tap anywhere on a row to complete it. Three slots, always — never a fourth, never a list.</p>
+    </section>
+
+    <!-- ─────────── 3. CAMPAIGNS ─────────── -->
+    <section class="slate">
+      <div class="slate-head"><span class="slate-num">03</span><h2 class="slate-title">Campaigns</h2></div>
+      <div class="device">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar">
+            <span>08:13</span>
+            <span class="sig">
+              <span class="bar" style="height:5px"></span><span class="bar" style="height:7px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span>
+              <span class="batt" style="margin-left:5px"></span>
+            </span>
+          </div>
+          <div class="view">
+            <div class="h-eyebrow dim"><span id="campCount">3</span> active</div>
+            <h1 class="h1 sm">Campaigns</h1>
+
+            <div class="cards" id="cards">
+              <article class="card">
+                <div class="card-top">
+                  <h3>Read Ruby book</h3>
+                  <button class="more">⋯</button>
+                </div>
+                <div class="card-meta">Started 12 Aug · 7 days · 5 steps taken</div>
+                <div class="next">
+                  <em>Next step</em>
+                  <p>Chapter 4 — blocks &amp; procs</p>
+                </div>
+                <div class="card-actions">
+                  <button class="pull" disabled>In today · slot II</button>
+                  <button class="archive">Archive</button>
+                </div>
+              </article>
+
+              <article class="card">
+                <div class="card-top">
+                  <h3>Fix the flat's damp</h3>
+                  <button class="more">⋯</button>
+                </div>
+                <div class="card-meta">Started 4 Aug · 15 days · 6 steps taken</div>
+                <div class="next">
+                  <em>Next step</em>
+                  <p>Chase the letting agent, again</p>
+                </div>
+                <div class="card-actions">
+                  <button class="pull" data-step="Chase the letting agent, again" data-camp="Fix the flat's damp">Pull into today</button>
+                  <button class="archive">Archive</button>
+                </div>
+              </article>
+
+              <article class="card">
+                <div class="card-top">
+                  <h3>Learn to swim properly</h3>
+                  <button class="more">⋯</button>
+                </div>
+                <div class="card-meta">Started 28 Jul · 22 days · 9 steps taken</div>
+                <div class="next">
+                  <em>Next step</em>
+                  <p>Book a lane for Thursday morning</p>
+                </div>
+                <div class="card-actions">
+                  <button class="pull" data-step="Book a lane for Thursday morning" data-camp="Learn to swim properly">Pull into today</button>
+                  <button class="archive">Archive</button>
+                </div>
+              </article>
+            </div>
+
+            <p class="foot-note">Campaigns only begin by promoting<br>a daily task. There is no “new campaign”.</p>
+          </div>
+          <div class="tabbar">
+            <button class="tab"><svg viewBox="0 0 20 20"><circle cx="10" cy="4.5" r="1.6"/><circle cx="10" cy="10" r="1.6"/><circle cx="10" cy="15.5" r="1.6"/></svg><span>Today</span></button>
+            <button class="tab on"><svg viewBox="0 0 20 20"><path d="M4.5 17V3.2M4.5 4h11l-2.6 3.2L15.5 11h-11"/></svg><span>Campaigns</span></button>
+            <button class="tab"><svg viewBox="0 0 20 20"><path d="M3.5 5h13M3.5 10h13M3.5 15h8"/></svg><span>History</span></button>
+          </div>
+          <div class="toast" id="toast2">Pulled into slot III</div>
+          <div class="homebar"></div>
+        </div>
+      </div>
+      <p class="slate-note"><b>Flow C.</b> Each campaign carries exactly one next step<span class="ref">3</span> — pull it and it lands in an open slot on Today.</p>
+    </section>
+
+    <!-- ─────────── 4. HISTORY ─────────── -->
+    <section class="slate">
+      <div class="slate-head"><span class="slate-num">04</span><h2 class="slate-title">History</h2></div>
+      <div class="device">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar">
+            <span>08:14</span>
+            <span class="sig">
+              <span class="bar" style="height:5px"></span><span class="bar" style="height:7px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span>
+              <span class="batt" style="margin-left:5px"></span>
+            </span>
+          </div>
+          <div class="view">
+            <div class="h-eyebrow dim">Since 1 August</div>
+            <h1 class="h1 sm">History</h1>
+
+            <div class="seg" id="seg">
+              <button class="on">Days</button>
+              <button>Campaigns</button>
+            </div>
+
+            <div class="days" id="paneDays">
+              <div class="day">
+                <div class="day-top">
+                  <span class="day-date">Tue 18 Aug</span>
+                  <span class="day-score"><span class="dots"><i class="dot on"></i><i class="dot on"></i><i class="dot"></i></span>2/3</span>
+                </div>
+                <ul>
+                  <li>Finish the invoice for K.</li>
+                  <li>Swim — 40 lengths</li>
+                  <li class="miss">Call the letting agent</li>
+                </ul>
+              </div>
+              <div class="day">
+                <div class="day-top">
+                  <span class="day-date">Mon 17 Aug</span>
+                  <span class="day-score"><span class="dots"><i class="dot on"></i><i class="dot on"></i><i class="dot on"></i></span>3/3</span>
+                </div>
+                <ul>
+                  <li>Rewrite the About page</li>
+                  <li>Chapter 3 — hashes</li>
+                  <li>Order the dehumidifier</li>
+                </ul>
+              </div>
+              <div class="day">
+                <div class="day-top">
+                  <span class="day-date">Sun 16 Aug</span>
+                  <span class="day-score"><span class="dots"><i class="dot on"></i><i class="dot"></i><i class="dot"></i></span>1/3</span>
+                </div>
+                <ul>
+                  <li>Long walk, no phone</li>
+                  <li class="miss">Sort the loft boxes</li>
+                  <li class="miss">Chapter 3 — hashes</li>
+                </ul>
+              </div>
+              <div class="day">
+                <div class="day-top">
+                  <span class="day-date">Sat 15 Aug</span>
+                  <span class="day-score"><span class="dots"><i class="dot on"></i><i class="dot on"></i><i class="dot on"></i></span>3/3</span>
+                </div>
+                <ul>
+                  <li>Swim — 30 lengths</li>
+                  <li>Fix the kitchen tap</li>
+                  <li>Write to Dad</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="days" id="paneCamps" hidden>
+              <div class="day">
+                <div class="day-top">
+                  <span class="day-date">Move the blog to Astro</span>
+                  <span class="tag sage">Completed</span>
+                </div>
+                <ul><li>28 Jun → 9 Aug · 42 days · 18 steps</li></ul>
+              </div>
+              <div class="day">
+                <div class="day-top">
+                  <span class="day-date">Learn 100 kanji</span>
+                  <span class="tag">Archived</span>
+                </div>
+                <ul><li>11 May → 2 Aug · 83 days · 24 steps</li></ul>
+              </div>
+              <div class="day">
+                <div class="day-top">
+                  <span class="day-date">Couch to 5k</span>
+                  <span class="tag sage">Completed</span>
+                </div>
+                <ul><li>3 Mar → 19 May · 77 days · 31 steps</li></ul>
+              </div>
+            </div>
+
+            <p class="foot-note">A record, not a scoreboard.<br>No streaks. Nothing to break.</p>
+          </div>
+          <div class="tabbar">
+            <button class="tab"><svg viewBox="0 0 20 20"><circle cx="10" cy="4.5" r="1.6"/><circle cx="10" cy="10" r="1.6"/><circle cx="10" cy="15.5" r="1.6"/></svg><span>Today</span></button>
+            <button class="tab"><svg viewBox="0 0 20 20"><path d="M4.5 17V3.2M4.5 4h11l-2.6 3.2L15.5 11h-11"/></svg><span>Campaigns</span></button>
+            <button class="tab on"><svg viewBox="0 0 20 20"><path d="M3.5 5h13M3.5 10h13M3.5 15h8"/></svg><span>History</span></button>
+          </div>
+          <div class="homebar"></div>
+        </div>
+      </div>
+      <p class="slate-note">Past days and finished campaigns. Deliberately free of stats — the PRD puts charts and streaks out of scope.</p>
+    </section>
+
+    <!-- ─────────── 5. WIDGET ─────────── -->
+    <section class="slate">
+      <div class="slate-head"><span class="slate-num">05</span><h2 class="slate-title">Home Screen Widget</h2></div>
+      <div class="device">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar">
+            <span>08:15</span>
+            <span class="sig">
+              <span class="bar" style="height:5px"></span><span class="bar" style="height:7px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span>
+              <span class="batt" style="margin-left:5px"></span>
+            </span>
+          </div>
+          <div class="home">
+            <div class="home-clock">
+              <div class="d">Wednesday 19 August</div>
+              <div class="t">8:15</div>
+            </div>
+
+            <div class="widget" id="widget">
+              <div class="widget-top" title="Opens the app"><b>Campaign</b><i>Wed 19</i></div>
+              <div class="wrow done"><span class="wnum">I</span><span class="wbox"><svg viewBox="0 0 12 12"><path d="M2 6.2 4.6 8.8 10 3.2"/></svg></span><p>Draft the pool schedule email</p></div>
+              <div class="wrow"><span class="wnum">II</span><span class="wbox"></span><p>30 min on the Ruby chapter</p></div>
+              <div class="wrow empty" id="wrow3"><span class="wnum">III</span><span class="wbox"></span><p>Open slot</p></div>
+            </div>
+
+            <div class="icons">
+              <div class="appicon a"></div><div class="appicon"></div><div class="appicon c"></div><div class="appicon"></div>
+              <div class="appicon"></div><div class="appicon b"></div><div class="appicon"></div><div class="appicon"></div>
+            </div>
+
+            <div class="dock">
+              <div class="appicon c"></div><div class="appicon"></div><div class="appicon b"></div><div class="appicon a"></div>
+            </div>
+          </div>
+          <div class="homebar"></div>
+        </div>
+      </div>
+      <p class="slate-note">4×2, and <b>interactive</b> — tap a row to complete it right here, tap the header to open the app.<span class="ref">2</span> The row is the target because the mark is smaller than a thumb.</p>
+    </section>
+
+  </div>
+
+  <!-- ══ legend ══ -->
+  <div class="rule" style="margin-top:96px"></div>
+  <section class="legend">
+    <div>
+      <h4>Try it</h4>
+      <p><strong>Tap a task</strong> on Today to complete it — or tap the same row <strong>on the widget</strong>, which writes back the other way. <strong>Pull into today</strong> on a campaign fills the open third slot. <strong>Promote ↑</strong> on the end-of-day screen creates a new campaign.</p>
+    </div>
+    <div>
+      <h4>Open questions <span style="color:var(--muted)">— from §14</span></h4>
+      <ol>
+        <li><strong>Notification timing &amp; wording.</strong> Mocked at 21:04, opening straight into the entry page.</li>
+        <li><strong>Widget interactivity.</strong> Rows toggle completion in place; the header opens the app. Costs the tick animation — RemoteViews cannot draw a path.</li>
+        <li><strong>“Next step” shape.</strong> Modelled as a single free-text line per campaign — no sub-lists.</li>
+      </ol>
+    </div>
+    <div>
+      <h4>Held back on purpose</h4>
+      <p>No fourth slot, no tags, no priorities, no subtasks, no streaks, no accounts. Every screen answers one question and then gets out of the way.</p>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+  const $ = (s,r=document)=>r.querySelector(s);
+  const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
+
+  const toast = (el,msg)=>{
+    el.textContent = msg; el.classList.add('show');
+    clearTimeout(el._t); el._t = setTimeout(()=>el.classList.remove('show'),2200);
+  };
+
+  /* complete / uncomplete any task row */
+  $$('.task').forEach(t=>t.addEventListener('click',()=>{
+    t.classList.toggle('done');
+    syncProgress(); syncWidget();
+  }));
+
+  /* the widget writes back — a row tap there is the same act as on Today,
+     routed through the same handler so the two can never disagree */
+  $$('#widget .wrow').forEach((row,i)=>row.addEventListener('click',()=>{
+    if(row.classList.contains('empty')) return;   // empty rows open the app
+    const task = $$('#todaySlots .task')[i];
+    if(task) task.click();
+  }));
+
+  /* Today progress pips */
+  function syncProgress(){
+    const rows = $$('#todaySlots .task');
+    const done = rows.filter(r=>r.classList.contains('done')).length;
+    $$('#prog .pip').forEach((p,i)=>p.classList.toggle('on', i<done));
+    $('#progText').textContent = done + ' of 3 done';
+  }
+
+  /* widget mirrors Today */
+  function syncWidget(){
+    const rows = $$('#todaySlots .task');
+    const wrows = $$('#widget .wrow');
+    rows.forEach((r,i)=>{
+      if(!wrows[i]) return;
+      wrows[i].classList.toggle('done', r.classList.contains('done'));
+      wrows[i].classList.remove('empty');
+      wrows[i].querySelector('p').textContent = r.querySelector('.label').textContent;
+    });
+  }
+
+  /* pull a campaign step into the open third slot */
+  let slot3Taken = false;
+  $('#cards').addEventListener('click',e=>{
+    const btn = e.target.closest('.pull[data-step]');
+    if(!btn || btn.disabled) return;
+    const step = btn.dataset.step, camp = btn.dataset.camp;
+    const body = $('#slot3body');
+    body.innerHTML =
+      '<button class="task"><span class="box"><svg viewBox="0 0 12 12"><path d="M2 6.2 4.6 8.8 10 3.2"/></svg></span>'+
+      '<span class="label"></span></button>'+
+      '<div class="slot-meta"><span class="tag"><svg viewBox="0 0 12 12">'+
+      '<path d="M2 1v10M2 2h8l-2 2 2 2H2" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linejoin="round"/>'+
+      '</svg></span></div>';
+    body.querySelector('.label').textContent = step;
+    body.querySelector('.tag').append(camp);
+    body.querySelector('.task').addEventListener('click',e=>{
+      e.currentTarget.classList.toggle('done'); syncProgress(); syncWidget();
+    });
+
+    if(!$('#slot3 .more')){
+      const m = document.createElement('button');
+      m.className='more'; m.textContent='⋯'; $('#slot3').append(m);
+    }
+    slot3Taken = true;
+    $$('#cards .pull').forEach(b=>{
+      b.disabled = true;
+      if(b===btn) b.textContent = 'In today · slot III';
+      else if(b.dataset.step) b.textContent = 'Slots are full';
+    });
+    $('#wrow3').classList.remove('empty');
+    toast($('#toast2'),'Pulled into slot III');
+    syncProgress(); syncWidget();
+  });
+
+  /* promote a daily task into a new campaign */
+  $('#promoteBtn').addEventListener('click',function(){
+    this.disabled = true; this.textContent = 'Promoted ✓';
+    const card = document.createElement('article');
+    card.className = 'card fresh';
+    card.innerHTML =
+      '<div class="card-top"><h3>Swim — 40 lengths</h3><button class="more">⋯</button></div>'+
+      '<div class="card-meta">Started today · 1 day · 1 step taken</div>'+
+      '<div class="next"><em>Next step</em><p>Swim — 40 lengths again</p></div>'+
+      '<div class="card-actions">'+
+      '<button class="pull" data-step="Swim — 40 lengths again" data-camp="Swim — 40 lengths">Pull into today</button>'+
+      '<button class="archive">Archive</button></div>';
+    if(slot3Taken){
+      const b = card.querySelector('.pull'); b.disabled = true; b.textContent = 'Slots are full';
+    }
+    $('#cards').prepend(card);
+    $('#campCount').textContent = $$('#cards .card').length;
+    toast($('#toast1'),'Promoted to a campaign');
+  });
+
+  /* confirm tomorrow */
+  $('#confirmBtn').addEventListener('click',function(){
+    this.classList.add('set'); this.textContent = 'Tomorrow is set ✓';
+  });
+
+  /* history segmented control */
+  $$('#seg button').forEach((b,i)=>b.addEventListener('click',()=>{
+    $$('#seg button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    $('#paneDays').hidden = i!==0;
+    $('#paneCamps').hidden = i!==1;
+  }));
+
+  /* tab bars are decorative in the mock, but shouldn't feel dead */
+  $$('.tabbar').forEach(bar=>$$('.tab',bar).forEach(t=>t.addEventListener('click',()=>{
+    $$('.tab',bar).forEach(x=>x.classList.remove('on')); t.classList.add('on');
+  })));
+})();
+</script>
+</body>
+</html>

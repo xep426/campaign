@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Three ember dots stacked in the safe zone — the same mark as the
+     Today tab and the notification. An app whose whole proposition is
+     "three things" should be identifiable by its icon at 48dp without a
+     letterform. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FFE5913C"
+        android:pathData="M54,36m-7,0a7,7 0,1 1,14 0a7,7 0,1 1,-14 0" />
+    <path
+        android:fillColor="#FFE5913C"
+        android:pathData="M54,54m-7,0a7,7 0,1 1,14 0a7,7 0,1 1,-14 0" />
+    <path
+        android:fillColor="#FF93A97E"
+        android:pathData="M54,72m-7,0a7,7 0,1 1,14 0a7,7 0,1 1,-14 0" />
+</vector>

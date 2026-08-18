@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Done. A filled sage disc rather than a tick: at 14dp on a home screen
+     a drawn check is three grey pixels, while a solid colour reads from
+     arm's length. The strikethrough beside it carries the rest. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="@color/sage" />
+</shape>

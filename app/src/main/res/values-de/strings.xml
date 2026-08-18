@@ -1,0 +1,169 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Deutsch — informelles „du“, ruhig und knapp.
+
+     app_name bleibt „Campaign“: die App ist nach dem Begriff benannt, und
+     eine übersetzte Kachel neben einem englischen Konzept im Text wäre
+     zwei Namen für dieselbe Sache.
+
+     Das Konzept heißt „Kampagne“, und zwar wegen der DAUER, nicht wegen
+     des App-Namens. Geprüft und verworfen:
+       „Vorhaben“   — wärmer, aber zeitlich neutral. Ein Anruf beim
+                      Zahnarzt ist auch ein Vorhaben; genau das Über-
+                      mehrere-Tage, das den Begriff ausmacht, fehlt.
+       „Unterfangen“ — trägt die Dauer, klingt aber nach Wagnis
+                      („ein gewagtes Unterfangen“) und damit nach dem
+                      Gegenteil von „das schaffst du Schritt für Schritt“.
+       „Projekt“    — trägt Dauer und Schritte, ist aber genau das
+                      Projektmanagement-Wort, das §12 ausschließt.
+     „Kampagne“ hat den Marketing-Beiklang, ist aber das einzige Wort, das
+     anhaltenden Einsatz über Zeit mitbringt. Der Beiklang ist der
+     kleinere Preis.
+
+     Der Ton ist der des Mocks: Angebote, keine Anweisungen. „Das darf so
+     bleiben“ statt „Du solltest noch etwas eintragen“. -->
+<resources>
+
+    <!-- ── Datums- und Zeitmuster ──────────────────────────────────── -->
+    <!-- Muster, kein Text — Deutsch liest „Mittwoch, 19. August“. -->
+    <string name="format_date_header">EEEE, d. MMMM</string>
+    <string name="format_day_label">EEE, d. MMM</string>
+    <string name="format_month_day">d. MMM</string>
+    <string name="format_weekday">EEEE</string>
+    <string name="format_widget_date">EEE, d. MMM</string>
+
+    <!-- ── Navigation ──────────────────────────────────────────────── -->
+    <string name="tab_today">Heute</string>
+    <string name="turns_at">Der Tag schlägt um %1$s um</string>
+    <string name="tab_campaigns">Kampagnen</string>
+    <string name="tab_history">Verlauf</string>
+
+    <!-- ── Plätze ──────────────────────────────────────────────────── -->
+    <string name="slot_placeholder">Etwas, das zählt…</string>
+    <string name="slot_add">Aufgabe hinzufügen</string>
+    <string name="slot_pull">Aus einer Kampagne holen</string>
+
+    <!-- ── Heute ───────────────────────────────────────────────────── -->
+    <string name="today_title">Heute</string>
+    <string name="today_progress">%1$d von %2$d erledigt</string>
+    <string name="open_end_of_day">Tagesabschluss</string>
+    <string name="today_foot_empty">Für heute ist nichts gesetzt.\nSonst fängt das abends an.</string>
+    <string name="today_foot_open_slot">Ein Platz ist noch frei.\nDas darf so bleiben.</string>
+    <string name="today_foot_all_done">Das war der Tag.\nMehr wird nicht verlangt.</string>
+
+    <string name="task_edit">Bearbeiten</string>
+    <string name="task_assign">Kampagne zuordnen</string>
+    <string name="task_delete">Löschen</string>
+
+    <!-- ── Aufgabe einer Kampagne zuordnen ─────────────────────────── -->
+    <string name="assign_title">Teil welcher Kampagne?</string>
+    <string name="assign_new">Neue Kampagne…</string>
+    <string name="assign_new_hint">Eine Kampagne ist das größere Vorhaben, zu dem diese Aufgabe ein Schritt ist — benenn sie danach, nicht nach der Aufgabe.</string>
+    <string name="assign_new_placeholder">Was ist das größere Vorhaben?</string>
+    <string name="assign_create">Anlegen</string>
+    <string name="assign_clear">Zu keiner Kampagne</string>
+    <string name="msg_assigned">Jetzt Teil von „%1$s“</string>
+    <string name="msg_unassigned">Nicht mehr Teil einer Kampagne</string>
+
+    <!-- ── Kampagnen anlegen und löschen ───────────────────────────── -->
+    <string name="campaign_new">Neue Kampagne</string>
+    <string name="campaign_new_placeholder">Was ist das größere Vorhaben?</string>
+    <string name="campaign_delete">Löschen</string>
+    <string name="campaign_delete_title">Diese Kampagne löschen?</string>
+    <string name="campaign_delete_body">„%1$s“ verschwindet. Die Tage, die daraus entstanden sind, bleiben im Verlauf — sie werden nur nicht mehr zugeordnet.</string>
+    <string name="campaign_delete_confirm">Löschen</string>
+    <string name="msg_campaign_created">„%1$s“ gestartet</string>
+    <string name="msg_campaign_deleted">„%1$s“ gelöscht</string>
+
+    <!-- ── Kampagnen ───────────────────────────────────────────────── -->
+    <string name="campaigns_title">Kampagnen</string>
+    <string name="campaigns_active_count">%1$d aktiv</string>
+
+    <string name="campaign_meta_started">seit %1$s</string>
+    <plurals name="campaign_meta_days">
+        <item quantity="one">%1$d Tag</item>
+        <item quantity="other">%1$d Tage</item>
+    </plurals>
+    <plurals name="campaign_meta_steps">
+        <item quantity="one">%1$d Schritt</item>
+        <item quantity="other">%1$d Schritte</item>
+    </plurals>
+
+    <string name="campaign_next_step">Nächster Schritt</string>
+    <string name="campaign_next_step_empty">Tippen, um den nächsten Schritt zu setzen</string>
+    <string name="campaign_next_step_placeholder">Was bringt das weiter?</string>
+    <string name="campaign_notes">Notizen</string>
+    <string name="campaign_notes_hide">Notizen ausblenden</string>
+    <string name="campaign_notes_placeholder">Was du dir merken willst</string>
+    <string name="campaign_rename">Umbenennen</string>
+    <string name="campaign_rename_title">Kampagne umbenennen</string>
+    <string name="campaign_rename_placeholder">Wie heißt dieses Vorhaben?</string>
+    <string name="campaign_complete">Als abgeschlossen markieren</string>
+    <string name="campaign_archive">Archivieren</string>
+    <string name="campaign_pull">In heute holen</string>
+    <string name="campaign_pull_in_today">In heute</string>
+    <string name="campaign_pull_no_step">Kein nächster Schritt</string>
+    <string name="campaign_pull_day_full">Heute ist voll</string>
+
+    <!-- ── Verlauf ─────────────────────────────────────────────────── -->
+    <string name="history_title">Verlauf</string>
+    <string name="history_nothing_yet">noch nichts</string>
+    <string name="history_finished_count">%1$d abgeschlossen</string>
+    <string name="history_tab_tasks">Aufgaben</string>
+    <string name="history_tab_campaigns">Kampagnen</string>
+    <string name="history_foot_tasks">Eine Aufzeichnung, keine Wertung.\nKeine Serien. Nichts, was reißen kann.</string>
+    <string name="history_foot_tasks_empty">Noch nichts einzeln abgeschlossen.</string>
+    <string name="history_foot_campaigns">Tippe eine Kampagne an, um sie zurückzuholen.</string>
+    <string name="history_foot_campaigns_empty">Noch nichts abgeschlossen oder archiviert.</string>
+    <string name="status_completed">Abgeschlossen</string>
+    <string name="status_archived">Archiviert</string>
+
+
+    <!-- ── Der Planungszeitraum (Umschlag → Mitternacht) ───────────── -->
+    <!-- Die Liste auf dem Schirm ist die von morgen, also sagt der Schirm
+         das auch. Der Untertitel steht da, wo tagsüber der Fortschritt
+         steht: es ist nichts erledigt und es KANN nichts erledigt sein,
+         und „0 von 3 erledigt“ würde einen Tag tadeln, der noch nicht
+         angefangen hat. -->
+    <string name="planning_title">Drei Dinge\nfür morgen.</string>
+    <string name="planning_subtitle">Wähl die, die dich weiterbringen. Mehr als drei gehen nicht.</string>
+
+    <!-- ── Auswahl beim Holen ──────────────────────────────────────── -->
+    <string name="picker_title">Etwas nach vorn holen</string>
+    <string name="picker_empty">In keiner Kampagne ist etwas offen.</string>
+    <string name="picker_waiting_since">gesetzt %1$s</string>
+    <string name="picker_dismiss">Doch nicht</string>
+    <string name="campaign_open_none">Nichts offen.</string>
+    <string name="campaign_carry">In heute holen</string>
+
+    <!-- ── Dialoge ─────────────────────────────────────────────────── -->
+    <string name="dialog_cancel">Abbrechen</string>
+    <string name="dialog_set">Setzen</string>
+    <string name="dialog_time_title">Frag mich um</string>
+
+    <!-- ── Snackbar-Meldungen ──────────────────────────────────────── -->
+    <string name="msg_removed">Entfernt</string>
+    <string name="msg_already_campaign">Gehört schon zu %1$s</string>
+    <string name="msg_already_campaign_generic">Gehört schon zu einer Kampagne</string>
+    <string name="msg_promoted">„%1$s“ ist jetzt eine Kampagne</string>
+    <string name="msg_no_open_slot">Heute ist kein Platz frei</string>
+    <string name="msg_pulled">In Platz %1$s geholt</string>
+    <string name="msg_set_next_step_first">Setz erst einen nächsten Schritt</string>
+    <string name="msg_day_full">Heute ist voll</string>
+    <string name="msg_tomorrow_full">Morgen ist voll</string>
+    <string name="msg_completed">„%1$s“ abgeschlossen</string>
+    <string name="msg_archived">„%1$s“ archiviert</string>
+    <string name="msg_tomorrow_open">Morgen bleibt offen</string>
+    <string name="msg_tomorrow_set_one">Eine Sache für morgen gesetzt</string>
+    <string name="msg_tomorrow_set_many">%1$d Sachen für morgen gesetzt</string>
+    <string name="msg_asking_at">Fragt um %1$s</string>
+
+    <!-- ── Widget ──────────────────────────────────────────────────── -->
+    <string name="widget_empty_slot">Freier Platz</string>
+    <string name="widget_description">Deine drei Aufgaben für heute.</string>
+
+    <!-- ── Benachrichtigung ────────────────────────────────────────── -->
+    <string name="notification_channel_name">Tagesabschluss</string>
+    <string name="notification_channel_description">Ein Hinweis am Abend, um die drei Dinge für morgen zu wählen.</string>
+    <string name="notification_title">Drei Dinge für morgen?</string>
+    <string name="notification_body">Nimm dir eine Minute, solange der Tag noch frisch ist.</string>
+</resources>

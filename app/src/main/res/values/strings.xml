@@ -1,0 +1,174 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- English (source locale).
+
+     The copy here IS the design — "It's fine to leave it that way" is the
+     product's whole posture toward an unfilled slot, not a caption. Treat
+     a change to a sentence in this file as a change to the product.
+
+     Date PATTERNS live here too, not just text: word order and separators
+     differ per locale ("Wednesday 19 August" vs "Mittwoch, 19. August"),
+     and a hardcoded pattern would read as broken German. -->
+<resources>
+    <string name="app_name">Campaign</string>
+
+    <!-- ── Date and time patterns ──────────────────────────────────── -->
+    <string name="format_date_header">EEEE d MMMM</string>
+    <string name="format_day_label">EEE d MMM</string>
+    <string name="format_month_day">d MMM</string>
+    <string name="format_weekday">EEEE</string>
+    <string name="format_widget_date">EEE d MMM</string>
+    <string name="format_clock">%1$02d:%2$02d</string>
+
+    <!-- ── Navigation ──────────────────────────────────────────────── -->
+    <!-- Tab and screen share one word, because after the turn the list
+         genuinely IS today's — that is the point of moving the boundary. -->
+    <string name="tab_today">Today</string>
+    <!-- Says what the hour DOES, not that a notification exists: the user
+         is choosing when the list empties; the prompt is a consequence. -->
+    <string name="turns_at">The day turns at %1$s</string>
+    <string name="tab_campaigns">Campaigns</string>
+    <string name="tab_history">History</string>
+
+    <!-- ── Slots (shared by Today and the evening screen) ───────────── -->
+    <string name="slot_placeholder">Something that matters…</string>
+    <string name="slot_add">Add a task</string>
+    <string name="slot_pull">Pull from a campaign</string>
+
+    <!-- ── Today ───────────────────────────────────────────────────── -->
+    <string name="today_title">Today</string>
+    <string name="today_progress">%1$d of %2$d done</string>
+    <!-- The link into the full evening ritual. Deliberately NOT "set
+         tomorrow" any more: the Tomorrow pane now has a button by that
+         name doing a different job, and two identical labels one above the
+         other is the app contradicting itself. -->
+    <string name="open_end_of_day">End of day</string>
+    <string name="today_foot_empty">Nothing set for today.\nThe evening screen is where this usually starts.</string>
+    <string name="today_foot_open_slot">One slot still open.\nIt\'s fine to leave it that way.</string>
+    <string name="today_foot_all_done">That\'s the day.\nNothing more is asked.</string>
+
+    <string name="task_edit">Edit</string>
+    <string name="task_assign">Assign to campaign</string>
+    <string name="task_delete">Delete</string>
+
+    <!-- ── Assigning a task to a campaign ──────────────────────────── -->
+    <string name="assign_title">Part of which campaign?</string>
+    <string name="assign_new">New campaign…</string>
+    <string name="assign_new_hint">A campaign is the larger effort this task is a step toward — name it for that, not for the task.</string>
+    <string name="assign_new_placeholder">What is the longer effort?</string>
+    <string name="assign_create">Create</string>
+    <string name="assign_clear">Not part of a campaign</string>
+    <string name="msg_assigned">Now part of “%1$s”</string>
+    <string name="msg_unassigned">No longer part of a campaign</string>
+
+    <!-- ── Creating and deleting campaigns ─────────────────────────── -->
+    <string name="campaign_new">New campaign</string>
+    <string name="campaign_new_placeholder">What is the longer effort?</string>
+    <string name="campaign_delete">Delete</string>
+    <string name="campaign_delete_title">Delete this campaign?</string>
+    <!-- Says what survives, not just what goes: the days are the user's
+         record and the fear of losing them is what makes delete scary. -->
+    <string name="campaign_delete_body">“%1$s” disappears. The days it produced stay in your history — they simply stop being attributed to it.</string>
+    <string name="campaign_delete_confirm">Delete</string>
+    <string name="msg_campaign_created">“%1$s” started</string>
+    <string name="msg_campaign_deleted">“%1$s” deleted</string>
+
+    <!-- ── Campaigns ───────────────────────────────────────────────── -->
+    <string name="campaigns_title">Campaigns</string>
+    <string name="campaigns_active_count">%1$d active</string>
+
+    <string name="campaign_meta_started">started %1$s</string>
+    <plurals name="campaign_meta_days">
+        <item quantity="one">%1$d day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
+    <plurals name="campaign_meta_steps">
+        <item quantity="one">%1$d step</item>
+        <item quantity="other">%1$d steps</item>
+    </plurals>
+
+    <string name="campaign_next_step">Next step</string>
+    <string name="campaign_next_step_empty">Tap to set what comes next</string>
+    <string name="campaign_next_step_placeholder">What carries this forward?</string>
+    <string name="campaign_notes">Notes</string>
+    <string name="campaign_notes_hide">Hide notes</string>
+    <string name="campaign_notes_placeholder">Anything worth remembering</string>
+    <string name="campaign_rename">Rename</string>
+    <string name="campaign_rename_title">Rename campaign</string>
+    <string name="campaign_rename_placeholder">What is this effort called?</string>
+    <string name="campaign_complete">Mark complete</string>
+    <string name="campaign_archive">Archive</string>
+    <string name="campaign_pull">Pull into today</string>
+    <string name="campaign_pull_in_today">In today</string>
+    <string name="campaign_pull_no_step">No next step</string>
+    <string name="campaign_pull_day_full">Today is full</string>
+
+    <!-- ── History ─────────────────────────────────────────────────── -->
+    <string name="history_title">History</string>
+    <string name="history_nothing_yet">nothing yet</string>
+    <string name="history_finished_count">%1$d finished</string>
+    <string name="history_tab_tasks">Tasks</string>
+    <string name="history_tab_campaigns">Campaigns</string>
+    <string name="history_foot_tasks">A record, not a scoreboard.\nNo streaks. Nothing to break.</string>
+    <string name="history_foot_tasks_empty">Nothing finished on its own yet.</string>
+    <string name="history_foot_campaigns">Tap a campaign to bring it back.</string>
+    <string name="history_foot_campaigns_empty">Nothing finished or archived yet.</string>
+    <string name="history_campaign_meta">%1$s · %2$s</string>
+    <string name="history_campaign_range">%1$s → %2$s</string>
+    <string name="status_completed">Completed</string>
+    <string name="status_archived">Archived</string>
+    <!-- ── The planning window (turn → midnight) ───────────────────── -->
+    <!-- The list on screen is tomorrow's, so the screen says so. This
+         subtitle stands where the progress row does during the day: there
+         is nothing done yet and nothing to be done yet, and "0 of 3 done"
+         would be scolding a day that has not started. -->
+    <string name="planning_title">Three things\nfor tomorrow.</string>
+    <string name="planning_subtitle">Choose the ones that move you forward. You can only pick three.</string>
+
+
+    <!-- ── Pull picker ─────────────────────────────────────────────── -->
+    <string name="picker_title">Bring something forward</string>
+    <string name="picker_empty">Nothing outstanding in any campaign.</string>
+    <string name="picker_waiting_since">set %1$s</string>
+    <string name="picker_dismiss">Never mind</string>
+    <string name="campaign_open_none">Nothing outstanding.</string>
+    <string name="campaign_carry">Bring into today</string>
+
+    <!-- ── Dialogs ─────────────────────────────────────────────────── -->
+    <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_set">Set</string>
+    <string name="dialog_time_title">Ask me at</string>
+
+    <!-- ── Snackbar messages ───────────────────────────────────────── -->
+    <string name="msg_removed">Removed</string>
+    <string name="msg_already_campaign">Already part of %1$s</string>
+    <!-- Same message where the campaign's name could not be read. A
+         separate string rather than a placeholder filled with another
+         string: German needs the article to agree, and "Gehört schon zu
+         eine Kampagne" is what substitution would produce. -->
+    <string name="msg_already_campaign_generic">Already part of a campaign</string>
+    <string name="msg_promoted">“%1$s” is a campaign now</string>
+    <string name="msg_no_open_slot">No open slot today</string>
+    <string name="msg_pulled">Pulled into slot %1$s</string>
+    <string name="msg_set_next_step_first">Set a next step first</string>
+    <string name="msg_day_full">Today is full</string>
+    <string name="msg_tomorrow_full">Tomorrow is full</string>
+    <string name="msg_completed">“%1$s” completed</string>
+    <string name="msg_archived">“%1$s” archived</string>
+    <string name="msg_tomorrow_open">Tomorrow left open</string>
+    <string name="msg_tomorrow_set_one">One thing set for tomorrow</string>
+    <string name="msg_tomorrow_set_many">%1$d things set for tomorrow</string>
+    <string name="msg_asking_at">Asking at %1$s</string>
+
+    <!-- ── Widget ──────────────────────────────────────────────────── -->
+    <string name="widget_title">Campaign</string>
+    <string name="widget_empty_slot">Open slot</string>
+    <string name="widget_description">Today\'s three tasks.</string>
+
+    <!-- ── Notification ────────────────────────────────────────────── -->
+    <!-- Wording is the PRD's first open question. It ASKS rather than
+         instructs; see EndOfDayNotifier for why that matters at 21:00. -->
+    <string name="notification_channel_name">End of day</string>
+    <string name="notification_channel_description">One evening prompt to choose tomorrow\'s three things.</string>
+    <string name="notification_title">Three things for tomorrow?</string>
+    <string name="notification_body">Take a minute while the day is still fresh.</string>
+</resources>

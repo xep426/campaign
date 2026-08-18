@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The widget card. A drawable rather than GlanceModifier.cornerRadius,
+     which needs API 31 while minSdk here is 26.
+
+     Slightly translucent so the wallpaper tints the card rather than
+     showing through it — a fully transparent widget was fine when it was
+     one number and stops being fine once it carries three lines of text. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="22dp" />
+    <solid android:color="#F21D1913" />
+    <stroke
+        android:width="1dp"
+        android:color="@color/line" />
+</shape>

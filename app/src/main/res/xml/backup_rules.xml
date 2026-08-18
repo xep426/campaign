@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Everything is worth keeping: the database is the user's record of
+     their days, and it exists nowhere else (§8 — local storage only, §12 —
+     no cloud sync). A restore that dropped it would lose the whole point
+     of the history screen. -->
+<full-backup-content>
+    <include domain="database" path="." />
+    <include domain="sharedpref" path="." />
+    <include domain="file" path="datastore" />
+</full-backup-content>

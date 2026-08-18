@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The handful of palette values that resources need. Kotlin is the
+     source of truth (ui/theme/Color.kt); these exist only because a
+     drawable and a window background cannot read a Compose Color.
+     Keep them in step by hand — there are five. -->
+<resources>
+    <color name="ink">#FF15120E</color>
+    <color name="surface_raised">#FF262019</color>
+    <color name="paper">#FFF0E9DB</color>
+    <color name="ember">#FFE5913C</color>
+    <color name="sage">#FF93A97E</color>
+    <color name="line">#2EF0E9DB</color>
+</resources>

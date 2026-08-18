@@ -1,0 +1,20 @@
+*.iml
+.gradle
+/local.properties
+/.idea
+.DS_Store
+build/
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# Android Studio / IntelliJ, per-machine
+.idea/
+*.iml
+# Local SDK path — differs on every machine
+local.properties
+# Signing material must never be committed
+*.jks
+*.keystore
+keystore.properties
