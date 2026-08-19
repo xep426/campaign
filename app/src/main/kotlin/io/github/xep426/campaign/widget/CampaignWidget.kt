@@ -36,6 +36,7 @@ import androidx.glance.layout.width
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextDecoration
+import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import io.github.xep426.campaign.MainActivity
@@ -75,6 +76,14 @@ import java.util.Locale
  *  - the header OPENS the app — the natural "go there" affordance, and the
  *    one part of the card that is not a task.
  *  - an empty row opens the app too, so the unchosen slot stays reachable.
+ *
+ * EVERY TARGET IS ANNOUNCED, which is a later correction and the more
+ * important half. The division above is sound and was invisible: two rows
+ * that behave differently looked identical, so the only way to find out
+ * what a tap did was to make it. Now the header carries a chevron and a
+ * rule beneath it, a filled row carries its mark, and an empty row carries
+ * a plus. The rule is that nothing on this card is tappable without
+ * saying so — and the header, being the way out, says it loudest.
  *
  * What this costs is the tick animation: RemoteViews cannot draw a path,
  * so CompletionMark's self-drawing check becomes an instant swap out here.
@@ -195,6 +204,22 @@ class CampaignWidget : GlanceAppWidget() {
                             fontWeight = FontWeight.Medium,
                         ),
                     )
+                    // The only mark on the card that means "this way out".
+                    //
+                    // Without it the header is a label, and a label does not
+                    // read as tappable — which left no way to tell a row that
+                    // completes a task from one that opens the app. Every
+                    // target on this card is now announced: the chevron here,
+                    // the mark on a filled row, the plus on an empty one.
+                    Spacer(modifier = GlanceModifier.width(metrics.chevronGap))
+                    Text(
+                        text = "›",
+                        style = TextStyle(
+                            color = ColorProvider(Ember),
+                            fontSize = metrics.titleSize,
+                            fontWeight = FontWeight.Normal,
+                        ),
+                    )
                     Spacer(modifier = GlanceModifier.defaultWeight())
                     Text(
                         text = dateLabel,
@@ -206,7 +231,18 @@ class CampaignWidget : GlanceAppWidget() {
                     )
                 }
 
-                Spacer(modifier = GlanceModifier.height(metrics.headerGap))
+                // A rule under the header, so it reads as a band with its own
+                // job rather than as the first line of the list. The gap is
+                // split around it rather than added to, which keeps the header
+                // block the same height as before the rule existed.
+                Spacer(modifier = GlanceModifier.height(metrics.headerGap * 0.45f))
+                Spacer(
+                    modifier = GlanceModifier
+                        .fillMaxWidth()
+                        .height(1.dp)
+                        .background(ColorProvider(HAIRLINE))
+                )
+                Spacer(modifier = GlanceModifier.height(metrics.headerGap * 0.55f))
             }
 
             // Always three rows, filled or not. A widget that shrank to the
@@ -294,14 +330,31 @@ class CampaignWidget : GlanceAppWidget() {
             // A checkbox that cannot be checked is worse than no checkbox:
             // it invites the tap and then refuses it.
             if (!planning) {
-                Image(
-                    provider = ImageProvider(
-                        if (slot?.completed == true) R.drawable.widget_dot_done
-                        else R.drawable.widget_dot_open
-                    ),
-                    contentDescription = null,
-                    modifier = GlanceModifier.size(metrics.markSize),
-                )
+                // An empty slot gets a plus, not an empty ring. The ring says
+                // "not done yet" and invites a tap that would complete
+                // something; the plus says the row leads into the app, which
+                // is the only thing an unchosen slot can do.
+                if (slot == null) {
+                    Text(
+                        text = "+",
+                        style = TextStyle(
+                            color = ColorProvider(Muted),
+                            fontSize = metrics.markSize.value.sp,
+                            fontWeight = FontWeight.Normal,
+                            textAlign = TextAlign.Center,
+                        ),
+                        modifier = GlanceModifier.width(metrics.markSize),
+                    )
+                } else {
+                    Image(
+                        provider = ImageProvider(
+                            if (slot.completed) R.drawable.widget_dot_done
+                            else R.drawable.widget_dot_open
+                        ),
+                        contentDescription = null,
+                        modifier = GlanceModifier.size(metrics.markSize),
+                    )
+                }
                 Spacer(modifier = GlanceModifier.width(metrics.markGap))
             }
 
@@ -356,6 +409,7 @@ private data class WidgetMetrics(
     val markSize: Dp,
     val markGap: Dp,
     val numeralWidth: Dp,
+    val chevronGap: Dp,
     val titleSize: TextUnit,
     val dateSize: TextUnit,
     val taskSize: TextUnit,
@@ -391,8 +445,10 @@ private data class WidgetMetrics(
          *
          * Insurance, not a fix for an observed failure — worth saying,
          * because a comment claiming a bug it did not see is worse than no
-         * comment. The arithmetic is the reason: at the declared 110dp
-         * minimum, header plus three rows needs ~107dp, a margin of 3dp.
+         * comment. The arithmetic is the reason: at this 125dp floor, the
+         * header block plus three legible rows needs ~113dp, a margin of
+         * 12dp — and the header grew when it gained its rule and a larger
+         * title, so that margin is smaller than it once was.
          * One UI also scales placements by its own ratio
          * (`hsResizeRatio=0.83` on this device) and does not owe
          * minResizeHeight anything, so that margin is not guaranteed.
@@ -433,8 +489,15 @@ private data class WidgetMetrics(
                 markSize = (task * 1.05f).dp.coerceIn(13.dp, 18.dp),
                 markGap = (task * 0.72f).dp.coerceIn(9.dp, 14.dp),
                 numeralWidth = (task * 1.5f).dp.coerceIn(18.dp, 26.dp),
-                titleSize = (task * 1.08f).sp,
-                dateSize = (task * 0.72f).coerceAtLeast(9f).sp,
+                chevronGap = (task * 0.5f).dp.coerceIn(6.dp, 11.dp),
+                // The header carries the card's identity and its one exit, so it
+                // is deliberately larger than the tasks rather than a shade
+                // above them: at 1.08 it read as another list row.
+                titleSize = (task * 1.32f).sp,
+                // 9sp was legible on a bench and not across a room. The floor
+                // matters more than the ratio here — the date is the shortest
+                // string on the card and the first to become decoration.
+                dateSize = (task * 0.92f).coerceAtLeast(11f).sp,
                 taskSize = task.sp,
                 numeralSize = (task * 0.86f).sp,
                 showNumerals = w >= NUMERAL_FLOOR,

@@ -131,19 +131,29 @@ h1{
   overflow:hidden;
   box-shadow:0 24px 60px -20px rgba(0,0,0,.75);
 }
-.card-head{display:flex;align-items:center;flex:none}
+.card-head{display:flex;align-items:center;flex:none;position:relative}
 .card-title{color:var(--paper);font-weight:500;line-height:1.15}
 .card-date{color:var(--ember);font-weight:500;line-height:1.15;text-transform:uppercase;
   letter-spacing:.02em;margin-left:auto}
+/* Variante A: die Kopfzeile sagt, dass sie eine Tür ist */
+.chev{color:var(--ember);line-height:1;opacity:.85;font-weight:300}
+.head-rule{flex:none;background:var(--hairline)}
 .rows{flex:1;display:flex;flex-direction:column;min-height:0}
 .hair{flex:none;height:var(--px1);background:var(--hairline)}
 /* defaultWeight(): die drei Zeilen teilen sich die Resthöhe */
-.row{flex:1 1 0;display:flex;align-items:center;min-height:0;position:relative;cursor:pointer}
-.numeral{flex:none;font-weight:500;line-height:1;color:var(--ember-deep)}
+.row{flex:1 1 0;display:flex;align-items:center;min-height:0;position:relative}
+.zone{display:flex;align-items:center;min-width:0;position:relative;cursor:pointer;height:100%}
+.zone.z-title{flex:1 1 auto}
+.zone.z-mark{flex:none;border-radius:999px;justify-content:center}
+/* Variante B: die Schaltfläche bekommt eine sichtbare Fläche, sonst ist
+   sie nur ein Punkt, den man treffen soll ohne es zu wissen */
+.model-b .zone.z-mark{background:rgba(240,233,219,.05)}
+.numeral{flex:none;font-weight:500;line-height:1;color:var(--ember-deep);text-align:center}
 .row.empty .numeral{color:var(--muted)}
-.mark{flex:none;border-radius:50%}
+.mark{flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center}
 .mark.open{border:var(--px1) solid var(--line-strong)}
 .mark.done{background:var(--sage)}
+.mark.add{border:0;color:var(--muted);line-height:1;font-weight:300}
 .task{
   color:var(--paper);line-height:1.25;overflow:hidden;
   display:-webkit-box;-webkit-box-orient:vertical;
@@ -151,24 +161,31 @@ h1{
 .row.empty .task,.row.done .task{color:var(--muted)}
 .row.done .task{text-decoration:line-through}
 
-/* Trefferflächen sichtbar machen */
-.card.targets .row::after{
-  content:'';position:absolute;inset:0;
-  border:1px dashed rgba(229,145,60,.5);
-  background:rgba(229,145,60,.05);
+/* Trefferflächen sichtbar machen: bernstein schaltet, salbei öffnet */
+.card.targets .tgt-toggle::after,
+.card.targets .tgt-open::after{
+  content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;
 }
-.card.targets .card-head{position:relative}
-.card.targets .card-head::after{
-  content:'';position:absolute;inset:calc(-4px * var(--s)) 0;
-  border:1px dashed rgba(147,169,126,.5);background:rgba(147,169,126,.05);
+.card.targets .tgt-toggle::after{
+  border:1px dashed rgba(229,145,60,.55);background:rgba(229,145,60,.06);
 }
+.card.targets .tgt-open::after{
+  border:1px dashed rgba(147,169,126,.55);background:rgba(147,169,126,.06);
+}
+.legend{display:flex;gap:16px;margin-top:11px;font-family:'IBM Plex Mono',monospace;
+  font-size:10px;letter-spacing:.05em;color:var(--muted)}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;
+  vertical-align:-1px}
+.legend .a{background:rgba(229,145,60,.35);border:1px dashed var(--ember)}
+.legend .o{background:rgba(147,169,126,.35);border:1px dashed var(--sage)}
 .hint{
   position:absolute;left:100%;top:50%;transform:translateY(-50%);
   margin-left:16px;font-family:'IBM Plex Mono',monospace;font-size:10px;
   letter-spacing:.06em;white-space:nowrap;color:var(--muted);opacity:0;
-  transition:opacity .18s;pointer-events:none;
+  transition:opacity .18s;pointer-events:none;z-index:4;
 }
-.row:hover .hint{opacity:1}
+.hint.left{left:auto;right:100%;margin-left:0;margin-right:16px}
+.zone:hover .hint{opacity:1}
 .hint b{color:var(--ember);font-weight:400}
 
 /* Ziehgriff unten rechts */
@@ -296,8 +313,10 @@ footer{
       <div class="card" id="card">
         <div class="card-head" id="head">
           <span class="card-title" id="cardTitle">Campaign</span>
+          <span class="chev" id="chev">›</span>
           <span class="card-date" id="cardDate">DI., 19. AUG</span>
         </div>
+        <div class="head-rule" id="headRule"></div>
         <div class="rows" id="rows"></div>
       </div>
       <div class="dim dim-w"><i class="rule"></i><i class="tick" style="left:0"></i>
@@ -338,6 +357,46 @@ footer{
           <button data-l="en" aria-pressed="false">English</button>
         </div>
       </div>
+    </div>
+
+    <div class="panel">
+      <h2>Tippen</h2>
+      <div class="seg" id="model" style="display:grid;grid-template-columns:1fr;gap:0">
+        <button data-m="current" aria-pressed="false" style="text-align:left;padding:10px 11px">
+          Vorher<small style="display:block;color:var(--muted);font-size:9.5px;margin-top:3px">
+          Zeile schaltet · Kopf öffnet · nichts sagt es</small></button>
+        <button data-m="a" aria-pressed="true" style="text-align:left;padding:10px 11px;
+          border-top:1px solid var(--line)">
+          A · Der Kopf ist die Tür ✓<small style="display:block;color:var(--muted);font-size:9.5px;margin-top:3px">
+          eingebaut · Zeile schaltet weiter · Kopf trägt ein Zeichen</small></button>
+        <button data-m="b" aria-pressed="false" style="text-align:left;padding:10px 11px;
+          border-top:1px solid var(--line)">
+          B · Die Marke schaltet<small style="display:block;color:var(--muted);font-size:9.5px;margin-top:3px">
+          Nur der Kreis schaltet · alles andere öffnet</small></button>
+      </div>
+      <div class="legend">
+        <span><i class="a"></i>schaltet</span>
+        <span><i class="o"></i>öffnet die App</span>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-top:12px;line-height:1.45" id="modelNote"></p>
+    </div>
+
+    <div class="panel">
+      <h2>Kopfzeile</h2>
+      <div class="field">
+        <label for="titleF">Titel<span class="note">Faktor auf die Aufgabenschrift ·
+          <span id="titleOut">—</span></span></label>
+        <input type="range" id="titleF" min="1" max="1.9" step=".02" value="1.32">
+      </div>
+      <div class="field">
+        <label for="dateF">Datum<span class="note">Faktor · <span id="dateOut">—</span></span></label>
+        <input type="range" id="dateF" min=".6" max="1.3" step=".02" value=".92">
+      </div>
+      <p style="font-size:11.5px;color:var(--muted);margin-top:10px;line-height:1.45">
+        Bisher <span class="mono" style="color:var(--paper-dim)">1,08</span> und
+        <span class="mono" style="color:var(--paper-dim)">0,72</span>. Die Werte hier sind
+        dieselben Faktoren wie in <span class="mono">forSlot()</span> — was du einstellst,
+        lässt sich unverändert übernehmen.</p>
     </div>
 
     <div class="panel">
@@ -407,7 +466,7 @@ footer{
 const NUMERAL_FLOOR = 240, TWO_LINE_FLOOR = 190, HEADER_FLOOR = 125;
 const clamp = (v,a,b) => Math.min(b, Math.max(a,v));
 
-function forSlot(w,h){
+function forSlot(w,h,titleF,dateF){
   const task = clamp(h*0.058, 13, 17);
   return {
     task,
@@ -418,8 +477,8 @@ function forSlot(w,h){
     markSize:          clamp(task*1.05,13, 18),
     markGap:           clamp(task*0.72, 9, 14),
     numeralWidth:      clamp(task*1.5, 18, 26),
-    titleSize:  task*1.08,
-    dateSize:   Math.max(task*0.72, 9),
+    titleSize:  task*(titleF ?? 1.08),
+    dateSize:   Math.max(task*(dateF ?? 0.72), 9),
     taskSize:   task,
     numeralSize:task*0.86,
     showNumerals: w >= NUMERAL_FLOOR,
@@ -450,8 +509,25 @@ const TEXT = {
       tasks:['Pull together the tax papers','Flat: call the estate agent','Go for a run']},
 };
 
+/* Was die drei Modelle behaupten. Der Text steht hier und nicht im
+   Markup, damit die Begründung neben dem Verhalten liegt. */
+const MODELS = {
+  current:'Der Stand vor dieser Runde. Die ganze Zeile schaltet, der Kopf öffnet — aber '+
+          'nichts auf der Karte verrät, wo die Grenze verläuft. Genau das war die Beschwerde.',
+  a:      'Eingebaut und installiert. Die Zeile schaltet weiter, wie in der App auch '+
+          '(TodayScreen: Zeile tippen hakt ab). Neu ist, dass der Kopf sichtbar eine Tür '+
+          'ist: größerer Titel, ein Winkel, '+
+          'eine Linie darunter. Wer die App öffnen will, hat ein Ziel — und muss über die '+
+          'Zeilen gar nicht mehr nachdenken. Freie Plätze zeigen ein Plus statt eines '+
+          'leeren Rings, damit auch sie als "hier geht es in die App" lesbar sind.',
+  b:      'Die verbreitete Aufteilung: der Kreis schaltet, der Text öffnet. Unmissverständlich '+
+          'und schwer falsch zu tippen — aber sie widerspricht der App, wo das Tippen auf die '+
+          'Zeile abhakt. Zwei Oberflächen, zwei Grammatiken.',
+};
+
 const state = {
   w:429.7, h:233.1, preset:'s23', zoom:1.7, planning:false, targets:false, lang:'de',
+  model:'a', titleF:1.32, dateF:0.92,
   slots:[
     {title:null, done:false, empty:false},
     {title:null, done:true,  empty:false},
@@ -463,8 +539,11 @@ const state = {
 function dateLabel(){
   const d = new Date();
   const loc = state.lang === 'de' ? 'de-DE' : 'en-GB';
-  const wd = d.toLocaleDateString(loc,{weekday:'short'});
-  const mo = d.toLocaleDateString(loc,{month:'short'});
+  // Android schreibt EEE im Deutschen mit Punkt ("Mi."), manche
+  // Browser-ICU ohne. Angleichen, sonst misst man die falsche Breite.
+  let wd = d.toLocaleDateString(loc,{weekday:'short'});
+  let mo = d.toLocaleDateString(loc,{month:'short'});
+  if(state.lang === 'de' && !wd.endsWith('.')) wd += '.';
   const s = state.lang === 'de'
     ? `${wd}, ${d.getDate()}. ${mo}`   // EEE, d. MMM
     : `${wd} ${d.getDate()} ${mo}`;    // EEE d MMM
@@ -474,11 +553,19 @@ function dateLabel(){
 /* ---------- Zeichnen ---------- */
 const $ = id => document.getElementById(id);
 
+function hintFor(html, left){
+  const h = document.createElement('span');
+  h.className = 'hint' + (left ? ' left' : '');
+  h.innerHTML = html;
+  return h;
+}
+
 function render(){
-  const m = forSlot(state.w, state.h);
+  const m = forSlot(state.w, state.h, state.titleF, state.dateF);
   const s = state.zoom;
   const t = TEXT[state.lang];
   const px = v => (v*s) + 'px';
+  const model = state.model;
 
   const card = $('card');
   card.style.setProperty('--s', s);
@@ -487,11 +574,26 @@ function render(){
   card.style.height = px(state.h);
   card.style.padding = `${px(m.verticalPadding)} ${px(m.horizontalPadding)}`;
   card.classList.toggle('targets', state.targets);
+  card.classList.remove('model-current','model-a','model-b');
+  card.classList.add('model-' + model);
 
-  /* Kopfzeile */
-  const head = $('head');
+  /* Kopfzeile. In A trägt sie ein Zeichen und eine Linie, damit sie als
+     Tür lesbar ist statt nur als Beschriftung. */
+  const head = $('head'), rule = $('headRule'), chev = $('chev');
+  const doorMarked = model === 'a';
   head.style.display = m.showHeader ? 'flex' : 'none';
-  head.style.marginBottom = px(m.headerGap);
+  head.className = 'card-head tgt-open';
+  chev.style.display = doorMarked ? 'inline' : 'none';
+  chev.style.fontSize = px(m.titleSize * 0.95);
+  chev.style.marginLeft = px(m.titleSize * 0.22);
+  rule.style.display = (m.showHeader && doorMarked) ? 'block' : 'none';
+  rule.style.height = Math.max(1, s) + 'px';
+  if(m.showHeader && doorMarked){
+    head.style.marginBottom = px(m.headerGap * 0.45);
+    rule.style.marginBottom = px(m.headerGap * 0.55);
+  } else {
+    head.style.marginBottom = px(m.headerGap);
+  }
   $('cardTitle').style.fontSize = px(m.titleSize);
   $('cardDate').style.fontSize  = px(m.dateSize);
   $('cardTitle').textContent = t.title;
@@ -512,41 +614,69 @@ function render(){
                     (!slot.empty && slot.done && !state.planning ? ' done' : '');
     row.style.padding = `${px(m.rowPadding)} 0`;
 
-    if(m.showNumerals){
-      const n = document.createElement('span');
-      n.className = 'numeral';
-      n.textContent = ['I','II','III'][i];
-      n.style.fontSize = px(m.numeralSize);
-      n.style.width = px(m.numeralWidth);
-      row.appendChild(n);
-    }
+    /* Kann diese Zeile überhaupt geschaltet werden? Ein freier Platz und
+       das Planungsfenster können es nie — dort öffnet jedes Modell die App. */
+    const toggleable = !slot.empty && !state.planning;
+
+    const numeral = document.createElement('span');
+    numeral.className = 'numeral';
+    numeral.textContent = ['I','II','III'][i];
+    numeral.style.fontSize = px(m.numeralSize);
+    numeral.style.width = px(m.numeralWidth);
+
     /* Im Planungsfenster gibt es keine Marke: ein Kästchen, das nicht
-       angekreuzt werden kann, lädt zum Tippen ein und verweigert dann. */
+       angekreuzt werden kann, lädt zum Tippen ein und verweigert dann.
+       In Variante A wird der leere Ring zum Plus — dann sagt auch die
+       freie Zeile, dass hinter ihr die App liegt und nicht ein Haken. */
+    let mark = null;
     if(!state.planning){
-      const mark = document.createElement('span');
-      mark.className = 'mark ' + (!slot.empty && slot.done ? 'done' : 'open');
+      mark = document.createElement('span');
+      const plus = slot.empty && model === 'a';
+      mark.className = 'mark ' + (plus ? 'add' : (!slot.empty && slot.done ? 'done' : 'open'));
       mark.style.width = mark.style.height = px(m.markSize);
+      mark.style.fontSize = px(m.markSize * 0.95);
+      if(plus) mark.textContent = '+';
       mark.style.marginRight = px(m.markGap);
-      row.appendChild(mark);
     }
+
     const task = document.createElement('span');
     task.className = 'task';
     task.textContent = slot.empty ? t.empty : (slot.title ?? t.tasks[i]);
     task.style.fontSize = px(m.taskSize);
     task.style.webkitLineClamp = m.maxLines;
-    row.appendChild(task);
 
-    const hint = document.createElement('span');
-    hint.className = 'hint';
-    hint.innerHTML = (slot.empty || state.planning)
-      ? '→ <b>öffnet die App</b>'
-      : '→ <b>hakt ab</b>, ohne die App zu öffnen';
-    row.appendChild(hint);
+    const toggle = () => { slot.done = !slot.done; render(); syncControls(); };
 
-    row.onclick = () => {
-      if(slot.empty || state.planning) return;
-      slot.done = !slot.done; render(); syncControls();
-    };
+    if(model === 'b' && toggleable){
+      /* Zwei Ziele in einer Zeile. Die Schaltfläche bekommt die Ziffern-
+         spalte dazu, sonst wäre sie nur so breit wie der Kreis. */
+      const zMark = document.createElement('span');
+      zMark.className = 'zone z-mark tgt-toggle';
+      if(m.showNumerals) zMark.appendChild(numeral);
+      if(mark){ mark.style.marginRight = '0'; zMark.appendChild(mark); }
+      zMark.style.paddingRight = px(m.markGap);
+      zMark.onclick = toggle;
+      zMark.appendChild(hintFor('<b>hakt ab</b> ←', true));
+
+      const zTitle = document.createElement('span');
+      zTitle.className = 'zone z-title tgt-open';
+      zTitle.appendChild(task);
+      zTitle.appendChild(hintFor('→ <b>öffnet die App</b>'));
+
+      row.appendChild(zMark); row.appendChild(zTitle);
+    } else {
+      /* Ein Ziel: die ganze Zeile — schaltend oder öffnend. */
+      const z = document.createElement('span');
+      z.className = 'zone z-title ' + (toggleable ? 'tgt-toggle' : 'tgt-open');
+      if(m.showNumerals) z.appendChild(numeral);
+      if(mark) z.appendChild(mark);
+      z.appendChild(task);
+      z.appendChild(hintFor(toggleable
+        ? '→ <b>hakt ab</b>, ohne die App zu öffnen'
+        : '→ <b>öffnet die App</b>'));
+      if(toggleable) z.onclick = toggle;
+      row.appendChild(z);
+    }
     rows.appendChild(row);
   });
 
@@ -559,6 +689,7 @@ function render(){
   $('thHead').classList.toggle('on', m.showHeader);
   $('thLines').classList.toggle('on', m.maxLines === 2);
 
+  typeOut();
   drawReadout(m);
 }
 
@@ -655,6 +786,26 @@ $('zoom').oninput = e => {
   render();
 };
 
+$('model').querySelectorAll('button').forEach(b => b.onclick = () => {
+  state.model = b.dataset.m;
+  $('model').querySelectorAll('button').forEach(x =>
+    x.setAttribute('aria-pressed', x.dataset.m === state.model));
+  $('modelNote').textContent = MODELS[state.model];
+  render();
+});
+
+/* Die beiden Faktoren der Kopfzeile. Ausgegeben wird der Faktor UND was er
+   beim aktuellen Slot in sp ergibt — der Faktor ist das, was in den Code
+   wandert, die sp sind das, was man sieht. */
+function typeOut(){
+  const m = forSlot(state.w, state.h, state.titleF, state.dateF);
+  const n = v => v.toFixed(2).replace('.',',');
+  $('titleOut').textContent = n(state.titleF) + ' → ' + m.titleSize.toFixed(1).replace('.',',') + ' sp';
+  $('dateOut').textContent  = n(state.dateF)  + ' → ' + m.dateSize.toFixed(1).replace('.',',')  + ' sp';
+}
+$('titleF').oninput = e => { state.titleF = +e.target.value; render(); };
+$('dateF').oninput  = e => { state.dateF  = +e.target.value; render(); };
+
 $('lang').querySelectorAll('button').forEach(b => b.onclick = () => {
   state.lang = b.dataset.l;
   $('lang').querySelectorAll('button').forEach(x =>
@@ -689,6 +840,7 @@ $('lang').querySelectorAll('button').forEach(b => b.onclick = () => {
   window.addEventListener('touchend', end);
 })();
 
+$('modelNote').textContent = MODELS[state.model];
 buildPresets();
 buildSlotControls();
 render();
