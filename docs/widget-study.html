@@ -382,8 +382,24 @@ footer{
     </div>
 
     <div class="panel">
-      <h2>Kopfzeile</h2>
+      <h2>Typografie</h2>
       <div class="field">
+        <label for="taskF">Aufgabe<span class="note">Anteil an der Kartenhöhe ·
+          <span id="taskOut">—</span></span></label>
+        <input type="range" id="taskF" min=".045" max=".105" step=".002" value=".074">
+      </div>
+      <div class="field">
+        <label for="taskFloor">Boden<span class="note">kleiner wird sie nie ·
+          <span id="floorOut">—</span></span></label>
+        <input type="range" id="taskFloor" min="11" max="20" step=".5" value="15">
+      </div>
+      <div class="field">
+        <label for="taskCeil">Decke<span class="note">größer auch nicht ·
+          <span id="ceilOut">—</span></span></label>
+        <input type="range" id="taskCeil" min="15" max="30" step=".5" value="21">
+      </div>
+      <p id="fitNote" style="font-size:11.5px;margin:10px 0 4px;line-height:1.45"></p>
+      <div class="field" style="border-top:1px solid var(--line);padding-top:12px">
         <label for="titleF">Titel<span class="note">Faktor auf die Aufgabenschrift ·
           <span id="titleOut">—</span></span></label>
         <input type="range" id="titleF" min="1" max="1.9" step=".02" value="1.32">
@@ -410,9 +426,9 @@ footer{
         <div class="th" id="thNum"><i class="dot"></i><div>Ziffern I · II · III
           <code>Breite ≥ 240 dp</code></div></div>
         <div class="th" id="thHead"><i class="dot"></i><div>Kopfzeile
-          <code>Höhe ≥ 125 dp</code></div></div>
+          <code>Höhe ≥ 135 dp</code></div></div>
         <div class="th" id="thLines"><i class="dot"></i><div>Zwei Zeilen pro Aufgabe
-          <code>Höhe ≥ 190 dp</code></div></div>
+          <code>Höhe ≥ 205 dp</code></div></div>
       </div>
     </div>
 
@@ -463,11 +479,11 @@ footer{
    geändert wird, muss es hier mitgeändert werden — die
    Faktoren stehen deshalb nackt da statt in Konstanten.
    ============================================================ */
-const NUMERAL_FLOOR = 240, TWO_LINE_FLOOR = 190, HEADER_FLOOR = 125;
+const NUMERAL_FLOOR = 240, TWO_LINE_FLOOR = 205, HEADER_FLOOR = 135;
 const clamp = (v,a,b) => Math.min(b, Math.max(a,v));
 
-function forSlot(w,h,titleF,dateF){
-  const task = clamp(h*0.058, 13, 17);
+function forSlot(w,h,titleF,dateF,taskF,taskFloor,taskCeil){
+  const task = clamp(h*(taskF ?? 0.058), taskFloor ?? 13, taskCeil ?? 17);
   return {
     task,
     horizontalPadding: clamp(w*0.05,  14, 22),
@@ -527,7 +543,7 @@ const MODELS = {
 
 const state = {
   w:429.7, h:233.1, preset:'s23', zoom:1.7, planning:false, targets:false, lang:'de',
-  model:'a', titleF:1.32, dateF:0.92,
+  model:'a', titleF:1.32, dateF:0.92, taskF:0.074, taskFloor:15, taskCeil:21,
   slots:[
     {title:null, done:false, empty:false},
     {title:null, done:true,  empty:false},
@@ -561,7 +577,8 @@ function hintFor(html, left){
 }
 
 function render(){
-  const m = forSlot(state.w, state.h, state.titleF, state.dateF);
+  const m = forSlot(state.w, state.h, state.titleF, state.dateF,
+                    state.taskF, state.taskFloor, state.taskCeil);
   const s = state.zoom;
   const t = TEXT[state.lang];
   const px = v => (v*s) + 'px';
@@ -798,13 +815,57 @@ $('model').querySelectorAll('button').forEach(b => b.onclick = () => {
    beim aktuellen Slot in sp ergibt — der Faktor ist das, was in den Code
    wandert, die sp sind das, was man sieht. */
 function typeOut(){
-  const m = forSlot(state.w, state.h, state.titleF, state.dateF);
+  const m = forSlot(state.w, state.h, state.titleF, state.dateF,
+                    state.taskF, state.taskFloor, state.taskCeil);
   const n = v => v.toFixed(2).replace('.',',');
-  $('titleOut').textContent = n(state.titleF) + ' → ' + m.titleSize.toFixed(1).replace('.',',') + ' sp';
-  $('dateOut').textContent  = n(state.dateF)  + ' → ' + m.dateSize.toFixed(1).replace('.',',')  + ' sp';
+  const sp = v => v.toFixed(1).replace('.',',') + ' sp';
+  $('titleOut').textContent = n(state.titleF) + ' → ' + sp(m.titleSize);
+  $('dateOut').textContent  = n(state.dateF)  + ' → ' + sp(m.dateSize);
+  $('taskOut').textContent  = n(state.taskF)  + ' → ' + sp(m.taskSize);
+  $('floorOut').textContent = sp(state.taskFloor) +
+    (m.taskSize <= state.taskFloor + 0.01 ? ' · trägt gerade' : '');
+  $('ceilOut').textContent  = sp(state.taskCeil) +
+    (m.taskSize >= state.taskCeil - 0.01 ? ' · trägt gerade' : '');
+
+  /* Passt der Text noch in die Zeile? Glance kann Schrift nicht
+     schrumpfen — was nicht passt, wird abgeschnitten. Also muss die
+     Antwort hier stehen, bevor eine Zahl in den Code wandert. */
+  const f = fit(m);
+  const el = $('fitNote');
+  if(f.overflow > 0){
+    el.style.color = 'var(--ember)';
+    el.innerHTML = '<b>Schneidet ab.</b> Die Zeile bietet ' +
+      f.avail.toFixed(0) + ' dp, der Text braucht ' + f.need.toFixed(0) +
+      ' dp. Boden senken, Decke senken oder die Zwei-Zeilen-Schwelle heben.';
+  } else {
+    el.style.color = 'var(--muted)';
+    el.innerHTML = 'Passt: ' + f.need.toFixed(0) + ' von ' + f.avail.toFixed(0) +
+      ' dp belegt' + (f.overflow > -4 ? ' — knapp.' : '.');
+  }
+}
+
+/* Was eine Zeile bietet und was der Text bei maxLines braucht.
+   Die Zeilenhöhe wird gemessen statt gerechnet, damit hier nicht ein
+   zweites, leicht abweichendes Layoutmodell entsteht. */
+function fit(m){
+  const row = document.querySelector('.row');
+  const avail = row ? row.getBoundingClientRect().height / state.zoom : 0;
+  const need = m.maxLines * m.taskSize * 1.25 + 2 * m.rowPadding;
+  return {avail, need, overflow: need - avail};
 }
 $('titleF').oninput = e => { state.titleF = +e.target.value; render(); };
 $('dateF').oninput  = e => { state.dateF  = +e.target.value; render(); };
+$('taskF').oninput  = e => { state.taskF  = +e.target.value; render(); };
+$('taskFloor').oninput = e => {
+  state.taskFloor = +e.target.value;
+  if(state.taskCeil < state.taskFloor){ state.taskCeil = state.taskFloor; $('taskCeil').value = state.taskCeil; }
+  render();
+};
+$('taskCeil').oninput = e => {
+  state.taskCeil = +e.target.value;
+  if(state.taskFloor > state.taskCeil){ state.taskFloor = state.taskCeil; $('taskFloor').value = state.taskFloor; }
+  render();
+};
 
 $('lang').querySelectorAll('button').forEach(b => b.onclick = () => {
   state.lang = b.dataset.l;

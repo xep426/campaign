@@ -432,23 +432,29 @@ private data class WidgetMetrics(
         private val NUMERAL_FLOOR = 240.dp
 
         /**
-         * A second line needs somewhere to put it, and at two cells there
-         * is nowhere: three rows of two lines plus a header overflow the
-         * card and Glance clips rather than shrinks. Deliberately ABOVE the
-         * 4×2 default, so two lines are what a user gets for dragging the
-         * card taller, not something the default promises and truncates.
+         * A second line needs somewhere to put it, and Glance clips rather
+         * than shrinks, so this floor is measured, not chosen: below it two
+         * lines plus the padding exceed what a row is given.
+         *
+         * Measured in widget-study.html against the current type scale.
+         * At 190dp the margin was 0.2dp — arithmetically a fit and
+         * practically a coin toss. It only clears ~3dp at 205dp and
+         * plateaus there, so that is where it sits. Raising the task size
+         * moved this threshold up with it, which is the honest cost of
+         * bigger text and the reason the number lives next to its
+         * derivation.
          */
-        private val TWO_LINE_FLOOR = 190.dp
+        private val TWO_LINE_FLOOR = 205.dp
 
         /**
          * Below this the header is dropped so the three rows are not clipped.
          *
          * Insurance, not a fix for an observed failure — worth saying,
          * because a comment claiming a bug it did not see is worse than no
-         * comment. The arithmetic is the reason: at this 125dp floor, the
-         * header block plus three legible rows needs ~113dp, a margin of
-         * 12dp — and the header grew when it gained its rule and a larger
-         * title, so that margin is smaller than it once was.
+         * comment. The arithmetic is the reason: at this floor the header
+         * block plus three single-line rows leaves ~5dp spare. It was
+         * 125dp until the type grew; there the margin fell to 1.8dp, so
+         * the floor followed the type up.
          * One UI also scales placements by its own ratio
          * (`hsResizeRatio=0.83` on this device) and does not owe
          * minResizeHeight anything, so that margin is not guaranteed.
@@ -457,7 +463,7 @@ private data class WidgetMetrics(
          * "Campaign · MO., 17. AUG." costs identity, losing the third task
          * costs the point.
          */
-        private val HEADER_FLOOR = 125.dp
+        private val HEADER_FLOOR = 135.dp
 
         fun forSlot(slot: DpSize): WidgetMetrics {
             val w = slot.width
@@ -467,12 +473,20 @@ private data class WidgetMetrics(
             // relation to it, so the type stays in proportion at any slot
             // rather than each figure drifting on its own ratio.
             //
-            // The 13sp floor is not a safety margin — at two cells the
-            // ratio wants ~9sp, and this is the size below which the thing
-            // the widget EXISTS to show stops being readable across a room.
+            // The floor is not a safety margin — at two cells the ratio
+            // wants ~8sp, and 15sp is the size below which the thing the
+            // widget EXISTS to show stops being readable across a room.
             // Short cards therefore sit on the floor by design and buy the
             // room back out of padding instead.
-            val task = (h.value * 0.058f).coerceIn(13f, 17f)
+            //
+            // 0.058 with a 13sp floor came first, and it was too small on
+            // real hardware: the ratio only reached its ceiling at ~293dp,
+            // so the actual 4x2 slot (233dp) drew 13.5sp — the floor was
+            // carrying the design and the ratio was decoration. The
+            // ceiling is what two lines can afford at 233dp, which is
+            // ~18.5sp; 21 is reachable only on a card tall enough to
+            // spend it.
+            val task = (h.value * 0.074f).coerceIn(15f, 21f)
 
             return WidgetMetrics(
                 horizontalPadding = (w * 0.05f).coerceIn(14.dp, 22.dp),
@@ -486,9 +500,9 @@ private data class WidgetMetrics(
                 verticalPadding = (h * 0.055f).coerceIn(8.dp, 20.dp),
                 headerGap = (h * 0.045f).coerceIn(7.dp, 18.dp),
                 rowPadding = (h * 0.018f).coerceIn(2.dp, 10.dp),
-                markSize = (task * 1.05f).dp.coerceIn(13.dp, 18.dp),
-                markGap = (task * 0.72f).dp.coerceIn(9.dp, 14.dp),
-                numeralWidth = (task * 1.5f).dp.coerceIn(18.dp, 26.dp),
+                markSize = (task * 1.05f).dp.coerceIn(14.dp, 20.dp),
+                markGap = (task * 0.72f).dp.coerceIn(9.dp, 16.dp),
+                numeralWidth = (task * 1.5f).dp.coerceIn(19.dp, 32.dp),
                 chevronGap = (task * 0.5f).dp.coerceIn(6.dp, 11.dp),
                 // The header carries the card's identity and its one exit, so it
                 // is deliberately larger than the tasks rather than a shade
