@@ -87,9 +87,15 @@ tests because it is the rule that failed.
 **It toggles tasks, and the row is the target.** It shipped view-only on
 the argument that a completion target millimetres from a launcher icon gets
 tapped by accident. The worry was right and the conclusion was wrong — the
-fix is a target big enough to hit on purpose. At 4×2 a row is about 40dp
-tall and the full width of the card — a 14dp mark would sit under Android's
-48dp minimum, and the row does not.
+fix is a target big enough to hit on purpose. Measured on the 4×2 slot One
+UI hands over — 429.7×233.1dp, not the 250×110 the provider declares — a
+row is ~59dp and the full width of the card. A 14dp mark would sit far
+under Android's 48dp minimum; the row clears it.
+
+The figure to distrust here is a guessed one. This paragraph first said
+58dp from memory, was then "corrected" to 40dp on the strength of a code
+comment, and only settled once `dumpsys appwidget` gave the real slot and
+[widget-study.html](widget-study.html) computed the row from it.
 
 **It reads the same day rule as the app.** It did not, once: the widget
 kept using `LocalDate.now()` after the app moved its boundary, so between
@@ -104,7 +110,10 @@ one minutes later.
 
 **Size is the design.** Every dimension comes from the slot the launcher
 actually gave us. A layout of constants would draw the same small card in a
-bigger box, which reads as broken rather than big.
+bigger box, which reads as broken rather than big. The rules are
+portable enough to model outside the app: [widget-study.html](widget-study.html)
+runs the same arithmetic in a browser, which is where the card is now
+designed rather than by rebuilding the APK.
 
 **The tap redraws the card itself** rather than trusting the repository's
 refresh, which loses a race against Samsung's Freecess freezing the app

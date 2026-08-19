@@ -59,9 +59,15 @@ import java.util.Locale
  * This shipped view-only first, on the argument that a completion target
  * millimetres from a launcher icon gets tapped by accident. That worry was
  * right and the conclusion was wrong: the fix is a target big enough to
- * hit on purpose, not no target at all. At 4×2 the card gives each row
- * about 40dp — so a 14dp mark would sit under Android's 48dp minimum,
- * while the ROW does not.
+ * hit on purpose, not no target at all. On the 4×2 slot One UI actually
+ * hands over — 429.7×233.1dp, measured, not the 250×110 the provider
+ * declares — each row is ~59dp. A 14dp mark would sit far under
+ * Android's 48dp minimum; the row clears it comfortably.
+ *
+ * At the DECLARED minimum the row is ~30dp and does not clear it. That
+ * size only occurs below API 31, where targetCell* is ignored, and there
+ * the header is dropped too (see HEADER_FLOOR) — a card already in its
+ * degraded shape. Worth knowing rather than worth designing around.
  *
  * Hence the division:
  *  - a filled row TOGGLES it, exactly as tapping a row does on Today. Two

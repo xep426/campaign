@@ -83,6 +83,10 @@ data during composition — are written up in
 [docs/decisions.md](docs/decisions.md), along with the ones that were only
 arrived at by getting them wrong first.
 
+[docs/widget-study.html](docs/widget-study.html) is a working model of the
+home-screen widget: it runs the real sizing rules in a browser, so the card
+can be resized and restyled without rebuilding the app.
+
 [docs/design-study.html](docs/design-study.html) is the HTML mock the app
 was built from. It is kept as the original artefact and is **not current**.
 

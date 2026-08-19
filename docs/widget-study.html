@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campaign — Widget-Studie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Karla:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   Campaign — Widget-Studie
+
+   Ein Messtisch, kein Bild. Die Karte in der Mitte rechnet mit
+   demselben Regelwerk wie WidgetMetrics.forSlot() in
+   widget/CampaignWidget.kt — dieselben Faktoren, dieselben
+   Klammern, dieselben drei Schwellen. Wer hier zieht, sieht das
+   Verhalten des echten Widgets, nicht eine Zeichnung davon.
+
+   Palette 1:1 aus ui/theme/Color.kt.
+   ============================================================ */
+:root{
+  --void:#0E0C0A;
+  --ink:#15120E;
+  --surface:#1D1913;
+  --surface-2:#262019;
+  --line:rgba(240,233,219,.10);
+  --line-strong:rgba(240,233,219,.18);
+  --hairline:rgba(240,233,219,.063);  /* 0x10F0E9DB, die Trennlinie der Karte */
+  --paper:#F0E9DB;
+  --paper-dim:#A79D8B;
+  --muted:#736A5C;
+  --ember:#E5913C;
+  --ember-deep:#B5651F;
+  --sage:#93A97E;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body{
+  background:var(--void);
+  color:var(--paper);
+  font-family:'Karla','Helvetica Neue',sans-serif;
+  font-size:15px;line-height:1.5;min-height:100vh;
+}
+/* Dämmerung von unten links — dieselbe Atmosphäre wie die Design-Studie */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(120% 80% at 12% 100%, rgba(229,145,60,.07) 0%, transparent 55%),
+    radial-gradient(90% 60% at 90% 0%, rgba(147,169,126,.04) 0%, transparent 60%);
+}
+.mono{font-family:'IBM Plex Mono',monospace}
+
+/* ---------- Kopf ---------- */
+header{
+  position:relative;z-index:1;
+  max-width:1240px;margin:0 auto;padding:56px 40px 30px;
+}
+.eyebrow{
+  font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--ember);margin-bottom:16px;
+}
+h1{
+  font-family:'Fraunces',Georgia,serif;
+  font-variation-settings:'SOFT' 24,'WONK' 1,'opsz' 90;
+  font-weight:300;font-size:clamp(34px,5vw,54px);line-height:1.04;
+  letter-spacing:-.02em;margin-bottom:18px;
+}
+.lede{max-width:60ch;color:var(--paper-dim);font-size:16.5px}
+.lede em{color:var(--paper);font-style:normal}
+
+/* ---------- Aufbau ---------- */
+.bench{
+  position:relative;z-index:1;
+  max-width:1240px;margin:0 auto;padding:0 40px 80px;
+  display:grid;grid-template-columns:minmax(0,1fr) 306px;gap:34px;align-items:start;
+}
+@media (max-width:1020px){.bench{grid-template-columns:1fr}}
+
+/* Der Tisch, auf dem die Karte liegt */
+.stage{
+  position:relative;border:1px solid var(--line);border-radius:4px;
+  background:
+    linear-gradient(var(--line) 1px, transparent 1px) 0 0/28px 28px,
+    linear-gradient(90deg, var(--line) 1px, transparent 1px) 0 0/28px 28px,
+    var(--ink);
+  background-blend-mode:normal;
+  padding:82px 76px;min-height:520px;
+  display:flex;align-items:center;justify-content:center;overflow:auto;
+}
+.stage::after{  /* Rasterkante ausblenden, damit das Gitter nicht abgeschnitten wirkt */
+  content:'';position:absolute;inset:0;pointer-events:none;border-radius:4px;
+  box-shadow:inset 0 0 90px 30px var(--ink);
+}
+.specimen{position:relative;flex:none}
+
+/* ---------- Maßlinien, technische Zeichnung ---------- */
+.dim{position:absolute;pointer-events:none;color:var(--ember);opacity:.8}
+.dim .rule{position:absolute;background:currentColor}
+.dim .tick{position:absolute;background:currentColor}
+.dim .label{
+  position:absolute;font-family:'IBM Plex Mono',monospace;font-size:10px;
+  letter-spacing:.08em;white-space:nowrap;color:var(--ember);
+}
+.dim-w{left:0;right:0;bottom:-40px;height:1px}
+.dim-w .rule{left:0;right:0;top:0;height:1px}
+.dim-w .tick{top:-5px;width:1px;height:11px}
+.dim-w .label{top:9px;left:50%;transform:translateX(-50%);
+  background:var(--ink);padding:0 8px}
+.dim-h{top:0;bottom:0;right:-40px;width:1px}
+.dim-h .rule{top:0;bottom:0;left:0;width:1px}
+.dim-h .tick{left:-5px;height:1px;width:11px}
+.dim-h .label{left:9px;top:50%;transform:translateY(-50%) rotate(90deg);
+  transform-origin:left center;background:var(--ink);padding:0 8px}
+
+/* ============================================================
+   DIE KARTE. Ab hier ist nichts mehr Gestaltung dieser Seite,
+   sondern Nachbau: jede Zahl kommt aus metrics(), jede Farbe aus
+   der Palette, und die Schrift ist bewusst die System-Sans —
+   Glance setzt keine fontFamily, also zeichnet Android hier
+   Roboto bzw. One UI Sans, nicht die Fraunces der App.
+   ============================================================ */
+.card{
+  position:relative;
+  font-family:Roboto,'Helvetica Neue',Arial,sans-serif;
+  background:rgba(29,25,19,.949);        /* #F21D1913 */
+  border:var(--px1) solid var(--line-strong);
+  border-radius:calc(22px * var(--s));   /* widget_background.xml */
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  box-shadow:0 24px 60px -20px rgba(0,0,0,.75);
+}
+.card-head{display:flex;align-items:center;flex:none}
+.card-title{color:var(--paper);font-weight:500;line-height:1.15}
+.card-date{color:var(--ember);font-weight:500;line-height:1.15;text-transform:uppercase;
+  letter-spacing:.02em;margin-left:auto}
+.rows{flex:1;display:flex;flex-direction:column;min-height:0}
+.hair{flex:none;height:var(--px1);background:var(--hairline)}
+/* defaultWeight(): die drei Zeilen teilen sich die Resthöhe */
+.row{flex:1 1 0;display:flex;align-items:center;min-height:0;position:relative;cursor:pointer}
+.numeral{flex:none;font-weight:500;line-height:1;color:var(--ember-deep)}
+.row.empty .numeral{color:var(--muted)}
+.mark{flex:none;border-radius:50%}
+.mark.open{border:var(--px1) solid var(--line-strong)}
+.mark.done{background:var(--sage)}
+.task{
+  color:var(--paper);line-height:1.25;overflow:hidden;
+  display:-webkit-box;-webkit-box-orient:vertical;
+}
+.row.empty .task,.row.done .task{color:var(--muted)}
+.row.done .task{text-decoration:line-through}
+
+/* Trefferflächen sichtbar machen */
+.card.targets .row::after{
+  content:'';position:absolute;inset:0;
+  border:1px dashed rgba(229,145,60,.5);
+  background:rgba(229,145,60,.05);
+}
+.card.targets .card-head{position:relative}
+.card.targets .card-head::after{
+  content:'';position:absolute;inset:calc(-4px * var(--s)) 0;
+  border:1px dashed rgba(147,169,126,.5);background:rgba(147,169,126,.05);
+}
+.hint{
+  position:absolute;left:100%;top:50%;transform:translateY(-50%);
+  margin-left:16px;font-family:'IBM Plex Mono',monospace;font-size:10px;
+  letter-spacing:.06em;white-space:nowrap;color:var(--muted);opacity:0;
+  transition:opacity .18s;pointer-events:none;
+}
+.row:hover .hint{opacity:1}
+.hint b{color:var(--ember);font-weight:400}
+
+/* Ziehgriff unten rechts */
+.grip{
+  position:absolute;right:-9px;bottom:-9px;width:20px;height:20px;
+  border-right:2px solid var(--ember);border-bottom:2px solid var(--ember);
+  border-bottom-right-radius:5px;cursor:nwse-resize;opacity:.65;
+  transition:opacity .2s;z-index:3;
+}
+.grip:hover{opacity:1}
+
+/* ---------- Bedienleiste ---------- */
+.rail{display:flex;flex-direction:column;gap:26px}
+.panel{border:1px solid var(--line);border-radius:4px;background:rgba(21,18,14,.6);padding:20px}
+.panel h2{
+  font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--muted);font-weight:400;margin-bottom:15px;
+}
+.presets{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+button.preset{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.04em;
+  background:transparent;color:var(--paper-dim);border:1px solid var(--line);
+  border-radius:3px;padding:9px 8px;cursor:pointer;transition:all .18s;text-align:left;
+}
+button.preset:hover{border-color:var(--line-strong);color:var(--paper)}
+button.preset[aria-pressed="true"]{
+  border-color:var(--ember);color:var(--ember);background:rgba(229,145,60,.07);
+}
+button.preset small{display:block;color:var(--muted);font-size:9.5px;margin-top:3px}
+button.preset[aria-pressed="true"] small{color:rgba(229,145,60,.7)}
+
+.field{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:8px 0;border-bottom:1px solid var(--line)}
+.field:last-child{border-bottom:0}
+.field label{font-size:13.5px;color:var(--paper-dim);cursor:pointer}
+.field .note{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+input[type=range]{width:110px;accent-color:var(--ember)}
+.sw{
+  position:relative;width:38px;height:21px;border-radius:11px;flex:none;
+  background:var(--surface-2);border:1px solid var(--line);cursor:pointer;transition:all .2s;
+}
+.sw::after{content:'';position:absolute;top:2px;left:2px;width:15px;height:15px;
+  border-radius:50%;background:var(--muted);transition:all .2s}
+.sw[aria-pressed="true"]{background:rgba(229,145,60,.18);border-color:var(--ember)}
+.sw[aria-pressed="true"]::after{left:19px;background:var(--ember)}
+
+.seg{display:flex;border:1px solid var(--line);border-radius:3px;overflow:hidden}
+.seg button{
+  flex:1;font-family:'IBM Plex Mono',monospace;font-size:11px;padding:7px 4px;
+  background:transparent;color:var(--muted);border:0;cursor:pointer;transition:all .18s;
+}
+.seg button[aria-pressed="true"]{background:rgba(229,145,60,.1);color:var(--ember)}
+
+/* Zeilenzustände */
+.slotctl{display:grid;grid-template-columns:22px 1fr auto;gap:9px;align-items:center;
+  padding:7px 0;border-bottom:1px solid var(--line)}
+.slotctl:last-child{border-bottom:0}
+.slotctl .n{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ember-deep)}
+.slotctl input[type=text]{
+  background:transparent;border:0;border-bottom:1px solid var(--line);
+  color:var(--paper);font-family:'Karla',sans-serif;font-size:13px;padding:3px 0;width:100%;
+}
+.slotctl input[type=text]:focus{outline:0;border-bottom-color:var(--ember)}
+.slotctl input[type=text]:disabled{color:var(--muted)}
+.tiny{
+  font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.08em;
+  text-transform:uppercase;background:transparent;border:1px solid var(--line);
+  color:var(--muted);border-radius:3px;padding:4px 7px;cursor:pointer;transition:all .18s;
+}
+.tiny:hover{border-color:var(--line-strong);color:var(--paper-dim)}
+.tiny[aria-pressed="true"]{border-color:var(--sage);color:var(--sage);background:rgba(147,169,126,.08)}
+.tiny[data-empty="1"]{border-color:var(--line);color:var(--muted)}
+
+/* ---------- Ablesung ---------- */
+.readout{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono',monospace;font-size:11px}
+.readout td{padding:3.5px 0;color:var(--paper-dim);vertical-align:baseline}
+.readout td:last-child{text-align:right;color:var(--paper)}
+.readout tr.derived td{color:var(--muted)}
+.readout tr.derived td:last-child{color:var(--paper-dim)}
+.readout .grp td{
+  padding-top:13px;color:var(--muted);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+}
+.clamped{color:var(--ember)!important}
+.clamped::after{content:' ▲';font-size:8px;vertical-align:super}
+
+.thresh{display:flex;flex-direction:column;gap:9px}
+.th{display:flex;align-items:flex-start;gap:10px;font-size:12.5px;color:var(--muted)}
+.th .dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex:none;margin-top:6px;
+  transition:all .25s}
+.th.on{color:var(--paper-dim)}
+.th.on .dot{background:var(--sage);box-shadow:0 0 9px rgba(147,169,126,.6)}
+.th code{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ember);
+  display:block;margin-top:1px}
+
+/* ---------- Fußnoten ---------- */
+footer{
+  position:relative;z-index:1;max-width:1240px;margin:0 auto;
+  padding:0 40px 90px;
+}
+.rulehr{height:1px;background:var(--line);margin-bottom:34px}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:30px}
+.notes h3{
+  font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--ember);font-weight:400;margin-bottom:10px;
+}
+.notes p{font-size:14px;color:var(--paper-dim);margin-bottom:9px}
+.notes code{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--paper)}
+.notes strong{color:var(--paper);font-weight:500}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Campaign · Widget-Studie</div>
+  <h1>Die Karte auf dem Messtisch</h1>
+  <p class="lede">Kein Bild des Widgets, sondern sein Regelwerk. Die Karte unten rechnet mit
+  demselben Code wie <em>WidgetMetrics.forSlot()</em> — dieselben Faktoren, dieselben Klammern,
+  dieselben drei Schwellen. Zieh sie an der Ecke größer und die Gestaltung ändert sich so,
+  wie sie es auf dem Homescreen tut.</p>
+</header>
+
+<div class="bench">
+  <div class="stage">
+    <div class="specimen" id="specimen">
+      <div class="card" id="card">
+        <div class="card-head" id="head">
+          <span class="card-title" id="cardTitle">Campaign</span>
+          <span class="card-date" id="cardDate">DI., 19. AUG</span>
+        </div>
+        <div class="rows" id="rows"></div>
+      </div>
+      <div class="dim dim-w"><i class="rule"></i><i class="tick" style="left:0"></i>
+        <i class="tick" style="right:0"></i><span class="label" id="dimW">—</span></div>
+      <div class="dim dim-h"><i class="rule"></i><i class="tick" style="top:0"></i>
+        <i class="tick" style="bottom:0"></i><span class="label" id="dimH">—</span></div>
+      <div class="grip" id="grip" title="Ziehen ändert die Slot-Größe"></div>
+    </div>
+  </div>
+
+  <div class="rail">
+
+    <div class="panel">
+      <h2>Slot</h2>
+      <div class="presets" id="presets"></div>
+      <div class="field" style="margin-top:14px">
+        <label for="zoom">Zoom<span class="note">1 dp = <span id="zoomVal">1,7</span> px</span></label>
+        <input type="range" id="zoom" min="1" max="3" step=".1" value="1.7">
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Zustand</h2>
+      <div class="field">
+        <label for="planning">Planungsfenster
+          <span class="note">nach dem Umschlag, vor Mitternacht</span></label>
+        <div class="sw" id="planning" role="button" aria-pressed="false" tabindex="0"></div>
+      </div>
+      <div class="field">
+        <label for="targets">Trefferflächen zeigen
+          <span class="note">was ein Tippen wo auslöst</span></label>
+        <div class="sw" id="targets" role="button" aria-pressed="false" tabindex="0"></div>
+      </div>
+      <div class="field" style="border-bottom:0;padding-bottom:2px">
+        <label>Sprache</label>
+        <div class="seg" id="lang" style="width:130px">
+          <button data-l="de" aria-pressed="true">Deutsch</button>
+          <button data-l="en" aria-pressed="false">English</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Die drei Plätze</h2>
+      <div id="slotctls"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Schwellen</h2>
+      <div class="thresh">
+        <div class="th" id="thNum"><i class="dot"></i><div>Ziffern I · II · III
+          <code>Breite ≥ 240 dp</code></div></div>
+        <div class="th" id="thHead"><i class="dot"></i><div>Kopfzeile
+          <code>Höhe ≥ 125 dp</code></div></div>
+        <div class="th" id="thLines"><i class="dot"></i><div>Zwei Zeilen pro Aufgabe
+          <code>Höhe ≥ 190 dp</code></div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Abgeleitete Maße</h2>
+      <table class="readout" id="readout"></table>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="rulehr"></div>
+  <div class="notes">
+    <div>
+      <h3>Woher die Zahlen kommen</h3>
+      <p><strong>429,7 × 233,1 dp</strong> ist gemessen, nicht geschätzt: die Voreinstellung
+      ist der Slot, den One UI dem platzierten Widget auf dem Galaxy S23 tatsächlich gibt
+      (<code>appWidgetSizes</code> aus <code>dumpsys appwidget</code>).</p>
+      <p>Das <em>deklarierte Minimum</em> 250 × 110 dp ist die Rechnung 70·n − 30 aus
+      <code>campaign_widget_info.xml</code> — was Geräte unter API 31 nehmen, wo
+      <code>targetCell*</code> ignoriert wird. Die Karte muss auch dort noch stimmen.
+      Die übrigen Größen sind aus dem gemessenen Raster hochgerechnet.</p>
+    </div>
+    <div>
+      <h3>Was hier stimmt</h3>
+      <p>Farben, Radien, Faktoren, Klammern und Schwellen sind aus dem Quelltext
+      übernommen. Die drei Zeilen teilen sich die Resthöhe über <code>flex:1</code>,
+      genau wie <code>defaultWeight()</code>. Die Schrift der Karte ist bewusst eine
+      System-Sans: Glance setzt keine <code>fontFamily</code>, das Widget bekommt also
+      Roboto bzw. One UI Sans — nicht die Fraunces der App.</p>
+    </div>
+    <div>
+      <h3>Was hier nicht stimmt</h3>
+      <p>Zeilenhöhen sind CSS, nicht RemoteViews; die Zeilenhöhe in dp kann um ein bis zwei
+      dp abweichen. <code>sp</code> wird als <code>dp</code> gezeichnet, also ohne die
+      Schriftskalierung des Systems — wer sie hochstellt, bekommt auf dem Gerät größere
+      Schrift bei gleicher Karte. Und das Abschneiden langer Titel ist die
+      CSS-Näherung von <code>maxLines</code>.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   Portierung von WidgetMetrics.forSlot(). Einziger Anspruch:
+   dieselben Zahlen wie der Kotlin-Code. Wenn dort etwas
+   geändert wird, muss es hier mitgeändert werden — die
+   Faktoren stehen deshalb nackt da statt in Konstanten.
+   ============================================================ */
+const NUMERAL_FLOOR = 240, TWO_LINE_FLOOR = 190, HEADER_FLOOR = 125;
+const clamp = (v,a,b) => Math.min(b, Math.max(a,v));
+
+function forSlot(w,h){
+  const task = clamp(h*0.058, 13, 17);
+  return {
+    task,
+    horizontalPadding: clamp(w*0.05,  14, 22),
+    verticalPadding:   clamp(h*0.055,  8, 20),
+    headerGap:         clamp(h*0.045,  7, 18),
+    rowPadding:        clamp(h*0.018,  2, 10),
+    markSize:          clamp(task*1.05,13, 18),
+    markGap:           clamp(task*0.72, 9, 14),
+    numeralWidth:      clamp(task*1.5, 18, 26),
+    titleSize:  task*1.08,
+    dateSize:   Math.max(task*0.72, 9),
+    taskSize:   task,
+    numeralSize:task*0.86,
+    showNumerals: w >= NUMERAL_FLOOR,
+    showHeader:   h >= HEADER_FLOOR,
+    maxLines:     h >= TWO_LINE_FLOOR ? 2 : 1,
+  };
+}
+
+/* Das gemessene Raster des S23: 4×2 → 429,71 × 233,14 dp.
+   Pro Spalte/Reihe linear daraus abgeleitet — Launcher-Abstände
+   machen das nicht exakt, für eine Studie reicht es. */
+const CELL_W = 429.7143/4, CELL_H = 233.14285/2;
+const cells = (c,r) => ({w:+(CELL_W*c).toFixed(1), h:+(CELL_H*r).toFixed(1)});
+
+const PRESETS = [
+  {id:'s23',  label:'4 × 2',  sub:'gemessen, S23',   w:429.7, h:233.1},
+  {id:'4x3',  label:'4 × 3',  sub:'hochgerechnet',   ...cells(4,3)},
+  {id:'3x2',  label:'3 × 2',  sub:'kleinste Breite', ...cells(3,2)},
+  {id:'5x3',  label:'5 × 3',  sub:'Tablet-nah',      ...cells(5,3)},
+  {id:'min',  label:'250×110',sub:'deklariert, 70n−30', w:250, h:110},
+  {id:'tiny', label:'180×110',sub:'kleinste Änderung',  w:180, h:110},
+];
+
+const TEXT = {
+  de:{title:'Campaign', empty:'Freier Platz', date:'EEE, d. MMM',
+      tasks:['Steuerunterlagen zusammenstellen','Wohnung: Termin mit dem Makler','Laufen gehen']},
+  en:{title:'Campaign', empty:'Open slot', date:'EEE d MMM',
+      tasks:['Pull together the tax papers','Flat: call the estate agent','Go for a run']},
+};
+
+const state = {
+  w:429.7, h:233.1, preset:'s23', zoom:1.7, planning:false, targets:false, lang:'de',
+  slots:[
+    {title:null, done:false, empty:false},
+    {title:null, done:true,  empty:false},
+    {title:null, done:false, empty:true },
+  ],
+};
+
+/* ---------- Datum wie im Widget: Muster je Sprache, Großbuchstaben ---------- */
+function dateLabel(){
+  const d = new Date();
+  const loc = state.lang === 'de' ? 'de-DE' : 'en-GB';
+  const wd = d.toLocaleDateString(loc,{weekday:'short'});
+  const mo = d.toLocaleDateString(loc,{month:'short'});
+  const s = state.lang === 'de'
+    ? `${wd}, ${d.getDate()}. ${mo}`   // EEE, d. MMM
+    : `${wd} ${d.getDate()} ${mo}`;    // EEE d MMM
+  return s.toUpperCase();
+}
+
+/* ---------- Zeichnen ---------- */
+const $ = id => document.getElementById(id);
+
+function render(){
+  const m = forSlot(state.w, state.h);
+  const s = state.zoom;
+  const t = TEXT[state.lang];
+  const px = v => (v*s) + 'px';
+
+  const card = $('card');
+  card.style.setProperty('--s', s);
+  card.style.setProperty('--px1', Math.max(1, s) + 'px');  /* 1dp Strich */
+  card.style.width  = px(state.w);
+  card.style.height = px(state.h);
+  card.style.padding = `${px(m.verticalPadding)} ${px(m.horizontalPadding)}`;
+  card.classList.toggle('targets', state.targets);
+
+  /* Kopfzeile */
+  const head = $('head');
+  head.style.display = m.showHeader ? 'flex' : 'none';
+  head.style.marginBottom = px(m.headerGap);
+  $('cardTitle').style.fontSize = px(m.titleSize);
+  $('cardDate').style.fontSize  = px(m.dateSize);
+  $('cardTitle').textContent = t.title;
+  $('cardDate').textContent  = dateLabel();
+
+  /* Zeilen */
+  const rows = $('rows');
+  rows.innerHTML = '';
+  state.slots.forEach((slot, i) => {
+    if(i > 0){
+      const hair = document.createElement('div');
+      hair.className = 'hair';
+      hair.style.height = Math.max(1, s) + 'px';
+      rows.appendChild(hair);
+    }
+    const row = document.createElement('div');
+    row.className = 'row' + (slot.empty ? ' empty' : '') +
+                    (!slot.empty && slot.done && !state.planning ? ' done' : '');
+    row.style.padding = `${px(m.rowPadding)} 0`;
+
+    if(m.showNumerals){
+      const n = document.createElement('span');
+      n.className = 'numeral';
+      n.textContent = ['I','II','III'][i];
+      n.style.fontSize = px(m.numeralSize);
+      n.style.width = px(m.numeralWidth);
+      row.appendChild(n);
+    }
+    /* Im Planungsfenster gibt es keine Marke: ein Kästchen, das nicht
+       angekreuzt werden kann, lädt zum Tippen ein und verweigert dann. */
+    if(!state.planning){
+      const mark = document.createElement('span');
+      mark.className = 'mark ' + (!slot.empty && slot.done ? 'done' : 'open');
+      mark.style.width = mark.style.height = px(m.markSize);
+      mark.style.marginRight = px(m.markGap);
+      row.appendChild(mark);
+    }
+    const task = document.createElement('span');
+    task.className = 'task';
+    task.textContent = slot.empty ? t.empty : (slot.title ?? t.tasks[i]);
+    task.style.fontSize = px(m.taskSize);
+    task.style.webkitLineClamp = m.maxLines;
+    row.appendChild(task);
+
+    const hint = document.createElement('span');
+    hint.className = 'hint';
+    hint.innerHTML = (slot.empty || state.planning)
+      ? '→ <b>öffnet die App</b>'
+      : '→ <b>hakt ab</b>, ohne die App zu öffnen';
+    row.appendChild(hint);
+
+    row.onclick = () => {
+      if(slot.empty || state.planning) return;
+      slot.done = !slot.done; render(); syncControls();
+    };
+    rows.appendChild(row);
+  });
+
+  /* Maßlinien */
+  $('dimW').textContent = state.w.toFixed(1).replace('.',',') + ' dp';
+  $('dimH').textContent = state.h.toFixed(1).replace('.',',') + ' dp';
+
+  /* Schwellen */
+  $('thNum').classList.toggle('on', m.showNumerals);
+  $('thHead').classList.toggle('on', m.showHeader);
+  $('thLines').classList.toggle('on', m.maxLines === 2);
+
+  drawReadout(m);
+}
+
+/* Die Ablesung. Geklammerte Werte werden markiert — dort hört das
+   stetige Skalieren auf und der Boden bzw. die Decke trägt. */
+function drawReadout(m){
+  const rowH = document.querySelector('.row');
+  const measured = rowH ? (rowH.getBoundingClientRect().height / state.zoom) : 0;
+  const at = (v,a,b) => (v <= a + 0.01 || v >= b - 0.01) ? 'clamped' : '';
+  const n = v => v.toFixed(1).replace('.',',');
+
+  const rows = [
+    ['grp','Schrift (sp)'],
+    ['Aufgabe',   n(m.taskSize),    at(m.task,13,17)],
+    ['Titel',     n(m.titleSize),   ''],
+    ['Datum',     n(m.dateSize),    at(m.dateSize,9,1e9)],
+    ['Ziffer',    n(m.numeralSize), ''],
+    ['grp','Abstände (dp)'],
+    ['Rand ↔',    n(m.horizontalPadding), at(m.horizontalPadding,14,22)],
+    ['Rand ↕',    n(m.verticalPadding),   at(m.verticalPadding,8,20)],
+    ['nach Kopf', n(m.headerGap),         at(m.headerGap,7,18)],
+    ['in Zeile',  n(m.rowPadding),        at(m.rowPadding,2,10)],
+    ['grp','Marke &amp; Ziffer (dp)'],
+    ['Marke',     n(m.markSize),    at(m.markSize,13,18)],
+    ['Abstand',   n(m.markGap),     at(m.markGap,9,14)],
+    ['Ziffernspalte', n(m.numeralWidth), at(m.numeralWidth,18,26)],
+    ['grp','Ergebnis'],
+    ['Zeilenhöhe', n(measured) + ' dp', measured >= 48 ? '' : 'clamped'],
+  ];
+
+  $('readout').innerHTML = rows.map(r => r[0] === 'grp'
+    ? `<tr class="grp"><td colspan="2">${r[1]}</td></tr>`
+    : `<tr><td>${r[0]}</td><td class="${r[2]}">${r[1]}</td></tr>`
+  ).join('');
+}
+
+/* ---------- Bedienung ---------- */
+function buildPresets(){
+  $('presets').innerHTML = PRESETS.map(p =>
+    `<button class="preset" data-id="${p.id}" aria-pressed="${state.preset===p.id}">
+       ${p.label}<small>${p.sub}</small></button>`).join('');
+  $('presets').querySelectorAll('button').forEach(b => b.onclick = () => {
+    const p = PRESETS.find(x => x.id === b.dataset.id);
+    state.w = p.w; state.h = p.h; state.preset = p.id;
+    buildPresets(); render();
+  });
+}
+
+function buildSlotControls(){
+  $('slotctls').innerHTML = state.slots.map((s,i) => `
+    <div class="slotctl">
+      <span class="n">${['I','II','III'][i]}</span>
+      <input type="text" data-i="${i}" value="${s.empty ? '' : (s.title ?? TEXT[state.lang].tasks[i])}"
+             placeholder="frei" ${s.empty ? 'disabled' : ''}>
+      <span style="display:flex;gap:5px">
+        <button class="tiny" data-toggle="empty" data-i="${i}" data-empty="${s.empty?1:0}"
+                aria-pressed="${s.empty}">frei</button>
+        <button class="tiny" data-toggle="done" data-i="${i}"
+                aria-pressed="${!s.empty && s.done}" ${s.empty?'disabled':''}>fertig</button>
+      </span>
+    </div>`).join('');
+
+  $('slotctls').querySelectorAll('input[type=text]').forEach(inp => {
+    inp.oninput = () => { state.slots[+inp.dataset.i].title = inp.value; render(); };
+  });
+  $('slotctls').querySelectorAll('button[data-toggle]').forEach(b => {
+    b.onclick = () => {
+      const s = state.slots[+b.dataset.i];
+      if(b.dataset.toggle === 'empty'){ s.empty = !s.empty; if(s.empty) s.done = false; }
+      else s.done = !s.done;
+      buildSlotControls(); render();
+    };
+  });
+}
+function syncControls(){ buildSlotControls(); }
+
+function toggle(id, key, after){
+  const el = $(id);
+  const flip = () => {
+    state[key] = !state[key];
+    el.setAttribute('aria-pressed', state[key]);
+    if(after) after();
+    render();
+  };
+  el.onclick = flip;
+  el.onkeydown = e => { if(e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); flip(); } };
+}
+toggle('planning','planning');
+toggle('targets','targets');
+
+$('zoom').oninput = e => {
+  state.zoom = +e.target.value;
+  $('zoomVal').textContent = state.zoom.toFixed(1).replace('.',',');
+  render();
+};
+
+$('lang').querySelectorAll('button').forEach(b => b.onclick = () => {
+  state.lang = b.dataset.l;
+  $('lang').querySelectorAll('button').forEach(x =>
+    x.setAttribute('aria-pressed', x.dataset.l === state.lang));
+  state.slots.forEach(s => s.title = null);   // Beispieltitel der Sprache folgen lassen
+  buildSlotControls(); render();
+});
+
+/* Freies Ziehen an der Ecke */
+(function(){
+  const grip = $('grip');
+  let start = null;
+  const move = e => {
+    if(!start) return;
+    const p = e.touches ? e.touches[0] : e;
+    state.w = clamp(start.w + (p.clientX - start.x)/state.zoom, 120, 900);
+    state.h = clamp(start.h + (p.clientY - start.y)/state.zoom, 70, 600);
+    state.preset = null; buildPresets(); render();
+  };
+  const end = () => { start = null; document.body.style.userSelect = ''; };
+  const begin = e => {
+    const p = e.touches ? e.touches[0] : e;
+    start = {x:p.clientX, y:p.clientY, w:state.w, h:state.h};
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+  };
+  grip.addEventListener('mousedown', begin);
+  grip.addEventListener('touchstart', begin, {passive:false});
+  window.addEventListener('mousemove', move);
+  window.addEventListener('touchmove', move, {passive:false});
+  window.addEventListener('mouseup', end);
+  window.addEventListener('touchend', end);
+})();
+
+buildPresets();
+buildSlotControls();
+render();
+</script>
+</body>
+</html>
