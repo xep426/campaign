@@ -507,7 +507,12 @@ private data class WidgetMetrics(
                 // The header carries the card's identity and its one exit, so it
                 // is deliberately larger than the tasks rather than a shade
                 // above them: at 1.08 it read as another list row.
-                titleSize = (task * 1.32f).sp,
+                //
+                // Settled at 1.25 by eye, from 1.32 — the card only has
+                // four things on it and the title is not one of the three
+                // that matter. Big enough to be the way out, not so big
+                // that it competes with the tasks for the first look.
+                titleSize = (task * 1.25f).sp,
                 // 9sp was legible on a bench and not across a room. The floor
                 // matters more than the ratio here — the date is the shortest
                 // string on the card and the first to become decoration.
