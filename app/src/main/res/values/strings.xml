@@ -94,6 +94,10 @@
 
     <!-- ── History ─────────────────────────────────────────────────── -->
     <string name="history_title">History</string>
+    <string name="tally_window">Last %1$d days</string>
+    <string name="tally_of_possible">%1$d of %2$d possible</string>
+    <string name="tally_all_time">%1$d finished in all</string>
+    <string name="tally_empty">Nothing finished yet</string>
     <string name="history_nothing_yet">nothing yet</string>
     <string name="history_finished_count">%1$d finished</string>
     <string name="history_tab_tasks">Tasks</string>
@@ -101,7 +105,7 @@
     <string name="history_foot_tasks">A record, not a scoreboard.\nNo streaks. Nothing to break.</string>
     <string name="history_foot_tasks_empty">Nothing finished on its own yet.</string>
     <string name="history_foot_campaigns">Tap a campaign to bring it back.</string>
-    <string name="history_foot_campaigns_empty">Nothing finished or archived yet.</string>
+    <string name="history_foot_campaigns_empty">No campaign finished yet.</string>
     <string name="history_campaign_meta">%1$s · %2$s</string>
     <string name="history_campaign_range">%1$s → %2$s</string>
     <string name="status_completed">Completed</string>

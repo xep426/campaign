@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -31,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.xep426.campaign.R
 import io.github.xep426.campaign.domain.model.Campaign
+import io.github.xep426.campaign.domain.model.Progress
 import io.github.xep426.campaign.domain.model.DailyTask
 import io.github.xep426.campaign.ui.components.CampaignTag
 import io.github.xep426.campaign.ui.components.Eyebrow
@@ -40,6 +42,7 @@ import io.github.xep426.campaign.ui.components.rememberDateFormat
 import io.github.xep426.campaign.ui.theme.LineStrong
 import io.github.xep426.campaign.ui.theme.MonoLabel
 import io.github.xep426.campaign.ui.theme.MonoMeta
+import io.github.xep426.campaign.ui.theme.Ember
 import io.github.xep426.campaign.ui.theme.Muted
 import io.github.xep426.campaign.ui.theme.PaperDim
 import io.github.xep426.campaign.ui.theme.Paper
@@ -106,6 +109,11 @@ fun HistoryScreen(
                     style = MaterialTheme.typography.headlineLarge,
                     color = Paper,
                 )
+                Spacer(Modifier.height(SpaceLg))
+                // Under the title, not above it. The tally is what this
+                // screen adds up, so it belongs inside the screen rather
+                // than in front of its name.
+                Tally(state.progress)
                 Spacer(Modifier.height(SpaceLg))
                 Segmented(tab) { tab = it }
                 Spacer(Modifier.height(SpaceSm))
@@ -262,5 +270,62 @@ private fun FinishedCampaignRow(
             style = MonoMeta,
             color = Muted,
         )
+    }
+}
+
+/**
+ * The tally: everything finished, and how full the last thirty days were.
+ *
+ * A number and the fraction it came from, and nothing else. No bar, no
+ * chart, no streak — a progress bar lived on Today once and was taken out,
+ * and a percentage that cannot be checked against its own arithmetic is
+ * the kind of number that starts feeling like a scold.
+ *
+ * The fraction is the honest half. "62%" alone invites reading three a day
+ * as a target; "37 of 60 possible" says what the ceiling actually was.
+ */
+@Composable
+private fun Tally(progress: Progress) {
+    Column(Modifier.fillMaxWidth()) {
+        Eyebrow(stringResource(R.string.tally_window, progress.windowDays), Ember)
+        Spacer(Modifier.height(SpaceSm))
+
+        if (progress.possible == 0) {
+            // Before the first task there is no window to be a fraction of,
+            // and 0% would be a judgement on a day that has not happened.
+            Text(
+                text = stringResource(R.string.tally_empty),
+                style = MaterialTheme.typography.headlineSmall,
+                color = Muted,
+            )
+        } else {
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text(
+                    text = "${progress.percent}",
+                    style = MaterialTheme.typography.displaySmall,
+                    color = Paper,
+                )
+                Spacer(Modifier.width(4.dp))
+                Text(
+                    text = "%",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Muted,
+                    modifier = Modifier.padding(bottom = 6.dp),
+                )
+            }
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = listOf(
+                    stringResource(
+                        R.string.tally_of_possible,
+                        progress.completedInWindow,
+                        progress.possible,
+                    ),
+                    stringResource(R.string.tally_all_time, progress.completedAllTime),
+                ).joinToString(" · ").uppercase(Locale.getDefault()),
+                style = MonoMeta,
+                color = Muted,
+            )
+        }
     }
 }

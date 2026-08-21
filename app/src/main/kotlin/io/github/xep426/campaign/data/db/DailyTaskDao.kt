@@ -128,6 +128,28 @@ interface DailyTaskDao {
     )
     fun observeDone(): Flow<List<TaskWithCampaign>>
 
+    /** Every task ever finished. The counter that only goes up. */
+    @Query("SELECT COUNT(*) FROM daily_tasks WHERE completed = 1")
+    fun observeCompletedTotal(): Flow<Int>
+
+    /**
+     * Finished on or after [from].
+     *
+     * A string comparison, which works because date is ISO-8601 and
+     * therefore sorts as text — see [DailyTaskEntity].
+     */
+    @Query("SELECT COUNT(*) FROM daily_tasks WHERE completed = 1 AND date >= :from")
+    fun observeCompletedSince(from: String): Flow<Int>
+
+    /**
+     * The first day the app was ever used, or null on an empty database.
+     *
+     * This is what stops the thirty-day window from measuring a new user
+     * against slots that did not exist yet.
+     */
+    @Query("SELECT MIN(date) FROM daily_tasks")
+    fun observeFirstDate(): Flow<String?>
+
     /**
      * Re-slots a task onto another day.
      *

@@ -1,6 +1,7 @@
 package io.github.xep426.campaign.domain.repository
 
 import io.github.xep426.campaign.domain.model.DailyTask
+import io.github.xep426.campaign.domain.model.Progress
 
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
@@ -21,6 +22,17 @@ interface TaskRepository {
      * re-slotted is the finishing itself, so that is what is recorded.
      */
     fun completedStandalone(limit: Int): Flow<List<DailyTask>>
+
+    /**
+     * The tally: everything ever finished, and how full the last
+     * [Progress.WINDOW_DAYS] days were.
+     *
+     * [today] is the CAMPAIGN day, not the wall date, so the window ends
+     * where the task records end. Between the turn and midnight those two
+     * disagree, and the widget already taught this codebase what happens
+     * when one surface picks the other definition.
+     */
+    fun progress(today: LocalDate, windowDays: Int = Progress.WINDOW_DAYS): Flow<Progress>
 
     /**
      * Writes [title] into [slot] of [date], replacing whatever was there.

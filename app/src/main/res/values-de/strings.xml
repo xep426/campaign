@@ -96,6 +96,12 @@
 
     <!-- ── Verlauf ─────────────────────────────────────────────────── -->
     <string name="history_title">Verlauf</string>
+    <!-- Die Bilanz oben im Verlauf. "von 90 möglichen" statt nur "90",
+         weil die Zahl eine Obergrenze ist und kein Soll. -->
+    <string name="tally_window">Letzte %1$d Tage</string>
+    <string name="tally_of_possible">%1$d von %2$d möglichen</string>
+    <string name="tally_all_time">%1$d insgesamt erledigt</string>
+    <string name="tally_empty">Noch nichts erledigt</string>
     <string name="history_nothing_yet">noch nichts</string>
     <string name="history_finished_count">%1$d abgeschlossen</string>
     <string name="history_tab_tasks">Aufgaben</string>
@@ -103,7 +109,7 @@
     <string name="history_foot_tasks">Eine Aufzeichnung, keine Wertung.\nKeine Serien. Nichts, was reißen kann.</string>
     <string name="history_foot_tasks_empty">Noch nichts einzeln abgeschlossen.</string>
     <string name="history_foot_campaigns">Tippe eine Kampagne an, um sie zurückzuholen.</string>
-    <string name="history_foot_campaigns_empty">Noch nichts abgeschlossen oder archiviert.</string>
+    <string name="history_foot_campaigns_empty">Noch keine Kampagne abgeschlossen.</string>
     <string name="status_completed">Abgeschlossen</string>
 
 

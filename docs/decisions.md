@@ -212,6 +212,38 @@ task's. A task is a step; the campaign is the larger effort it serves.
 Inheriting produced campaigns that had to be renamed immediately, every
 time.
 
+## The one number, and why it prints its own arithmetic
+
+The app refuses streaks, points and charts, and History now carries a
+percentage. That is a real tension and it was decided rather than
+overlooked: the ask was for something motivating, and a count of finished
+work is the least gameable thing the data can offer.
+
+Two things keep it from becoming a scold.
+
+**The fraction is printed next to it.** "22%" alone invites reading three a
+day as a target. "2 of 9 possible" says what the ceiling actually was — and
+three slots is a ceiling, not a quota. Someone who deliberately picks two
+things a day and finishes both is doing exactly what the app asks and still
+reads 67%. The number says how full the window was, not how well it went,
+and hiding its denominator would let it pretend otherwise.
+
+**The window grows into itself.** Measuring a three-day-old install against
+thirty days of slots that never existed would put a new user at 10% for
+having done everything they set themselves. `daysCounted` runs from the
+first task, capped at thirty. A stretch of untouched days inside the window
+still counts, though — going quiet for two weeks is something that
+happened, and the number is a record.
+
+`Progress` is pure arithmetic and has tests, for the same reason
+`isStillDeliverable` does: it is the kind of small calculation that is easy
+to get subtly wrong and impossible to notice afterwards.
+
+It reads the CAMPAIGN day, not the wall date. History held a `LocalDate.now()`
+it never used; the moment a window ended "today", that difference started
+mattering — between the turn and midnight the wall date is a day behind the
+records.
+
 ## Carrying a task forward moves it
 
 One task is slotted to one day at a time. The day it came from stops

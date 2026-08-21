@@ -5,12 +5,15 @@ import io.github.xep426.campaign.data.db.CampaignDatabase
 import io.github.xep426.campaign.data.db.DailyTaskDao
 import io.github.xep426.campaign.data.db.DailyTaskEntity
 import io.github.xep426.campaign.domain.model.DailyTask
+import io.github.xep426.campaign.domain.model.Progress
 
 import io.github.xep426.campaign.domain.repository.TaskRepository
 import io.github.xep426.campaign.domain.repository.WidgetRefresher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -26,6 +29,30 @@ class TaskRepositoryImpl @Inject constructor(
 
     override fun completedStandalone(limit: Int): Flow<List<DailyTask>> =
         dao.observeCompletedStandalone(limit).map { rows -> rows.map { it.toDomain() } }
+
+    override fun progress(today: LocalDate, windowDays: Int): Flow<Progress> {
+        val from = today.minusDays(windowDays - 1L)
+        return combine(
+            dao.observeCompletedTotal(),
+            dao.observeCompletedSince(from.toString()),
+            dao.observeFirstDate(),
+        ) { total, inWindow, firstDate ->
+            // Days the window could have held anything: the window itself,
+            // unless the app is younger than that. Counted from the first
+            // task rather than from install, because an install with no
+            // tasks in it has not started measuring anything yet.
+            val since = firstDate
+                ?.let { ChronoUnit.DAYS.between(LocalDate.parse(it), today) + 1 }
+                ?.coerceAtLeast(0L)
+                ?: 0L
+            Progress(
+                completedAllTime = total,
+                completedInWindow = inWindow,
+                daysCounted = minOf(since, windowDays.toLong()).toInt(),
+                windowDays = windowDays,
+            )
+        }
+    }
 
     override suspend fun setSlot(
         date: LocalDate,
