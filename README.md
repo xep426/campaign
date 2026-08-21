@@ -49,9 +49,11 @@ telemetry.
 Every one of these is a deliberate absence. A tool that can hold everything
 you might do is a tool that never makes you say what you will do.
 
-There is exactly one number, on History: how many of the last thirty days'
-slots you actually spent. It is printed beside the fraction it came from —
-"37 of 60 possible" — because three a day is the ceiling, not a quota, and
+There is exactly one number, under today's three: efficiency over the last
+thirty days — the slots you spent against the slots there were. It counts
+against three a day because that is the premise: the three are the most
+important things available to you, so an empty one is capacity that went
+unused. It prints the fraction it came from ("37 of 60 possible"), because
 a percentage with its arithmetic hidden is how a tally turns into a scold.
 
 ## Screens

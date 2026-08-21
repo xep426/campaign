@@ -212,21 +212,25 @@ task's. A task is a step; the campaign is the larger effort it serves.
 Inheriting produced campaigns that had to be renamed immediately, every
 time.
 
-## The one number, and why it prints its own arithmetic
+## Efficiency: the one number, and why it prints its own arithmetic
 
-The app refuses streaks, points and charts, and History now carries a
+The app refuses streaks, points and charts, and Today now carries a
 percentage. That is a real tension and it was decided rather than
 overlooked: the ask was for something motivating, and a count of finished
 work is the least gameable thing the data can offer.
 
-Two things keep it from becoming a scold.
+**The denominator is three a day, and that took an argument to settle.**
+The first reading was that three is a ceiling rather than a quota, so
+measuring against it punishes someone who picks two on purpose. The
+counter-argument is the app's own premise: the three slots hold the three
+most important things available on a day. If that is true, an empty slot is
+capacity for important work that went unused, and a filled-but-unfinished
+one is something you named as important and did not do. Both belong in the
+denominator, and the number is fairly called efficiency.
 
-**The fraction is printed next to it.** "22%" alone invites reading three a
-day as a target. "2 of 9 possible" says what the ceiling actually was — and
-three slots is a ceiling, not a quota. Someone who deliberately picks two
-things a day and finishes both is doing exactly what the app asks and still
-reads 67%. The number says how full the window was, not how well it went,
-and hiding its denominator would let it pretend otherwise.
+**The fraction is printed next to it.** "22%" is a verdict; "2 of 9
+possible" is a fact that can be checked. Hiding the denominator is what
+would make it a scold.
 
 **The window grows into itself.** Measuring a three-day-old install against
 thirty days of slots that never existed would put a new user at 10% for
@@ -239,10 +243,15 @@ happened, and the number is a record.
 `isStillDeliverable` does: it is the kind of small calculation that is easy
 to get subtly wrong and impossible to notice afterwards.
 
-It reads the CAMPAIGN day, not the wall date. History held a `LocalDate.now()`
-it never used; the moment a window ended "today", that difference started
-mattering — between the turn and midnight the wall date is a day behind the
-records.
+It reads the CAMPAIGN day, not the wall date — between the turn and
+midnight the wall date is a day behind the records.
+
+It sits under the three on Today, not on History. A number nobody visits
+motivates nobody, and Today is the screen opened daily. Under the three
+rather than above them: the three things are the point, and a percentage is
+commentary on them. It is hidden during the planning window, like
+everything else that reports on a day, because the window ends on a day
+that has not started.
 
 ## Carrying a task forward moves it
 

@@ -139,10 +139,6 @@ private fun MainShell() {
                 Tab.HISTORY -> {
                     val vm: HistoryViewModel = hiltViewModel()
                     val state by vm.ui.collectAsStateWithLifecycle()
-                    LifecycleResumeEffect(Unit) {
-                        vm.refreshDate()
-                        onPauseOrDispose { }
-                    }
 
                     HistoryScreen(state = state, onReopen = vm::reopen)
                 }

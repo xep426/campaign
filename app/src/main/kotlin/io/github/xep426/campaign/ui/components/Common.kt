@@ -8,6 +8,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,13 +29,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import io.github.xep426.campaign.R
+import io.github.xep426.campaign.domain.model.Progress
 import io.github.xep426.campaign.ui.theme.Ember
 import io.github.xep426.campaign.ui.theme.EmberDeep
 import io.github.xep426.campaign.ui.theme.Line
 import io.github.xep426.campaign.ui.theme.LineStrong
 import io.github.xep426.campaign.ui.theme.MonoLabel
+import io.github.xep426.campaign.ui.theme.MonoMeta
 import io.github.xep426.campaign.ui.theme.Muted
+import io.github.xep426.campaign.ui.theme.Paper
 import io.github.xep426.campaign.ui.theme.SpaceMd
 import io.github.xep426.campaign.ui.theme.SpaceSm
 
@@ -235,4 +241,62 @@ fun FootNote(text: String, modifier: Modifier = Modifier) {
         textAlign = TextAlign.Center,
         modifier = modifier.fillMaxWidth().padding(horizontal = SpaceMd),
     )
+}
+
+/**
+ * Efficiency over the last thirty days, and everything ever finished.
+ *
+ * A number and the fraction it came from, and nothing else. No bar, no
+ * chart, no streak — a progress bar lived on Today once and was taken out,
+ * and a percentage whose arithmetic cannot be checked is the kind of number
+ * that starts feeling like a scold.
+ *
+ * The fraction stays because it is what makes the percentage legible:
+ * "62%" is a verdict, "37 of 60 possible" is a fact you can check. See
+ * [Progress] for why three a day is the denominator.
+ */
+@Composable
+fun Tally(progress: Progress, modifier: Modifier = Modifier) {
+    Column(modifier.fillMaxWidth()) {
+        Eyebrow(stringResource(R.string.tally_window, progress.windowDays), Ember)
+        Spacer(Modifier.height(SpaceSm))
+
+        if (progress.possible == 0) {
+            // Before the first task there is no window to be a fraction of,
+            // and 0% would be a judgement on a day that has not happened.
+            Text(
+                text = stringResource(R.string.tally_empty),
+                style = MaterialTheme.typography.bodyMedium,
+                color = Muted,
+            )
+        } else {
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text(
+                    text = "${progress.percent}",
+                    style = MaterialTheme.typography.displaySmall,
+                    color = Paper,
+                )
+                Spacer(Modifier.width(4.dp))
+                Text(
+                    text = "%",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Muted,
+                    modifier = Modifier.padding(bottom = 6.dp),
+                )
+            }
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = listOf(
+                    stringResource(
+                        R.string.tally_of_possible,
+                        progress.completedInWindow,
+                        progress.possible,
+                    ),
+                    stringResource(R.string.tally_all_time, progress.completedAllTime),
+                ).joinToString(" · ").uppercase(java.util.Locale.getDefault()),
+                style = MonoMeta,
+                color = Muted,
+            )
+        }
+    }
 }

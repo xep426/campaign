@@ -1,13 +1,19 @@
 package io.github.xep426.campaign.domain.model
 
 /**
- * How much of the recent past was actually spent.
+ * Efficiency: how much of the recent past was actually spent.
  *
- * THE DENOMINATOR IS A CEILING, NOT A QUOTA, and that is worth stating
- * because the number can be read the other way. Three slots is the most a
- * day can hold, not the amount a day owes — someone who deliberately picks
- * two things and finishes both did the app's job perfectly and still reads
- * 67%. The figure says how full the window was, not how well it went.
+ * THE DENOMINATOR IS THREE A DAY, and it means something because of what
+ * the three slots are. They hold the three most important things available
+ * on a day — that is the premise the whole app is built on. So a slot left
+ * empty is capacity for important work that went unused, and a slot filled
+ * but unfinished is a thing you named as one of the three and did not do.
+ * Both belong in the denominator.
+ *
+ * This was argued the other way first: three is a ceiling rather than a
+ * quota, so measuring against it looked like punishing someone who picks
+ * two on purpose. The premise settles it. If the three ARE the most
+ * important things, there is no virtue in leaving one of them unnamed.
  *
  * [daysCounted] is what keeps it from being insulting on day three:
  * measuring against thirty days of slots that did not exist yet would put
@@ -34,9 +40,9 @@ data class Progress(
     val possible: Int get() = daysCounted * DailyTask.SLOTS_PER_DAY
 
     /**
-     * Rounded, and never rounded UP to 100 from anything short of it — a
-     * screen that says 100% while a slot sits empty is the one number here
-     * that would be a lie.
+     * Truncated, and never reaching 100 from anything short of every slot —
+     * a screen that says 100% while a slot sits empty is the one number
+     * here that would be a lie.
      */
     val percent: Int
         get() = when {

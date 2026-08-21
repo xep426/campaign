@@ -45,7 +45,6 @@
     <string name="today_title">Heute</string>
     <string name="today_progress">%1$d von %2$d erledigt</string>
     <string name="today_foot_empty">Für heute ist nichts gesetzt.\nSonst fängt das abends an.</string>
-    <string name="today_foot_open_slot">Ein Platz ist noch frei.\nDas darf so bleiben.</string>
     <string name="today_foot_all_done">Das war der Tag.\nMehr wird nicht verlangt.</string>
 
     <string name="task_edit">Bearbeiten</string>
@@ -98,7 +97,7 @@
     <string name="history_title">Verlauf</string>
     <!-- Die Bilanz oben im Verlauf. "von 90 möglichen" statt nur "90",
          weil die Zahl eine Obergrenze ist und kein Soll. -->
-    <string name="tally_window">Letzte %1$d Tage</string>
+    <string name="tally_window">Effizienz · letzte %1$d Tage</string>
     <string name="tally_of_possible">%1$d von %2$d möglichen</string>
     <string name="tally_all_time">%1$d insgesamt erledigt</string>
     <string name="tally_empty">Noch nichts erledigt</string>

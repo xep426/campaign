@@ -41,7 +41,6 @@
          name doing a different job, and two identical labels one above the
          other is the app contradicting itself. -->
     <string name="today_foot_empty">Nothing set for today.\nThe evening screen is where this usually starts.</string>
-    <string name="today_foot_open_slot">One slot still open.\nIt\'s fine to leave it that way.</string>
     <string name="today_foot_all_done">That\'s the day.\nNothing more is asked.</string>
 
     <string name="task_edit">Edit</string>
@@ -94,7 +93,7 @@
 
     <!-- ── History ─────────────────────────────────────────────────── -->
     <string name="history_title">History</string>
-    <string name="tally_window">Last %1$d days</string>
+    <string name="tally_window">Efficiency · last %1$d days</string>
     <string name="tally_of_possible">%1$d of %2$d possible</string>
     <string name="tally_all_time">%1$d finished in all</string>
     <string name="tally_empty">Nothing finished yet</string>

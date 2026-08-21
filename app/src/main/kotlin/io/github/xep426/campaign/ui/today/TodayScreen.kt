@@ -46,6 +46,7 @@ import io.github.xep426.campaign.ui.components.CompletionMark
 import io.github.xep426.campaign.ui.components.Eyebrow
 import io.github.xep426.campaign.ui.components.rememberDateFormat
 import io.github.xep426.campaign.ui.components.FootNote
+import io.github.xep426.campaign.ui.components.Tally
 import io.github.xep426.campaign.ui.components.GhostAction
 import io.github.xep426.campaign.ui.components.Hairline
 import io.github.xep426.campaign.ui.components.ReorderableColumn
@@ -180,16 +181,32 @@ fun TodayScreen(
         // reading "you can only pick three" — the same rule twice. And
         // during planning the subtitle covers the whole screen's posture,
         // so nothing belongs down here at all.
+        // The open-slot line is gone. "One slot still open. It is fine to
+        // leave it that way" was reassurance nobody had asked for — the
+        // empty slot already says it is empty, and saying it is allowed
+        // implies someone thought it might not be.
         val foot = when {
             state.isPlanning -> null
             state.filled == 0 -> R.string.today_foot_empty
-            state.hasOpenSlot -> R.string.today_foot_open_slot
             state.completed == DailyTask.SLOTS_PER_DAY -> R.string.today_foot_all_done
             else -> null
         }
         foot?.let {
             Spacer(Modifier.height(SpaceXl))
             FootNote(stringResource(it))
+        }
+
+        // The tally sits here rather than on History, where it was first
+        // built. A number nobody visits motivates nobody, and this screen
+        // is the one opened every day — below the three, though, never
+        // above them: the three things are the point and a percentage is
+        // commentary on them.
+        //
+        // Hidden during planning, like everything else that reports on a
+        // day. The window ends on a day that has not started.
+        if (!state.isPlanning) {
+            Spacer(Modifier.height(SpaceXl))
+            Tally(state.progress)
         }
 
         // The app's one setting, and it lives here because it governs this

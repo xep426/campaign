@@ -7,6 +7,7 @@ import io.github.xep426.campaign.data.settings.SettingsRepository
 import io.github.xep426.campaign.domain.model.Campaign
 import io.github.xep426.campaign.domain.model.CampaignDay
 import io.github.xep426.campaign.domain.model.DailyTask
+import io.github.xep426.campaign.domain.model.Progress
 import io.github.xep426.campaign.domain.repository.CampaignRepository
 import io.github.xep426.campaign.domain.repository.TaskRepository
 import io.github.xep426.campaign.notify.EndOfDayScheduler
@@ -49,6 +50,8 @@ data class TodayUiState(
      * that makes sense in this window, so editing is what a tap does.
      */
     val isPlanning: Boolean = false,
+    /** The thirty-day tally under the three slots. */
+    val progress: Progress = Progress(),
 ) {
     val completed: Int get() = slots.count { it?.completed == true }
     val filled: Int get() = slots.count { it != null }
@@ -122,7 +125,8 @@ class TodayViewModel @Inject constructor(
         date.flatMapLatest { tasks.tasksFor(it) },
         campaigns.active(),
         settings.endOfDay,
-    ) { now, dayTasks, active, setting ->
+        date.flatMapLatest { tasks.progress(it) },
+    ) { now, dayTasks, active, setting, progress ->
         TodayUiState(
             date = now.day,
             isPlanning = now.day != now.wall,
@@ -132,6 +136,7 @@ class TodayViewModel @Inject constructor(
             activeCampaigns = active,
             turnsAt = setting.time,
             notificationsEnabled = setting.enabled,
+            progress = progress,
         )
     }.stateIn(
         scope = viewModelScope,
