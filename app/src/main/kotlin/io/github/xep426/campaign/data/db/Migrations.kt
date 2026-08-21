@@ -24,3 +24,23 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
         )
     }
 }
+
+/**
+ * 2 → 3: ARCHIVED campaigns become COMPLETED.
+ *
+ * The status column is a plain string, so nothing in SQLite objects to a
+ * value the enum no longer has — which is exactly the danger. [toDomain]
+ * is deliberately lenient and maps an unparseable status to ACTIVE, so
+ * without this statement every archived campaign would have come back to
+ * life in the active list on first launch after the update. Silently, and
+ * with its closedAt still set.
+ *
+ * COMPLETED rather than deleted, because the row is a record of work the
+ * user did and closing it was their decision either way. Anyone who wants
+ * it gone can delete it, which is what deletion has always meant here.
+ */
+val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("UPDATE campaigns SET status = 'COMPLETED' WHERE status = 'ARCHIVED'")
+    }
+}

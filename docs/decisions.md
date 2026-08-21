@@ -157,12 +157,54 @@ index per row, so every reorder had to park all three rows on negative
 slots and write the real values in a second pass — negative slots the
 unique index accepted quite happily, which rather made the point.
 
+## A campaign shows finished work, not outstanding work
+
+The card listed open tasks, on the reasoning that a campaign IS its
+outstanding work. That put the same information in two places: an open task
+that matters is one of today's three, and Today is where those are read.
+Meanwhile the thing no other screen recorded — how far a long effort had
+actually come — was reduced to a number in the metadata line.
+
+So the card shows completed steps, newest first, and the count that used to
+be a separate `COUNT(*)` group-by is now just `doneTasks.size`. A count and
+the rows it summarises are two things that can disagree; one query cannot.
+
+**Collapsed by default**, because the honest arithmetic is thirty campaigns
+with twenty finished steps each — six hundred lines, and a screen that
+opens on six hundred lines is not an overview. The open set is keyed by
+campaign id rather than list index: the list reorders as campaigns are
+completed, and an index would carry the open state onto whichever campaign
+slid into that place.
+
+Carrying work forward moved entirely to Today, where the picker already
+existed and where the three slots it competes for are visible. The campaign
+card was the only other way to pull a task, so this had to be checked
+before the list came out rather than after.
+
+## Archiving is gone; completing is the only way to close
+
+ARCHIVED and COMPLETED both closed a campaign, and §8 asked for "archive or
+complete". In practice they wrote the same row with a different word in it:
+same removal from the list, same place in History, same reversibility, and
+the history tally counted both as "finished" regardless. The only
+difference a user could ever see was the colour of a tag.
+
+Two buttons side by side that differ only by a label are a question the
+screen asks and never answers — and it was asked, which is how this came
+up. Deleting already means "this should not be in my history".
+
+Dropping the enum value needed a migration, and not for the obvious reason:
+`toDomain` maps an unparseable status to ACTIVE on purpose, so without one,
+every archived campaign would have come back to life in the active list on
+first launch. Silently, with its `closedAt` still set. `MIGRATION_2_3`
+rewrites them to COMPLETED.
+
 ## A campaign authors nothing
 
 The first version gave campaigns a `nextStep` field you had to write and
 maintain, which turned out to be a second place to plan the same work: you
 wrote the step on the campaign, then wrote it again as a task. A campaign
-is now simply the view of its incomplete tasks.
+authors nothing at all: it has a name, and it has the tasks assigned to it.
 
 Creating one from a task **asks for its name** rather than inheriting the
 task's. A task is a step; the campaign is the larger effort it serves.

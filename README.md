@@ -36,9 +36,9 @@ that has not started, so it does not offer to let you pretend.
 **Campaigns are for what does not fit in a day.** Selling a flat, learning
 a language, fixing the damp — assign a task to a campaign and it stops
 being a loose end. A campaign is not something you write and maintain: it
-is simply the view of its tasks that are still outstanding, and you pull
-one into today when you are ready for it. Campaigns are the only way work
-survives a day boundary, which is what keeps the daily list honest.
+keeps the record of the steps you actually finished, so you can see how far
+a long effort has come. Campaigns are the only way work survives a day
+boundary, which is what keeps the daily list honest.
 
 ## What it refuses to do
 
@@ -53,7 +53,7 @@ you might do is a tool that never makes you say what you will do.
 | Screen | |
 | --- | --- |
 | **Today** | The three slots. Tap to complete, drag to reorder, ⋯ to edit, assign or delete |
-| **Campaigns** | Longer efforts, each showing what is still outstanding |
+| **Campaigns** | Longer efforts, each keeping the record of what you finished |
 | **History** | Campaigns you finished, and one-off tasks that belonged to none |
 | **Widget** | Today's three on the home screen, tappable |
 

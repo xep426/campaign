@@ -91,7 +91,6 @@
     <string name="campaign_rename_title">Rename campaign</string>
     <string name="campaign_rename_placeholder">What is this effort called?</string>
     <string name="campaign_complete">Mark complete</string>
-    <string name="campaign_archive">Archive</string>
 
     <!-- ── History ─────────────────────────────────────────────────── -->
     <string name="history_title">History</string>
@@ -106,7 +105,6 @@
     <string name="history_campaign_meta">%1$s · %2$s</string>
     <string name="history_campaign_range">%1$s → %2$s</string>
     <string name="status_completed">Completed</string>
-    <string name="status_archived">Archived</string>
     <!-- ── The planning window (turn → midnight) ───────────────────── -->
     <!-- The list on screen is tomorrow's, so the screen says so. This
          subtitle stands where the progress row does during the day: there
@@ -121,7 +119,7 @@
     <string name="picker_empty">Nothing outstanding in any campaign.</string>
     <string name="picker_waiting_since">set %1$s</string>
     <string name="picker_dismiss">Never mind</string>
-    <string name="campaign_open_none">Nothing outstanding.</string>
+    <string name="campaign_done_none">Nothing finished yet.</string>
 
     <!-- ── Dialogs ─────────────────────────────────────────────────── -->
     <string name="dialog_cancel">Cancel</string>
@@ -138,7 +136,6 @@
     <string name="msg_pulled">Pulled into slot %1$s</string>
     <string name="msg_day_full">Today is full</string>
     <string name="msg_completed">“%1$s” completed</string>
-    <string name="msg_archived">“%1$s” archived</string>
     <string name="msg_asking_at">Asking at %1$s</string>
 
     <!-- ── Widget ──────────────────────────────────────────────────── -->

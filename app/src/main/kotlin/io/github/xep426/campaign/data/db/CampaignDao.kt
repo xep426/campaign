@@ -25,23 +25,6 @@ interface CampaignDao {
     @Query("SELECT * FROM campaigns WHERE id = :id")
     suspend fun byId(id: Long): CampaignEntity?
 
-    /**
-     * Completed tasks per campaign — the "9 steps taken" on each card.
-     *
-     * Counting only completed rows is the point: pulling a step in and
-     * never doing it is not progress, and a card that says otherwise
-     * would be flattering the user rather than informing them.
-     */
-    @Query(
-        """
-        SELECT campaignId AS campaignId, COUNT(*) AS steps
-        FROM daily_tasks
-        WHERE campaignId IS NOT NULL AND completed = 1
-        GROUP BY campaignId
-        """
-    )
-    fun observeStepCounts(): Flow<List<CampaignStepCount>>
-
     @Insert
     suspend fun insert(campaign: CampaignEntity): Long
 

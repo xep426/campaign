@@ -19,10 +19,8 @@ interface CampaignRepository {
 
     fun active(): Flow<List<Campaign>>
 
-    /** Completed and archived, most recently closed first. */
+    /** Completed campaigns, most recently closed first. */
     fun finished(): Flow<List<Campaign>>
-
-    fun byId(id: Long): Flow<Campaign?>
 
     /** A campaign with no task behind it yet. Returns its id. */
     suspend fun create(title: String, on: LocalDate): Long
@@ -64,10 +62,16 @@ interface CampaignRepository {
 
     suspend fun setNotes(id: Long, notes: String)
 
-    /** Closes a campaign as [status] — COMPLETED or ARCHIVED. */
-    suspend fun close(id: Long, status: CampaignStatus, on: LocalDate)
+    /**
+     * Marks a campaign done on [on]. The only way to close one.
+     *
+     * Archiving used to sit beside this and wrote the same row with a
+     * different word in it — see [CampaignStatus]. Nothing is lost by its
+     * removal that delete does not already cover.
+     */
+    suspend fun complete(id: Long, on: LocalDate)
 
-    /** Back to ACTIVE, for the archive-by-accident case. */
+    /** Back to ACTIVE, for the closed-by-accident case. */
     suspend fun reopen(id: Long)
 
     /**

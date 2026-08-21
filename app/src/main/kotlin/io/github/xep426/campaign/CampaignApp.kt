@@ -128,10 +128,9 @@ private fun MainShell() {
 
                     CampaignsScreen(
                         state = state,
-                        onCarry = vm::carryForward,
                         onRename = vm::rename,
                         onSetNotes = vm::setNotes,
-                        onClose = vm::close,
+                        onComplete = vm::complete,
                         onCreate = vm::create,
                         onDelete = vm::delete,
                     )

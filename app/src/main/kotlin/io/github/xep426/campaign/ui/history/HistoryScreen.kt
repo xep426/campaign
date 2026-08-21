@@ -31,7 +31,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.xep426.campaign.R
 import io.github.xep426.campaign.domain.model.Campaign
-import io.github.xep426.campaign.domain.model.CampaignStatus
 import io.github.xep426.campaign.domain.model.DailyTask
 import io.github.xep426.campaign.ui.components.CampaignTag
 import io.github.xep426.campaign.ui.components.Eyebrow
@@ -232,12 +231,14 @@ private fun FinishedCampaignRow(
                 color = Paper,
                 modifier = Modifier.weight(1f),
             )
+            // One tag, because there is one way to close a campaign. It used
+            // to branch on completed-versus-archived, which was the only
+            // place that difference was ever visible — and the only thing
+            // it told you was which of two identical buttons had been
+            // pressed.
             CampaignTag(
-                text = stringResource(
-                    if (campaign.status == CampaignStatus.COMPLETED) R.string.status_completed
-                    else R.string.status_archived
-                ),
-                tint = if (campaign.status == CampaignStatus.COMPLETED) Sage else Muted,
+                text = stringResource(R.string.status_completed),
+                tint = Sage,
             )
         }
         Spacer(Modifier.height(6.dp))

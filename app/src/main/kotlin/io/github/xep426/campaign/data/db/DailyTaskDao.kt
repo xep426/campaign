@@ -106,6 +106,29 @@ interface DailyTaskDao {
     fun observeOpen(): Flow<List<TaskWithCampaign>>
 
     /**
+     * Completed tasks per campaign — what the campaign card now shows.
+     *
+     * Only completed rows, which is the point: pulling a step in and never
+     * doing it is not progress, and a list that said otherwise would be
+     * flattering the user rather than informing them.
+     *
+     * Newest first, the opposite of [observeOpen]. Outstanding work is
+     * read oldest-first because age is the argument for doing it; finished
+     * work is read newest-first because the recent steps are the ones that
+     * say where the campaign stands.
+     */
+    @Query(
+        """
+        SELECT t.*, c.title AS campaignTitle
+        FROM daily_tasks t
+        LEFT JOIN campaigns c ON c.id = t.campaignId
+        WHERE t.campaignId IS NOT NULL AND t.completed = 1
+        ORDER BY t.date DESC, t.slot ASC
+        """
+    )
+    fun observeDone(): Flow<List<TaskWithCampaign>>
+
+    /**
      * Re-slots a task onto another day.
      *
      * Carrying an unfinished task forward MOVES it — one task is slotted to

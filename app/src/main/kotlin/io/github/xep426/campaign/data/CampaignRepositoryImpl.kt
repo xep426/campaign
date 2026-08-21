@@ -27,30 +27,29 @@ class CampaignRepositoryImpl @Inject constructor(
     private val widget: WidgetRefresher,
 ) : CampaignRepository {
 
-    override fun active(): Flow<List<Campaign>> = withSteps(campaigns.observeActive())
+    override fun active(): Flow<List<Campaign>> = assemble(campaigns.observeActive())
 
-    override fun finished(): Flow<List<Campaign>> = withSteps(campaigns.observeFinished())
-
-    override fun byId(id: Long): Flow<Campaign?> =
-        combine(campaigns.observeById(id), campaigns.observeStepCounts()) { entity, counts ->
-            entity?.toDomain(counts.firstOrNull { it.campaignId == entity.id }?.steps ?: 0)
-        }
+    override fun finished(): Flow<List<Campaign>> = assemble(campaigns.observeFinished())
 
     /**
-     * Step counts arrive as their own flow and are stitched on here rather
-     * than fetched per card. One group-by over the whole table costs the
-     * same as one count for a single campaign, and this way a task
-     * completed on the Today screen updates every card's tally at once.
+     * Both task lists arrive as their own flows and are stitched on here
+     * rather than fetched per card. Two queries over the whole table cost
+     * the same as two per campaign would for a single one, and this way a
+     * task completed on the Today screen updates every card at once.
+     *
+     * The completed list also replaced a COUNT(*) group-by that existed
+     * only to render "9 steps taken". A count and the rows it summarises
+     * are two things that can disagree; one query cannot.
      */
-    private fun withSteps(source: Flow<List<CampaignEntity>>): Flow<List<Campaign>> =
+    private fun assemble(source: Flow<List<CampaignEntity>>): Flow<List<Campaign>> =
         combine(
             source,
-            campaigns.observeStepCounts(),
             tasks.observeOpen(),
-        ) { entities, counts, open ->
-            val bySteps = counts.associate { it.campaignId to it.steps }
-            val byCampaign = open.map { it.toDomain() }.groupBy { it.campaignId }
-            entities.map { it.toDomain(bySteps[it.id] ?: 0, byCampaign[it.id].orEmpty()) }
+            tasks.observeDone(),
+        ) { entities, open, done ->
+            val openBy = open.map { it.toDomain() }.groupBy { it.campaignId }
+            val doneBy = done.map { it.toDomain() }.groupBy { it.campaignId }
+            entities.map { it.toDomain(openBy[it.id].orEmpty(), doneBy[it.id].orEmpty()) }
         }
 
     override suspend fun create(title: String, on: LocalDate): Long {
@@ -124,9 +123,8 @@ class CampaignRepositoryImpl @Inject constructor(
 
     override suspend fun setNotes(id: Long, notes: String) = campaigns.setNotes(id, notes)
 
-    override suspend fun close(id: Long, status: CampaignStatus, on: LocalDate) {
-        require(status != CampaignStatus.ACTIVE) { "close() cannot set ACTIVE — use reopen()" }
-        campaigns.close(id, status.name, on.toString())
+    override suspend fun complete(id: Long, on: LocalDate) {
+        campaigns.close(id, CampaignStatus.COMPLETED.name, on.toString())
     }
 
     override suspend fun reopen(id: Long) = campaigns.reopen(id)

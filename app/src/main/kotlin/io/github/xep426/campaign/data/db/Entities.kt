@@ -97,25 +97,23 @@ data class TaskWithCampaign(
     )
 }
 
-/** Completed steps per campaign, from the group-by in [CampaignDao]. */
-data class CampaignStepCount(
-    val campaignId: Long,
-    val steps: Int,
-)
-
 fun CampaignEntity.toDomain(
-    stepsTaken: Int = 0,
     openTasks: List<DailyTask> = emptyList(),
+    doneTasks: List<DailyTask> = emptyList(),
 ) = Campaign(
     id = id,
     title = title,
     // Lenient: an unknown status string means the row predates a rename,
     // and an active campaign is the safer of the two ways to be wrong —
     // it stays visible and the user can close it again.
+    //
+    // This leniency is why dropping ARCHIVED needed a migration rather
+    // than nothing: without one, every archived row would have failed to
+    // parse and quietly come back to life as an active campaign.
     status = runCatching { CampaignStatus.valueOf(status) }.getOrDefault(CampaignStatus.ACTIVE),
     createdAt = LocalDate.parse(createdAt),
     closedAt = closedAt?.let(LocalDate::parse),
     notes = notes,
-    stepsTaken = stepsTaken,
     openTasks = openTasks,
+    doneTasks = doneTasks,
 )

@@ -8,6 +8,7 @@ import io.github.xep426.campaign.data.db.CampaignDao
 import io.github.xep426.campaign.data.db.CampaignDatabase
 import io.github.xep426.campaign.data.db.DailyTaskDao
 import io.github.xep426.campaign.data.db.MIGRATION_1_2
+import io.github.xep426.campaign.data.db.MIGRATION_2_3
 import io.github.xep426.campaign.domain.repository.CampaignRepository
 import io.github.xep426.campaign.domain.repository.TaskRepository
 import io.github.xep426.campaign.domain.repository.WidgetRefresher
@@ -31,7 +32,7 @@ object DatabaseModule {
             context,
             CampaignDatabase::class.java,
             "campaign.db"
-        ).addMigrations(MIGRATION_1_2).build()
+        ).addMigrations(MIGRATION_1_2, MIGRATION_2_3).build()
 
     @Provides
     fun provideDailyTaskDao(db: CampaignDatabase): DailyTaskDao = db.dailyTaskDao()

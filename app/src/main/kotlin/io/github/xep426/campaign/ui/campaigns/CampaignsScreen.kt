@@ -24,6 +24,8 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -35,7 +37,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import io.github.xep426.campaign.R
 import io.github.xep426.campaign.domain.model.Campaign
-import io.github.xep426.campaign.domain.model.CampaignStatus
 import io.github.xep426.campaign.domain.model.DailyTask
 import io.github.xep426.campaign.ui.components.ConfirmDialog
 import io.github.xep426.campaign.ui.components.Eyebrow
@@ -52,6 +53,7 @@ import io.github.xep426.campaign.ui.theme.LineStrong
 import io.github.xep426.campaign.ui.theme.MonoMeta
 import io.github.xep426.campaign.ui.theme.Muted
 import io.github.xep426.campaign.ui.theme.Paper
+import io.github.xep426.campaign.ui.theme.PaperDim
 import io.github.xep426.campaign.ui.theme.Sage
 import io.github.xep426.campaign.ui.theme.ScreenPadding
 import io.github.xep426.campaign.ui.theme.SpaceLg
@@ -64,14 +66,23 @@ import java.util.Locale
 @Composable
 fun CampaignsScreen(
     state: CampaignsUiState,
-    onCarry: (DailyTask) -> Unit,
     onRename: (Campaign, String) -> Unit,
     onSetNotes: (Campaign, String) -> Unit,
-    onClose: (Campaign, CampaignStatus) -> Unit,
+    onComplete: (Campaign) -> Unit,
     onCreate: (String) -> Unit,
     onDelete: (Campaign) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    // Which cards are open, by id rather than by index: the list reorders
+    // itself as campaigns are completed, and an index would carry the open
+    // state onto whichever campaign slid into that place.
+    //
+    // Collapsed is the default for all of them. Thirty campaigns with
+    // twenty finished steps each is six hundred lines, and a screen that
+    // opens on six hundred lines is not an overview of anything.
+    var expanded by rememberSaveable(stateSaver = LongSetSaver) {
+        mutableStateOf(emptySet<Long>())
+    }
     var renaming by remember { mutableStateOf<Campaign?>(null) }
     var creating by remember { mutableStateOf(false) }
     var deleting by remember { mutableStateOf<Campaign?>(null) }
@@ -103,10 +114,14 @@ fun CampaignsScreen(
             CampaignCard(
                 campaign = campaign,
                 today = state.today,
-                onCarry = onCarry,
+                expanded = campaign.id in expanded,
+                onToggleExpanded = {
+                    expanded = if (campaign.id in expanded) expanded - campaign.id
+                               else expanded + campaign.id
+                },
                 onRename = { renaming = campaign },
                 onSetNotes = { onSetNotes(campaign, it) },
-                onClose = { onClose(campaign, it) },
+                onComplete = { onComplete(campaign) },
                 onDelete = { deleting = campaign },
             )
         }
@@ -171,10 +186,11 @@ fun CampaignsScreen(
 private fun CampaignCard(
     campaign: Campaign,
     today: java.time.LocalDate,
-    onCarry: (DailyTask) -> Unit,
+    expanded: Boolean,
+    onToggleExpanded: () -> Unit,
     onRename: () -> Unit,
     onSetNotes: (String) -> Unit,
-    onClose: (CampaignStatus) -> Unit,
+    onComplete: () -> Unit,
     onDelete: () -> Unit,
 ) {
     var menuOpen by remember { mutableStateOf(false) }
@@ -205,12 +221,10 @@ private fun CampaignCard(
                             R.string.campaign_meta_started,
                             campaign.createdAt.format(started),
                         ),
+                        // No step count here any more: the strip below carries
+                        // it, and the same number in two places on one
+                        // card is one of them waiting to go stale.
                         pluralStringResource(R.plurals.campaign_meta_days, days, days),
-                        pluralStringResource(
-                            R.plurals.campaign_meta_steps,
-                            campaign.stepsTaken,
-                            campaign.stepsTaken,
-                        ),
                     ).joinToString(" · ").uppercase(Locale.getDefault()),
                     style = MonoMeta,
                     color = Muted,
@@ -243,15 +257,11 @@ private fun CampaignCard(
                     )
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.campaign_complete)) },
-                        onClick = { menuOpen = false; onClose(CampaignStatus.COMPLETED) },
+                        onClick = { menuOpen = false; onComplete() },
                     )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.campaign_archive)) },
-                        onClick = { menuOpen = false; onClose(CampaignStatus.ARCHIVED) },
-                    )
-                    // Last, and separated in meaning from the two above:
-                    // complete and archive both say "this happened",
-                    // delete says "this never should have existed".
+                    // Last, and separated in meaning from the one above:
+                    // completing says "this happened", delete says "this
+                    // never should have existed".
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.campaign_delete)) },
                         onClick = { menuOpen = false; onDelete() },
@@ -262,57 +272,97 @@ private fun CampaignCard(
 
         Spacer(Modifier.height(SpaceMd))
 
-        // The campaign's actual content: what is still outstanding. There
-        // is nothing to author here — tasks are made on Today and assigned;
-        // this is the lens over the ones that have not landed yet.
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.28f),
-                    RoundedCornerShape(9.dp),
-                )
-                .padding(start = 13.dp, end = 13.dp, top = 11.dp, bottom = 11.dp),
-        ) {
-            if (campaign.isQuiet) {
-                Text(
-                    text = stringResource(R.string.campaign_open_none),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Muted,
-                )
-            } else {
-                campaign.openTasks.forEachIndexed { index, task ->
-                    if (index > 0) Spacer(Modifier.height(SpaceSm))
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onCarry(task) },
+        // What the campaign has actually moved.
+        //
+        // Open tasks used to be listed here, and are not any more: an open
+        // task that matters is one of today's three, and Today is where
+        // those are read. Finished steps are what no other screen records —
+        // History keeps completed CAMPAIGNS, not the steps inside a running
+        // one — so this is the campaign's own content.
+        if (campaign.doneTasks.isEmpty()) {
+            Text(
+                text = stringResource(R.string.campaign_done_none),
+                style = MaterialTheme.typography.bodyMedium,
+                color = Muted,
+            )
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.28f),
+                        RoundedCornerShape(9.dp),
+                    ),
+            ) {
+                // The whole strip toggles, not the triangle. The triangle
+                // says which way it goes; a 12dp glyph is not the target.
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable(onClick = onToggleExpanded)
+                        .padding(horizontal = 13.dp, vertical = 11.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = if (expanded) "▾" else "▸",
+                        style = MonoMeta,
+                        color = Ember,
+                    )
+                    Spacer(Modifier.width(9.dp))
+                    Text(
+                        text = pluralStringResource(
+                            R.plurals.campaign_meta_steps,
+                            campaign.stepsTaken,
+                            campaign.stepsTaken,
+                        ).uppercase(Locale.getDefault()),
+                        style = MonoMeta,
+                        // Brighter while open, so a card left expanded in a
+                        // long list still reads as the one you opened.
+                        color = if (expanded) Paper else Muted,
+                    )
+                }
+
+                if (expanded) {
+                    Column(
+                        modifier = Modifier.padding(
+                            start = 13.dp,
+                            end = 13.dp,
+                            bottom = 11.dp,
+                        ),
                     ) {
-                        // The ember rule marks a live line, as in the mock.
-                        Box(
-                            Modifier
-                                .width(2.dp)
-                                .height(34.dp)
-                                .background(EmberDeep)
-                        )
-                        Spacer(Modifier.width(11.dp))
-                        Column(Modifier.weight(1f)) {
-                            Text(
-                                text = task.title,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Paper,
-                            )
-                            Spacer(Modifier.height(3.dp))
-                            Text(
-                                // The date is what makes this list useful:
-                                // it says how long the thing has waited.
-                                text = stringResource(
-                                    R.string.picker_waiting_since,
-                                    task.date.format(started),
-                                ).uppercase(Locale.getDefault()),
-                                style = MonoMeta,
-                                color = Muted,
-                            )
+                        campaign.doneTasks.forEachIndexed { index, task ->
+                            if (index > 0) Spacer(Modifier.height(SpaceSm))
+                            Row(Modifier.fillMaxWidth()) {
+                                // Sage rather than the ember of a live line:
+                                // on Today and on the widget sage is what
+                                // done looks like, and this list is nothing
+                                // but done.
+                                Box(
+                                    Modifier
+                                        .width(2.dp)
+                                        .height(34.dp)
+                                        .background(Sage)
+                                )
+                                Spacer(Modifier.width(11.dp))
+                                Column(Modifier.weight(1f)) {
+                                    Text(
+                                        text = task.title,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = PaperDim,
+                                    )
+                                    Spacer(Modifier.height(3.dp))
+                                    Text(
+                                        // The day it landed. On the open
+                                        // list this said how long a thing
+                                        // had waited; here it is the record
+                                        // of when the campaign moved.
+                                        text = task.date.format(started)
+                                            .uppercase(Locale.getDefault()),
+                                        style = MonoMeta,
+                                        color = Muted,
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -328,19 +378,16 @@ private fun CampaignCard(
 
         // No pull button: the open tasks above ARE the pull targets, and a
         // button would have to guess which one you meant.
-        Row(horizontalArrangement = Arrangement.spacedBy(SpaceSm)) {
-            QuietButton(
-                text = stringResource(R.string.campaign_complete),
-                onClick = { onClose(CampaignStatus.COMPLETED) },
-                modifier = Modifier.weight(1f),
-                tint = Sage,
-            )
-            QuietButton(
-                text = stringResource(R.string.campaign_archive),
-                onClick = { onClose(CampaignStatus.ARCHIVED) },
-                tint = Muted,
-            )
-        }
+        // One button, because there is one way to close a campaign. It
+        // sat next to Archive, which wrote the same row with a different
+        // word in it — two controls that differed only by a label, which
+        // is a question the screen asked and never answered.
+        QuietButton(
+            text = stringResource(R.string.campaign_complete),
+            onClick = onComplete,
+            modifier = Modifier.fillMaxWidth(),
+            tint = Sage,
+        )
     }
 }
 
@@ -384,3 +431,14 @@ private fun NotesField(initial: String, onCommit: (String) -> Unit) {
         )
     }
 }
+
+/**
+ * Which cards are open, across a rotation or a trip to the background.
+ *
+ * A LongArray because that is what a Bundle can hold without ceremony;
+ * the set itself is the shape the screen wants to ask `id in expanded`.
+ */
+private val LongSetSaver = Saver<Set<Long>, LongArray>(
+    save = { it.toLongArray() },
+    restore = { it.toSet() },
+)
