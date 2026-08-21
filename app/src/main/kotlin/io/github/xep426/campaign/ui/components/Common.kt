@@ -40,7 +40,8 @@ import io.github.xep426.campaign.ui.theme.LineStrong
 import io.github.xep426.campaign.ui.theme.MonoLabel
 import io.github.xep426.campaign.ui.theme.MonoMeta
 import io.github.xep426.campaign.ui.theme.Muted
-import io.github.xep426.campaign.ui.theme.Paper
+import io.github.xep426.campaign.ui.theme.PaperDim
+import io.github.xep426.campaign.ui.theme.ScreenPadding
 import io.github.xep426.campaign.ui.theme.SpaceMd
 import io.github.xep426.campaign.ui.theme.SpaceSm
 
@@ -244,58 +245,53 @@ fun FootNote(text: String, modifier: Modifier = Modifier) {
 }
 
 /**
- * Efficiency over the last thirty days, and everything ever finished.
+ * Efficiency, as a footer strip: one line, pinned above the navigation.
  *
- * A number and the fraction it came from, and nothing else. No bar, no
- * chart, no streak — a progress bar lived on Today once and was taken out,
- * and a percentage whose arithmetic cannot be checked is the kind of number
- * that starts feeling like a scold.
+ * SUBORDINATE ON PURPOSE. It was a display-sized number under the three
+ * tasks, which made a percentage the loudest thing on the screen the app
+ * exists to keep quiet. The three things are the content; this reports on
+ * them and should read like a status bar, not a verdict.
  *
- * The fraction stays because it is what makes the percentage legible:
- * "62%" is a verdict, "37 of 60 possible" is a fact you can check. See
+ * The fraction survives the shrink because it is what makes the percentage
+ * checkable — "22%" is a judgement, "2/9 · 22%" is arithmetic. See
  * [Progress] for why three a day is the denominator.
+ *
+ * No bar, no chart, no streak: a progress bar lived on Today once and was
+ * taken out.
  */
 @Composable
-fun Tally(progress: Progress, modifier: Modifier = Modifier) {
+fun TallyStrip(progress: Progress, modifier: Modifier = Modifier) {
     Column(modifier.fillMaxWidth()) {
-        Eyebrow(stringResource(R.string.tally_window, progress.windowDays), Ember)
-        Spacer(Modifier.height(SpaceSm))
-
-        if (progress.possible == 0) {
-            // Before the first task there is no window to be a fraction of,
-            // and 0% would be a judgement on a day that has not happened.
+        Hairline()
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = ScreenPadding, vertical = SpaceSm),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Text(
-                text = stringResource(R.string.tally_empty),
-                style = MaterialTheme.typography.bodyMedium,
-                color = Muted,
-            )
-        } else {
-            Row(verticalAlignment = Alignment.Bottom) {
-                Text(
-                    text = "${progress.percent}",
-                    style = MaterialTheme.typography.displaySmall,
-                    color = Paper,
-                )
-                Spacer(Modifier.width(4.dp))
-                Text(
-                    text = "%",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Muted,
-                    modifier = Modifier.padding(bottom = 6.dp),
-                )
-            }
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = listOf(
-                    stringResource(
-                        R.string.tally_of_possible,
-                        progress.completedInWindow,
-                        progress.possible,
-                    ),
-                    stringResource(R.string.tally_all_time, progress.completedAllTime),
-                ).joinToString(" · ").uppercase(java.util.Locale.getDefault()),
+                text = stringResource(R.string.tally_label, progress.windowDays)
+                    .uppercase(java.util.Locale.getDefault()),
                 style = MonoMeta,
                 color = Muted,
+            )
+            Text(
+                text = if (progress.possible == 0) {
+                    // Before the first task there is nothing to be a
+                    // fraction of, and 0% would judge a day that has not
+                    // happened.
+                    stringResource(R.string.tally_empty)
+                } else {
+                    stringResource(
+                        R.string.tally_value,
+                        progress.completedInWindow,
+                        progress.possible,
+                        progress.percent,
+                    )
+                }.uppercase(java.util.Locale.getDefault()),
+                style = MonoMeta,
+                color = PaperDim,
             )
         }
     }

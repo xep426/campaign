@@ -93,9 +93,8 @@
 
     <!-- ── History ─────────────────────────────────────────────────── -->
     <string name="history_title">History</string>
-    <string name="tally_window">Efficiency · last %1$d days</string>
-    <string name="tally_of_possible">%1$d of %2$d possible</string>
-    <string name="tally_all_time">%1$d finished in all</string>
+    <string name="tally_label">Efficiency · %1$d days</string>
+    <string name="tally_value">%1$d/%2$d · %3$d %%</string>
     <string name="tally_empty">Nothing finished yet</string>
     <string name="history_nothing_yet">nothing yet</string>
     <string name="history_finished_count">%1$d finished</string>

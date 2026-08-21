@@ -49,12 +49,14 @@ telemetry.
 Every one of these is a deliberate absence. A tool that can hold everything
 you might do is a tool that never makes you say what you will do.
 
-There is exactly one number, under today's three: efficiency over the last
-thirty days — the slots you spent against the slots there were. It counts
-against three a day because that is the premise: the three are the most
-important things available to you, so an empty one is capacity that went
-unused. It prints the fraction it came from ("37 of 60 possible"), because
-a percentage with its arithmetic hidden is how a tally turns into a scold.
+There is exactly one number, and it lives in a one-line strip at the foot
+of Today: efficiency over the last thirty days — the slots you spent
+against the slots there were. It counts against three a day because that is
+the premise: the three are the most important things available to you, so
+an empty one is capacity that went unused. It shows the fraction beside the
+percentage ("37/60 · 62%"), because a percentage with its arithmetic hidden
+is how a tally turns into a scold. It is a footer, not a headline; the
+three things are the screen.
 
 ## Screens
 

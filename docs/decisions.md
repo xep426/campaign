@@ -246,12 +246,17 @@ to get subtly wrong and impossible to notice afterwards.
 It reads the CAMPAIGN day, not the wall date — between the turn and
 midnight the wall date is a day behind the records.
 
-It sits under the three on Today, not on History. A number nobody visits
-motivates nobody, and Today is the screen opened daily. Under the three
-rather than above them: the three things are the point, and a percentage is
-commentary on them. It is hidden during the planning window, like
-everything else that reports on a day, because the window ends on a day
-that has not started.
+**Where it sits took two goes.** History was wrong — a number nobody
+visits motivates nobody, and Today is the screen opened daily. But putting
+it in Today's scroll at display size was wrong in the other direction: it
+ended up both the last thing on the page and the biggest, which is not what
+subordinate looks like.
+
+It is now a one-line strip pinned above the navigation, in the same mono
+meta as every other caption. The scrolling half ends on "the day turns at
+22:00", so the day closes on its own terms and the statistic reports from
+outside the content. Hidden during the planning window, like everything
+else that reports on a day.
 
 ## Carrying a task forward moves it
 

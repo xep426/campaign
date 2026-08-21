@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -46,7 +47,7 @@ import io.github.xep426.campaign.ui.components.CompletionMark
 import io.github.xep426.campaign.ui.components.Eyebrow
 import io.github.xep426.campaign.ui.components.rememberDateFormat
 import io.github.xep426.campaign.ui.components.FootNote
-import io.github.xep426.campaign.ui.components.Tally
+import io.github.xep426.campaign.ui.components.TallyStrip
 import io.github.xep426.campaign.ui.components.GhostAction
 import io.github.xep426.campaign.ui.components.Hairline
 import io.github.xep426.campaign.ui.components.ReorderableColumn
@@ -91,15 +92,25 @@ fun TodayScreen(
 
     val focus = LocalFocusManager.current
 
+    // Two parts: the day scrolls, the tally does not.
+    //
+    // The tally is pinned to the bottom edge, above the navigation, so it
+    // never competes with the three tasks for position. Putting it in the
+    // scroll flow made it the last thing on the page AND the biggest, which
+    // is the opposite of subordinate.
     Column(
         modifier = modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             // Tapping blank space drops focus, which is what makes "tap
             // away to save" actually happen: Compose does not clear focus
             // on its own, so without this the field stays live, the commit
             // never fires, and the edit looks lost. detectTapGestures only
             // consumes taps, so the scroll below still works.
-            .pointerInput(Unit) { detectTapGestures { focus.clearFocus() } }
+            .pointerInput(Unit) { detectTapGestures { focus.clearFocus() } },
+    ) {
+    Column(
+        modifier = Modifier
+            .weight(1f)
             .verticalScroll(rememberScrollState())
             .padding(horizontal = ScreenPadding)
             .padding(top = SpaceLg, bottom = SpaceXl),
@@ -202,21 +213,25 @@ fun TodayScreen(
         // above them: the three things are the point and a percentage is
         // commentary on them.
         //
-        // Hidden during planning, like everything else that reports on a
-        // day. The window ends on a day that has not started.
-        if (!state.isPlanning) {
-            Spacer(Modifier.height(SpaceXl))
-            Tally(state.progress)
-        }
-
         // The app's one setting, and it lives here because it governs this
-        // screen: the hour the list empties and starts again.
+        // screen: the hour the list empties and starts again. Last thing in
+        // the scrolling half, which makes it the close of the day rather
+        // than a footnote under a statistic.
         Spacer(Modifier.height(SpaceXl))
         TurnRow(
             time = state.turnsAt,
             enabled = state.notificationsEnabled,
             onClick = { timeOpen = true },
         )
+    }
+
+        // Hidden during planning, like everything else that reports on a
+        // day. The window ends on a day that has not started — and the
+        // strip would sit under a screen whose whole posture is "decide",
+        // answering a question nobody is asking yet.
+        if (!state.isPlanning) {
+            TallyStrip(state.progress)
+        }
     }
 
     if (timeOpen) {

@@ -97,9 +97,8 @@
     <string name="history_title">Verlauf</string>
     <!-- Die Bilanz oben im Verlauf. "von 90 möglichen" statt nur "90",
          weil die Zahl eine Obergrenze ist und kein Soll. -->
-    <string name="tally_window">Effizienz · letzte %1$d Tage</string>
-    <string name="tally_of_possible">%1$d von %2$d möglichen</string>
-    <string name="tally_all_time">%1$d insgesamt erledigt</string>
+    <string name="tally_label">Effizienz · %1$d Tage</string>
+    <string name="tally_value">%1$d/%2$d · %3$d %%</string>
     <string name="tally_empty">Noch nichts erledigt</string>
     <string name="history_nothing_yet">noch nichts</string>
     <string name="history_finished_count">%1$d abgeschlossen</string>
