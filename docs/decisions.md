@@ -243,8 +243,20 @@ happened, and the number is a record.
 `isStillDeliverable` does: it is the kind of small calculation that is easy
 to get subtly wrong and impossible to notice afterwards.
 
-It reads the CAMPAIGN day, not the wall date — between the turn and
-midnight the wall date is a day behind the records.
+**It reports on the wall date, not the campaign day** — the one place in
+this codebase where the wall date is the right answer. The two differ only
+inside the planning window, and there the campaign day is tomorrow: ending
+the window on it would drag an unstarted day of three empty slots into the
+denominator, so the figure would fall at 22:00 every evening and climb back
+through the next day. A number that drops the moment you sit down to plan
+is the opposite of what it is for. On the wall date it does not move across
+the turn at all, and during the planning window it is a settled figure for
+thirty finished days — which is the right thing to have in front of you
+while choosing the next three.
+
+It is therefore the one thing on Today that the planning window does NOT
+hide. Everything else there reports on the day being planned; this does
+not.
 
 **Where it sits took two goes.** History was wrong — a number nobody
 visits motivates nobody, and Today is the screen opened daily. But putting

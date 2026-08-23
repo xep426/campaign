@@ -27,10 +27,10 @@ interface TaskRepository {
      * The tally: everything ever finished, and how full the last
      * [Progress.WINDOW_DAYS] days were.
      *
-     * [today] is the CAMPAIGN day, not the wall date, so the window ends
-     * where the task records end. Between the turn and midnight those two
-     * disagree, and the widget already taught this codebase what happens
-     * when one surface picks the other definition.
+     * [today] is the last day that HAPPENED — the caller's wall date, not
+     * its campaign day. The two differ only inside the planning window,
+     * and there the campaign day is tomorrow: ending the window on it
+     * would count an unstarted day of three empty slots against you.
      */
     fun progress(today: LocalDate, windowDays: Int = Progress.WINDOW_DAYS): Flow<Progress>
 

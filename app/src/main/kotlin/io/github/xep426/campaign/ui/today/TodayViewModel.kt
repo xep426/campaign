@@ -101,6 +101,24 @@ class TodayViewModel @Inject constructor(
      */
     private val date = clock.map { it.day }.distinctUntilChanged()
 
+    /**
+     * The last day that actually HAPPENED, which is what efficiency reports
+     * on — and it is the wall date in both states, not the campaign day.
+     *
+     * They agree except inside the planning window, and there the campaign
+     * day is tomorrow: ending the window on it would pull an unstarted day
+     * with three empty slots into the denominator, so the figure would drop
+     * every evening at 22:00 and climb back through the next day. A number
+     * that falls the moment you sit down to plan is the opposite of what it
+     * is for.
+     *
+     * On the wall date it does not move across the turn at all. During the
+     * planning window it is a settled figure for thirty finished days,
+     * which is the right thing to have in front of you while choosing the
+     * next three.
+     */
+    private val reportingDay = clock.map { it.wall }.distinctUntilChanged()
+
     init {
         // Follows the setting as well as the clock: moving the turn earlier
         // in the evening must move the list with it, not at the next resume.
@@ -125,7 +143,7 @@ class TodayViewModel @Inject constructor(
         date.flatMapLatest { tasks.tasksFor(it) },
         campaigns.active(),
         settings.endOfDay,
-        date.flatMapLatest { tasks.progress(it) },
+        reportingDay.flatMapLatest { tasks.progress(it) },
     ) { now, dayTasks, active, setting, progress ->
         TodayUiState(
             date = now.day,

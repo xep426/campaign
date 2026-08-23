@@ -225,13 +225,12 @@ fun TodayScreen(
         )
     }
 
-        // Hidden during planning, like everything else that reports on a
-        // day. The window ends on a day that has not started — and the
-        // strip would sit under a screen whose whole posture is "decide",
-        // answering a question nobody is asking yet.
-        if (!state.isPlanning) {
-            TallyStrip(state.progress)
-        }
+        // Shown during the planning window too, unlike everything else that
+        // reports on a day. It is not reporting on the day being planned —
+        // it covers the thirty that already happened (see
+        // TodayViewModel.reportingDay), and how the last month went is
+        // exactly what belongs in front of someone choosing the next three.
+        TallyStrip(state.progress)
     }
 
     if (timeOpen) {
