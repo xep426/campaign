@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campaign — Icon-Studie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700&family=Karla:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   Campaign — Icon-Studie
+
+   Dieselben Pfade wie ic_launcher_foreground.xml, im selben
+   108er-Koordinatensystem. Wer hier etwas ändert, muss es dort
+   mitändern — die Datei ist die Wahrheit, das hier die Ansicht.
+   ============================================================ */
+:root{
+  --void:#0E0C0A; --ink:#15120E; --surface:#1D1913;
+  --line:rgba(240,233,219,.10); --line-strong:rgba(240,233,219,.18);
+  --paper:#F0E9DB; --paper-dim:#A79D8B; --muted:#736A5C;
+  --ember:#E5913C; --sage:#93A97E;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--void); color:var(--paper);
+  font-family:'Karla','Helvetica Neue',sans-serif; font-size:15px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+header{max-width:1100px;margin:0 auto;padding:56px 40px 26px}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--ember);margin-bottom:16px}
+h1{font-family:'Fraunces',Georgia,serif;font-weight:300;font-size:clamp(32px,5vw,50px);
+  line-height:1.05;letter-spacing:-.02em;margin-bottom:16px}
+.lede{max-width:62ch;color:var(--paper-dim);font-size:16px}
+main{max-width:1100px;margin:0 auto;padding:0 40px 90px}
+section{margin-top:52px}
+h2{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--muted);font-weight:400;margin-bottom:20px;
+  padding-bottom:10px;border-bottom:1px solid var(--line)}
+.row{display:flex;flex-wrap:wrap;gap:34px;align-items:flex-end}
+figure{text-align:center}
+figcaption{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);margin-top:11px}
+.plate{display:block;border-radius:0}
+.note{color:var(--paper-dim);font-size:14px;max-width:62ch;margin-top:18px}
+.note b{color:var(--paper);font-weight:500}
+.swatch{display:inline-block;width:9px;height:9px;border-radius:2px;vertical-align:-1px;margin-right:5px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Campaign · Icon-Studie</div>
+  <h1>Drei Kerben</h1>
+  <p class="lede">Dieselben Pfade wie in <code>ic_launcher_foreground.xml</code>, im selben
+  108er-Raster. Unten in den Maskenformen, die Android tatsächlich anwendet, und in den
+  Größen, in denen das Icon wirklich gesehen wird.</p>
+</header>
+
+<main>
+
+<!-- Ein Symbol, einmal definiert, überall referenziert: so kann die
+     Ansicht nicht zwischen zwei Größen auseinanderlaufen. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="marks">
+      <path fill="#F0E9DB" d="M41.8,38.4 L45.9,37.6 L42.4,70.2 L38.1,71.0 Z"/>
+      <path fill="#F0E9DB" d="M55.4,36.8 L59.7,36.2 L56.0,71.4 L51.6,72.1 Z"/>
+      <path fill="#93A97E" d="M69.2,38.0 L73.4,37.3 L69.9,72.6 L65.5,73.2 Z"/>
+    </g>
+    <g id="marksMono">
+      <path fill="#F0E9DB" d="M41.8,38.4 L45.9,37.6 L42.4,70.2 L38.1,71.0 Z"/>
+      <path fill="#F0E9DB" d="M55.4,36.8 L59.7,36.2 L56.0,71.4 L51.6,72.1 Z"/>
+      <path fill="#F0E9DB" d="M69.2,38.0 L73.4,37.3 L69.9,72.6 L65.5,73.2 Z"/>
+    </g>
+    <clipPath id="circle"><circle cx="54" cy="54" r="45"/></clipPath>
+    <clipPath id="squircle">
+      <path d="M54,9 C81,9 99,27 99,54 C99,81 81,99 54,99 C27,99 9,81 9,54 C9,27 27,9 54,9 Z"/>
+    </clipPath>
+    <clipPath id="rounded">
+      <rect x="9" y="9" width="90" height="90" rx="20" ry="20"/>
+    </clipPath>
+  </defs>
+</svg>
+
+<section>
+  <h2>Maskenformen — was der Launcher daraus macht</h2>
+  <div class="row">
+    <figure>
+      <svg class="plate" width="150" height="150" viewBox="0 0 108 108">
+        <rect width="108" height="108" fill="#15120E"/>
+        <use href="#marks"/>
+        <circle cx="54" cy="54" r="33" fill="none" stroke="#E5913C" stroke-width="0.5" stroke-dasharray="2 2" opacity=".55"/>
+      </svg>
+      <figcaption>108 dp roh · Sicherheitszone</figcaption>
+    </figure>
+    <figure>
+      <svg class="plate" width="150" height="150" viewBox="0 0 108 108">
+        <g clip-path="url(#circle)"><rect width="108" height="108" fill="#15120E"/><use href="#marks"/></g>
+      </svg>
+      <figcaption>Kreis · Pixel</figcaption>
+    </figure>
+    <figure>
+      <svg class="plate" width="150" height="150" viewBox="0 0 108 108">
+        <g clip-path="url(#squircle)"><rect width="108" height="108" fill="#15120E"/><use href="#marks"/></g>
+      </svg>
+      <figcaption>Squircle · One UI</figcaption>
+    </figure>
+    <figure>
+      <svg class="plate" width="150" height="150" viewBox="0 0 108 108">
+        <g clip-path="url(#rounded)"><rect width="108" height="108" fill="#15120E"/><use href="#marks"/></g>
+      </svg>
+      <figcaption>Abgerundet</figcaption>
+    </figure>
+  </div>
+  <p class="note">Der gestrichelte Kreis ist die 66-dp-Sicherheitszone. Alles außerhalb kann
+  beschnitten werden — die Kerben liegen komplett innerhalb, deshalb ändert die Maskenform
+  nichts am Motiv.</p>
+</section>
+
+<section>
+  <h2>Echte Größen — hier entscheidet es sich</h2>
+  <div class="row">
+    <figure>
+      <svg class="plate" width="192" height="192" viewBox="0 0 108 108">
+        <g clip-path="url(#squircle)"><rect width="108" height="108" fill="#15120E"/><use href="#marks"/></g>
+      </svg>
+      <figcaption>192 px · Store-Raster</figcaption>
+    </figure>
+    <figure>
+      <svg class="plate" width="96" height="96" viewBox="0 0 108 108">
+        <g clip-path="url(#squircle)"><rect width="108" height="108" fill="#15120E"/><use href="#marks"/></g>
+      </svg>
+      <figcaption>96 px</figcaption>
+    </figure>
+    <figure>
+      <svg class="plate" width="48" height="48" viewBox="0 0 108 108">
+        <g clip-path="url(#squircle)"><rect width="108" height="108" fill="#15120E"/><use href="#marks"/></g>
+      </svg>
+      <figcaption>48 px · Homescreen</figcaption>
+    </figure>
+    <figure>
+      <svg class="plate" width="24" height="24" viewBox="0 0 108 108">
+        <g clip-path="url(#squircle)"><rect width="108" height="108" fill="#15120E"/><use href="#marks"/></g>
+      </svg>
+      <figcaption>24 px · Benachrichtigung</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section>
+  <h2>Themed icon — die monochrome Ebene</h2>
+  <div class="row">
+    <figure>
+      <svg class="plate" width="120" height="120" viewBox="0 0 108 108">
+        <g clip-path="url(#squircle)"><rect width="108" height="108" fill="#3A322A"/><use href="#marksMono"/></g>
+      </svg>
+      <figcaption>Dunkler Systemton</figcaption>
+    </figure>
+    <figure>
+      <svg class="plate" width="120" height="120" viewBox="0 0 108 108">
+        <g clip-path="url(#squircle)"><rect width="108" height="108" fill="#D8CFC0"/>
+          <g fill="#2A241C">
+            <path d="M41.8,38.4 L45.9,37.6 L42.4,70.2 L38.1,71.0 Z"/>
+            <path d="M55.4,36.8 L59.7,36.2 L56.0,71.4 L51.6,72.1 Z"/>
+            <path d="M69.2,38.0 L73.4,37.3 L69.9,72.6 L65.5,73.2 Z"/>
+          </g>
+        </g>
+      </svg>
+      <figcaption>Heller Systemton</figcaption>
+    </figure>
+  </div>
+  <p class="note">Wenn der Nutzer themed icons einschaltet, wirft Android Farbe weg und
+  färbt die Form nach dem Systemton ein. Deshalb sind die Kerben <b>gefüllte Pfade und
+  keine Striche</b> — ein Strich mit Kappe würde bei dieser Behandlung ausdünnen. Der
+  Salbeiton geht dabei verloren; das ist bei jedem themed icon so.</p>
+</section>
+
+<section>
+  <h2>Was der Vektor nicht kann</h2>
+  <p class="note">Die Kerben sind <b>vier Punkte pro Strich</b> — sie verjüngen sich, aber
+  sie fransen nicht aus. Deine Vorlage hat gerissene, unregelmäßige Ränder, die aus vielen
+  hundert Punkten bestehen. Das ließe sich nachziehen, kostet aber Dateigröße und wird bei
+  48 px ohnehin nicht sichtbar. Falls du die Rauheit fürs Store-Bild willst, ist dein
+  Original dafür die bessere Quelle als dieser Vektor.</p>
+  <p class="note">
+    <span class="swatch" style="background:#F0E9DB"></span>Paper #F0E9DB &nbsp;
+    <span class="swatch" style="background:#93A97E"></span>Sage #93A97E &nbsp;
+    <span class="swatch" style="background:#15120E"></span>Ink #15120E
+  </p>
+</section>
+
+</main>
+</body>
+</html>
