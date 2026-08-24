@@ -22,14 +22,10 @@ import androidx.compose.ui.window.Dialog
 import io.github.xep426.campaign.R
 import io.github.xep426.campaign.domain.model.Campaign
 import io.github.xep426.campaign.domain.model.DailyTask
-import io.github.xep426.campaign.ui.theme.Ember
-import io.github.xep426.campaign.ui.theme.Line
-import io.github.xep426.campaign.ui.theme.Muted
-import io.github.xep426.campaign.ui.theme.Paper
+import io.github.xep426.campaign.ui.theme.AppColors
 import io.github.xep426.campaign.ui.theme.SpaceLg
 import io.github.xep426.campaign.ui.theme.SpaceMd
 import io.github.xep426.campaign.ui.theme.SpaceSm
-import io.github.xep426.campaign.ui.theme.SurfaceCard
 import java.time.format.DateTimeFormatter
 
 /**
@@ -56,18 +52,18 @@ fun CampaignPickerDialog(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(SurfaceCard, RoundedCornerShape(18.dp))
-                .border(1.dp, Line, RoundedCornerShape(18.dp))
+                .background(AppColors.surfaceCard, RoundedCornerShape(18.dp))
+                .border(1.dp, AppColors.line, RoundedCornerShape(18.dp))
                 .padding(SpaceLg),
             verticalArrangement = Arrangement.spacedBy(SpaceMd),
         ) {
-            Eyebrow(stringResource(R.string.picker_title), Ember)
+            Eyebrow(stringResource(R.string.picker_title), AppColors.ember)
 
             if (campaigns.isEmpty()) {
                 Text(
                     text = stringResource(R.string.picker_empty),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Muted,
+                    color = AppColors.muted,
                 )
             } else {
                 LazyColumn(
@@ -77,7 +73,7 @@ fun CampaignPickerDialog(
                     campaigns.forEach { campaign ->
                         item(key = "c${campaign.id}") {
                             Spacer(Modifier.height(SpaceSm))
-                            Eyebrow(campaign.title, Muted)
+                            Eyebrow(campaign.title, AppColors.muted)
                         }
                         items(
                             count = campaign.openTasks.size,
@@ -114,12 +110,12 @@ private fun OutstandingTask(
         Text(
             text = task.title,
             style = MaterialTheme.typography.bodyLarge,
-            color = Paper,
+            color = AppColors.paper,
         )
         Text(
             text = stringResource(R.string.picker_waiting_since, task.date.format(dayLabel)),
             style = io.github.xep426.campaign.ui.theme.MonoMeta,
-            color = Muted,
+            color = AppColors.muted,
             modifier = Modifier.padding(top = 4.dp),
         )
     }

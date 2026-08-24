@@ -19,10 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import io.github.xep426.campaign.ui.theme.Ember
-import io.github.xep426.campaign.ui.theme.Line
-import io.github.xep426.campaign.ui.theme.Muted
-import io.github.xep426.campaign.ui.theme.Paper
+import io.github.xep426.campaign.ui.theme.AppColors
 
 /**
  * A task field: text on a bare line, with no box around it.
@@ -55,9 +52,9 @@ fun SlotTextField(
             onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
             textStyle = MaterialTheme.typography.bodyLarge.merge(LocalTextStyle.current)
-                .copy(color = Paper),
+                .copy(color = AppColors.paper),
             singleLine = true,
-            cursorBrush = SolidColor(Ember),
+            cursorBrush = SolidColor(AppColors.ember),
             interactionSource = interactions,
             keyboardOptions = KeyboardOptions(imeAction = imeAction),
             keyboardActions = KeyboardActions(
@@ -70,7 +67,7 @@ fun SlotTextField(
                         Text(
                             text = placeholder,
                             style = MaterialTheme.typography.bodyLarge,
-                            color = Muted.copy(alpha = 0.7f),
+                            color = AppColors.muted.copy(alpha = 0.7f),
                         )
                     }
                     inner()
@@ -87,6 +84,6 @@ fun FieldUnderline(focused: Boolean, modifier: Modifier = Modifier) {
         modifier
             .fillMaxWidth()
             .height(1.dp)
-            .background(if (focused) Ember.copy(alpha = 0.55f) else Line)
+            .background(if (focused) AppColors.ember.copy(alpha = 0.55f) else AppColors.line)
     )
 }

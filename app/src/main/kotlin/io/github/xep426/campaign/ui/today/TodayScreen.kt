@@ -55,13 +55,9 @@ import io.github.xep426.campaign.ui.components.SlotNumeral
 import io.github.xep426.campaign.ui.components.SlotPips
 import io.github.xep426.campaign.ui.components.SlotTextField
 import io.github.xep426.campaign.ui.components.TimeDialog
-import io.github.xep426.campaign.ui.theme.Ember
-import io.github.xep426.campaign.ui.theme.LineStrong
+import io.github.xep426.campaign.ui.theme.AppColors
 import io.github.xep426.campaign.ui.theme.MonoMeta
-import io.github.xep426.campaign.ui.theme.Muted
-import io.github.xep426.campaign.ui.theme.Paper
 import io.github.xep426.campaign.ui.theme.ScreenPadding
-import io.github.xep426.campaign.ui.theme.SurfaceCard
 import io.github.xep426.campaign.ui.theme.SpaceLg
 import io.github.xep426.campaign.ui.theme.SpaceMd
 import io.github.xep426.campaign.ui.theme.SpaceSm
@@ -117,7 +113,7 @@ fun TodayScreen(
     ) {
         // The date of the day the app is IN, which after the turn is
         // already tomorrow's. One list, no switch — see CampaignDay.
-        Eyebrow(state.date.format(dateFormat), Muted)
+        Eyebrow(state.date.format(dateFormat), AppColors.muted)
         Spacer(Modifier.height(SpaceSm))
         Text(
             text = stringResource(
@@ -125,7 +121,7 @@ fun TodayScreen(
             ),
             style = if (state.isPlanning) MaterialTheme.typography.displayLarge
             else MaterialTheme.typography.headlineLarge,
-            color = Paper,
+            color = AppColors.paper,
         )
 
         Spacer(Modifier.height(SpaceMd))
@@ -135,7 +131,7 @@ fun TodayScreen(
             Text(
                 text = stringResource(R.string.planning_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
-                color = Muted,
+                color = AppColors.muted,
             )
         } else {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -148,7 +144,7 @@ fun TodayScreen(
                         DailyTask.SLOTS_PER_DAY,
                     ).uppercase(Locale.getDefault()),
                     style = MonoMeta,
-                    color = Muted,
+                    color = AppColors.muted,
                 )
             }
         }
@@ -294,7 +290,7 @@ private fun TurnRow(time: LocalTime, enabled: Boolean, onClick: () -> Unit) {
         Box(
             Modifier
                 .size(5.dp)
-                .background(if (enabled) Ember else LineStrong, CircleShape)
+                .background(if (enabled) AppColors.ember else AppColors.lineStrong, CircleShape)
         )
         Spacer(Modifier.size(10.dp))
         Text(
@@ -303,7 +299,7 @@ private fun TurnRow(time: LocalTime, enabled: Boolean, onClick: () -> Unit) {
                 stringResource(R.string.format_clock, time.hour, time.minute),
             ).uppercase(Locale.getDefault()),
             style = MonoMeta,
-            color = Muted,
+            color = AppColors.muted,
         )
     }
 }
@@ -338,7 +334,7 @@ private fun SlotRow(
             // Lifted, not highlighted: the picked-up row gets a faint warm
             // ground so it reads as sitting above the others, which is the
             // only cue a flat list can give for "you are holding this".
-            .background(if (dragging) SurfaceCard else Color.Transparent)
+            .background(if (dragging) AppColors.surfaceCard else Color.Transparent)
             .padding(vertical = SpaceMd),
         verticalAlignment = Alignment.Top,
     ) {
@@ -456,7 +452,7 @@ private fun FilledSlot(
                 Text(
                     text = task.title,
                     style = if (task.completed) TaskDone else MaterialTheme.typography.bodyLarge,
-                    color = if (task.completed) Muted else Paper,
+                    color = if (task.completed) AppColors.muted else AppColors.paper,
                 )
                 task.campaignTitle?.let { title ->
                     Spacer(Modifier.height(10.dp))
@@ -469,7 +465,7 @@ private fun FilledSlot(
             Text(
                 text = "⋯",
                 style = MaterialTheme.typography.titleMedium,
-                color = Muted,
+                color = AppColors.muted,
                 modifier = Modifier
                     .clickable { menuOpen = true }
                     .padding(horizontal = 8.dp, vertical = 2.dp),

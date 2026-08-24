@@ -32,16 +32,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import io.github.xep426.campaign.R
 import io.github.xep426.campaign.domain.model.Campaign
-import io.github.xep426.campaign.ui.theme.Ember
-import io.github.xep426.campaign.ui.theme.Line
-import io.github.xep426.campaign.ui.theme.LineStrong
-import io.github.xep426.campaign.ui.theme.Muted
-import io.github.xep426.campaign.ui.theme.Paper
-import io.github.xep426.campaign.ui.theme.Sage
+import io.github.xep426.campaign.ui.theme.AppColors
 import io.github.xep426.campaign.ui.theme.SpaceLg
 import io.github.xep426.campaign.ui.theme.SpaceMd
 import io.github.xep426.campaign.ui.theme.SpaceSm
-import io.github.xep426.campaign.ui.theme.SurfaceCard
 
 /**
  * Which campaign, if any, this task belongs to.
@@ -72,18 +66,18 @@ fun AssignDialog(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(SurfaceCard, RoundedCornerShape(18.dp))
-                .border(1.dp, Line, RoundedCornerShape(18.dp))
+                .background(AppColors.surfaceCard, RoundedCornerShape(18.dp))
+                .border(1.dp, AppColors.line, RoundedCornerShape(18.dp))
                 .padding(SpaceLg),
             verticalArrangement = Arrangement.spacedBy(SpaceMd),
         ) {
-            Eyebrow(stringResource(R.string.assign_title), Ember)
+            Eyebrow(stringResource(R.string.assign_title), AppColors.ember)
 
             if (naming) {
                 Text(
                     text = stringResource(R.string.assign_new_hint),
                     style = MaterialTheme.typography.bodySmall,
-                    color = Muted,
+                    color = AppColors.muted,
                 )
                 SlotTextField(
                     value = newTitle,
@@ -105,7 +99,7 @@ fun AssignDialog(
                         onClick = { onCreate(newTitle) },
                         modifier = Modifier.weight(1f),
                         enabled = newTitle.isNotBlank(),
-                        tint = Ember,
+                        tint = AppColors.ember,
                     )
                 }
             } else {
@@ -155,14 +149,14 @@ private fun CampaignChoice(
         Box(
             Modifier
                 .size(16.dp)
-                .background(if (selected) Sage else androidx.compose.ui.graphics.Color.Transparent, CircleShape)
-                .border(1.dp, if (selected) Sage else LineStrong, CircleShape)
+                .background(if (selected) AppColors.sage else androidx.compose.ui.graphics.Color.Transparent, CircleShape)
+                .border(1.dp, if (selected) AppColors.sage else AppColors.lineStrong, CircleShape)
         )
         Spacer(Modifier.size(12.dp))
         Text(
             text = title,
             style = MaterialTheme.typography.bodyLarge,
-            color = if (selected) Paper else Paper,
+            color = if (selected) AppColors.paper else AppColors.paper,
         )
     }
 }

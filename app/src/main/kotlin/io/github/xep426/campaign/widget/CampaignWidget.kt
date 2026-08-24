@@ -42,10 +42,7 @@ import androidx.glance.unit.ColorProvider
 import io.github.xep426.campaign.MainActivity
 import io.github.xep426.campaign.R
 import io.github.xep426.campaign.domain.model.DailyTask
-import io.github.xep426.campaign.ui.theme.Ember
-import io.github.xep426.campaign.ui.theme.EmberDeep
-import io.github.xep426.campaign.ui.theme.Muted
-import io.github.xep426.campaign.ui.theme.Paper
+import io.github.xep426.campaign.ui.theme.DuskPalette
 import kotlinx.coroutines.flow.flowOf
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -199,7 +196,7 @@ class CampaignWidget : GlanceAppWidget() {
                     Text(
                         text = title,
                         style = TextStyle(
-                            color = ColorProvider(Paper),
+                            color = ColorProvider(DuskPalette.paper),
                             fontSize = metrics.titleSize,
                             fontWeight = FontWeight.Medium,
                         ),
@@ -215,7 +212,7 @@ class CampaignWidget : GlanceAppWidget() {
                     Text(
                         text = "›",
                         style = TextStyle(
-                            color = ColorProvider(Ember),
+                            color = ColorProvider(DuskPalette.ember),
                             fontSize = metrics.titleSize,
                             fontWeight = FontWeight.Normal,
                         ),
@@ -224,7 +221,7 @@ class CampaignWidget : GlanceAppWidget() {
                     Text(
                         text = dateLabel,
                         style = TextStyle(
-                            color = ColorProvider(Ember),
+                            color = ColorProvider(DuskPalette.ember),
                             fontSize = metrics.dateSize,
                             fontWeight = FontWeight.Medium,
                         ),
@@ -318,7 +315,7 @@ class CampaignWidget : GlanceAppWidget() {
                 Text(
                     text = DailyTask.numeralFor(index),
                     style = TextStyle(
-                        color = ColorProvider(if (slot == null) Muted else EmberDeep),
+                        color = ColorProvider(if (slot == null) DuskPalette.muted else DuskPalette.emberDeep),
                         fontSize = metrics.numeralSize,
                         fontWeight = FontWeight.Medium,
                     ),
@@ -338,7 +335,7 @@ class CampaignWidget : GlanceAppWidget() {
                     Text(
                         text = "+",
                         style = TextStyle(
-                            color = ColorProvider(Muted),
+                            color = ColorProvider(DuskPalette.muted),
                             fontSize = metrics.markSize.value.sp,
                             fontWeight = FontWeight.Normal,
                             textAlign = TextAlign.Center,
@@ -364,9 +361,9 @@ class CampaignWidget : GlanceAppWidget() {
                 style = TextStyle(
                     color = ColorProvider(
                         when {
-                            slot == null -> Muted
-                            slot.completed -> Muted
-                            else -> Paper
+                            slot == null -> DuskPalette.muted
+                            slot.completed -> DuskPalette.muted
+                            else -> DuskPalette.paper
                         }
                     ),
                     fontSize = metrics.taskSize,

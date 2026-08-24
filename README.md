@@ -67,8 +67,9 @@ three things are the screen.
 | **History** | Campaigns you finished, and one-off tasks that belonged to none |
 | **Widget** | Today's three on the home screen, tappable |
 
-English and German, informal *du*. Dark only — the app's centre of gravity
-is a prompt at 22:00 in a dim room.
+English and German, informal *du*. Two themes, dusk and daylight, on a
+toggle in the top-right corner. Dusk is the default and stays the point:
+the app's centre of gravity is a prompt at 22:00 in a dim room.
 
 ## Install
 

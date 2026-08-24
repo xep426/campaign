@@ -44,13 +44,45 @@ This needed the view model to carry *two* dates. At midnight only the wall
 date changes — the campaign day stays put — so a single date would have
 left the screen stuck in planning mode with nothing to signal the change.
 
-## Dark only
+## Dusk by default, daylight by choice
 
-The centre of gravity is a prompt at 22:00 in a dim room. A light theme
-would put a white rectangle in your face at exactly that moment. The
-corollary is a rule: **no `values-night` resources anywhere**, because
-anything resolving against the system's night flag could only introduce a
-second, contradicting palette.
+This was dark-only, and the reasoning has not stopped being true: the
+centre of gravity is a prompt at 22:00 in a dim room, and a light theme
+puts a white rectangle in your face at exactly that moment. So dusk is
+still the default and daylight is something you reach for — a toggle in the
+top-right corner, not a system-following default.
+
+**The corollary rule survives and now matters more: no `values-night`
+resources anywhere.** The palette follows an in-app toggle, not the
+system night flag. A night-qualified resource would be a second source of
+truth disagreeing with the first half the time — light app, dark drawable.
+
+What the switch cost was the shape of the colour layer. One palette could
+live as top-level `val`s that screens imported by name; two cannot,
+because a constant cannot follow a theme. Roles now live in a `Palette`
+read through a `CompositionLocal`, and 212 call sites across 11 files say
+`AppColors.paper` instead of `Paper`. The old names were deleted rather
+than kept as aliases, so the compiler had to find every one — a silent
+miss would have been a screen that stayed dark in daylight.
+
+**The light palette is not an inversion.** Ember at `#E5913C` is legible on
+near-black and washes out on cream, so daylight takes ember's darker end
+and pushes it further; sage does the same. The greys move the other way:
+on paper the quiet text has to be darker than instinct suggests, because a
+light ground flatters low contrast and then fails outdoors.
+
+**Two surfaces stay dusk, on purpose.** The widget draws on a wallpaper
+rather than inside the app, and it holds `DuskPalette` explicitly rather
+than by accident. The launch window is dusk too, from `themes.xml`, which
+means a daylight user gets one dark frame before the first composed one —
+the alternative was mirroring the setting into a second store that could
+drift, to save a flash.
+
+An alpha-black overlay was the one thing the conversion could not simply
+rename. Three places darkened a surface with `Color.Black.copy(alpha=…)`,
+which is a dark-theme habit: on cream it is a grey slab. They use
+`AppColors.void` now — the palette already had a name for "below the
+surface", warm in both themes.
 
 ## The evening prompt is inexact, and that is Play's doing
 

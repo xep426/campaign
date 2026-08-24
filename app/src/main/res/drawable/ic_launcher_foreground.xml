@@ -1,20 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Three ember dots stacked in the safe zone — the same mark as the
-     Today tab and the notification. An app whose whole proposition is
-     "three things" should be identifiable by its icon at 48dp without a
-     letterform. -->
+<!-- Three tally marks, struck by hand and slightly uneven — the third one
+     sage, because the third thing done is what the app is counting.
+
+     This replaced three dots stacked in a column, which was a mistake
+     nobody caught for a long time: a vertical column of three dots is the
+     overflow-menu glyph, and this app draws that exact symbol on every
+     task row as its ⋯ menu. The icon was a UI control.
+
+     Diagonal, irregular and hand-cut for the same reason. Anything
+     axis-aligned and evenly spaced reads as toolbar chrome at 48dp.
+
+     Drawn as filled paths rather than strokes so the monochrome layer
+     collapses cleanly: themed icons re-tint whatever shape is here, and a
+     stroke with a cap would thin out under that treatment.
+
+     Inside the 66dp safe zone of the 108dp canvas — the adaptive mask can
+     take the rest. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+
+    <!-- First stroke. Each one leans ~12° and wanders a little along its
+         length; the wobble is what keeps three parallel bars from reading
+         as a hamburger. -->
     <path
-        android:fillColor="#FFE5913C"
-        android:pathData="M54,36m-7,0a7,7 0,1 1,14 0a7,7 0,1 1,-14 0" />
+        android:fillColor="#FFF0E9DB"
+        android:pathData="M41.8,38.4 L45.9,37.6 L42.4,70.2 L38.1,71.0 Z" />
+
+    <!-- Second. Deliberately a touch longer and set slightly higher, the
+         way a second mark cut next to the first never quite matches. -->
     <path
-        android:fillColor="#FFE5913C"
-        android:pathData="M54,54m-7,0a7,7 0,1 1,14 0a7,7 0,1 1,-14 0" />
+        android:fillColor="#FFF0E9DB"
+        android:pathData="M55.4,36.8 L59.7,36.2 L56.0,71.4 L51.6,72.1 Z" />
+
+    <!-- Third — sage. The one that is done. -->
     <path
         android:fillColor="#FF93A97E"
-        android:pathData="M54,72m-7,0a7,7 0,1 1,14 0a7,7 0,1 1,-14 0" />
+        android:pathData="M69.2,38.0 L73.4,37.3 L69.9,72.6 L65.5,73.2 Z" />
 </vector>

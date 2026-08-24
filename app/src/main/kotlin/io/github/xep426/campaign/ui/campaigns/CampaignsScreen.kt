@@ -46,21 +46,13 @@ import io.github.xep426.campaign.ui.components.QuietButton
 import io.github.xep426.campaign.ui.components.SlotTextField
 import io.github.xep426.campaign.ui.components.TextInputDialog
 import io.github.xep426.campaign.ui.components.rememberDateFormat
-import io.github.xep426.campaign.ui.theme.Ember
-import io.github.xep426.campaign.ui.theme.EmberDeep
-import io.github.xep426.campaign.ui.theme.Line
-import io.github.xep426.campaign.ui.theme.LineStrong
+import io.github.xep426.campaign.ui.theme.AppColors
 import io.github.xep426.campaign.ui.theme.MonoMeta
-import io.github.xep426.campaign.ui.theme.Muted
-import io.github.xep426.campaign.ui.theme.Paper
-import io.github.xep426.campaign.ui.theme.PaperDim
-import io.github.xep426.campaign.ui.theme.Sage
 import io.github.xep426.campaign.ui.theme.ScreenPadding
 import io.github.xep426.campaign.ui.theme.SpaceLg
 import io.github.xep426.campaign.ui.theme.SpaceMd
 import io.github.xep426.campaign.ui.theme.SpaceSm
 import io.github.xep426.campaign.ui.theme.SpaceXl
-import io.github.xep426.campaign.ui.theme.SurfaceCard
 import java.util.Locale
 
 @Composable
@@ -99,12 +91,12 @@ fun CampaignsScreen(
     ) {
         item {
             Column {
-                Eyebrow(stringResource(R.string.campaigns_active_count, state.active.size), Muted)
+                Eyebrow(stringResource(R.string.campaigns_active_count, state.active.size), AppColors.muted)
                 Spacer(Modifier.height(SpaceSm))
                 Text(
                     text = stringResource(R.string.campaigns_title),
                     style = MaterialTheme.typography.headlineLarge,
-                    color = Paper,
+                    color = AppColors.paper,
                 )
                 Spacer(Modifier.height(SpaceLg))
             }
@@ -135,7 +127,7 @@ fun CampaignsScreen(
             GhostAction(
                 text = stringResource(R.string.campaign_new),
                 onClick = { creating = true },
-                tint = Ember,
+                tint = AppColors.ember,
             )
         }
     }
@@ -200,8 +192,8 @@ private fun CampaignCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(SurfaceCard, RoundedCornerShape(16.dp))
-            .border(1.dp, Line, RoundedCornerShape(16.dp))
+            .background(AppColors.surfaceCard, RoundedCornerShape(16.dp))
+            .border(1.dp, AppColors.line, RoundedCornerShape(16.dp))
             .padding(SpaceMd),
     ) {
         Row(verticalAlignment = Alignment.Top) {
@@ -209,7 +201,7 @@ private fun CampaignCard(
                 Text(
                     text = campaign.title,
                     style = MaterialTheme.typography.headlineSmall,
-                    color = Paper,
+                    color = AppColors.paper,
                 )
                 Spacer(Modifier.height(6.dp))
                 val days = campaign.daysRunning(today).toInt()
@@ -227,14 +219,14 @@ private fun CampaignCard(
                         pluralStringResource(R.plurals.campaign_meta_days, days, days),
                     ).joinToString(" · ").uppercase(Locale.getDefault()),
                     style = MonoMeta,
-                    color = Muted,
+                    color = AppColors.muted,
                 )
             }
             Box {
                 Text(
                     text = "⋯",
                     style = MaterialTheme.typography.titleMedium,
-                    color = Muted,
+                    color = AppColors.muted,
                     modifier = Modifier
                         .clickable { menuOpen = true }
                         .padding(horizontal = 8.dp, vertical = 2.dp),
@@ -283,14 +275,18 @@ private fun CampaignCard(
             Text(
                 text = stringResource(R.string.campaign_done_none),
                 style = MaterialTheme.typography.bodyMedium,
-                color = Muted,
+                color = AppColors.muted,
             )
         } else {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
-                        androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.28f),
+                        // AppColors.void, not a black wash: an alpha-black overlay is a
+                        // dark-theme habit that turns into a grey slab on cream.
+                        // The palette already names the colour that means "below
+                        // the surface", and it is warm in both themes.
+                        AppColors.void,
                         RoundedCornerShape(9.dp),
                     ),
             ) {
@@ -306,7 +302,7 @@ private fun CampaignCard(
                     Text(
                         text = if (expanded) "▾" else "▸",
                         style = MonoMeta,
-                        color = Ember,
+                        color = AppColors.ember,
                     )
                     Spacer(Modifier.width(9.dp))
                     Text(
@@ -318,7 +314,7 @@ private fun CampaignCard(
                         style = MonoMeta,
                         // Brighter while open, so a card left expanded in a
                         // long list still reads as the one you opened.
-                        color = if (expanded) Paper else Muted,
+                        color = if (expanded) AppColors.paper else AppColors.muted,
                     )
                 }
 
@@ -333,7 +329,7 @@ private fun CampaignCard(
                         campaign.doneTasks.forEachIndexed { index, task ->
                             if (index > 0) Spacer(Modifier.height(SpaceSm))
                             Row(Modifier.fillMaxWidth()) {
-                                // Sage rather than the ember of a live line:
+                                // AppColors.sage rather than the ember of a live line:
                                 // on Today and on the widget sage is what
                                 // done looks like, and this list is nothing
                                 // but done.
@@ -341,14 +337,14 @@ private fun CampaignCard(
                                     Modifier
                                         .width(2.dp)
                                         .height(34.dp)
-                                        .background(Sage)
+                                        .background(AppColors.sage)
                                 )
                                 Spacer(Modifier.width(11.dp))
                                 Column(Modifier.weight(1f)) {
                                     Text(
                                         text = task.title,
                                         style = MaterialTheme.typography.bodyMedium,
-                                        color = PaperDim,
+                                        color = AppColors.paperDim,
                                     )
                                     Spacer(Modifier.height(3.dp))
                                     Text(
@@ -359,7 +355,7 @@ private fun CampaignCard(
                                         text = task.date.format(started)
                                             .uppercase(Locale.getDefault()),
                                         style = MonoMeta,
-                                        color = Muted,
+                                        color = AppColors.muted,
                                     )
                                 }
                             }
@@ -386,7 +382,7 @@ private fun CampaignCard(
             text = stringResource(R.string.campaign_complete),
             onClick = onComplete,
             modifier = Modifier.fillMaxWidth(),
-            tint = Sage,
+            tint = AppColors.sage,
         )
     }
 }
@@ -413,10 +409,10 @@ private fun NotesField(initial: String, onCommit: (String) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, LineStrong, RoundedCornerShape(9.dp))
+            .border(1.dp, AppColors.lineStrong, RoundedCornerShape(9.dp))
             .padding(13.dp),
     ) {
-        Eyebrow(stringResource(R.string.campaign_notes), Muted)
+        Eyebrow(stringResource(R.string.campaign_notes), AppColors.muted)
         Spacer(Modifier.height(6.dp))
         SlotTextField(
             value = text,

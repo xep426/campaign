@@ -26,15 +26,11 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import io.github.xep426.campaign.R
-import io.github.xep426.campaign.ui.theme.Ember
-import io.github.xep426.campaign.ui.theme.Line
+import io.github.xep426.campaign.ui.theme.AppColors
 import io.github.xep426.campaign.ui.theme.MonoLabel
-import io.github.xep426.campaign.ui.theme.Muted
-import io.github.xep426.campaign.ui.theme.Paper
 import io.github.xep426.campaign.ui.theme.SpaceLg
 import io.github.xep426.campaign.ui.theme.SpaceMd
 import io.github.xep426.campaign.ui.theme.SpaceSm
-import io.github.xep426.campaign.ui.theme.SurfaceCard
 import java.time.LocalTime
 
 /** The shared dialog shell: one surface, one hairline, generous padding. */
@@ -43,8 +39,8 @@ private fun DialogCard(content: @Composable () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(SurfaceCard, RoundedCornerShape(18.dp))
-            .border(1.dp, Line, RoundedCornerShape(18.dp))
+            .background(AppColors.surfaceCard, RoundedCornerShape(18.dp))
+            .border(1.dp, AppColors.line, RoundedCornerShape(18.dp))
             .padding(SpaceLg),
         verticalArrangement = Arrangement.spacedBy(SpaceMd),
     ) { content() }
@@ -64,7 +60,7 @@ fun TextInputDialog(
 
     Dialog(onDismissRequest = onDismiss) {
         DialogCard {
-            Eyebrow(label, Ember)
+            Eyebrow(label, AppColors.ember)
             SlotTextField(
                 value = text,
                 onValueChange = { text = it },
@@ -83,7 +79,7 @@ fun TextInputDialog(
                     text = confirmText,
                     onClick = { onConfirm(text) },
                     modifier = Modifier.weight(1f),
-                    tint = Ember,
+                    tint = AppColors.ember,
                 )
             }
         }
@@ -111,12 +107,12 @@ fun ConfirmDialog(
             Text(
                 text = title,
                 style = MaterialTheme.typography.headlineSmall,
-                color = Paper,
+                color = AppColors.paper,
             )
             Text(
                 text = body,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Muted,
+                color = AppColors.muted,
             )
             Spacer(Modifier.height(SpaceSm))
             Row(
@@ -128,7 +124,7 @@ fun ConfirmDialog(
                     text = confirmText,
                     onClick = onConfirm,
                     modifier = Modifier.weight(1f),
-                    tint = Ember,
+                    tint = AppColors.ember,
                 )
             }
         }
@@ -154,7 +150,7 @@ fun TimeDialog(
 
     Dialog(onDismissRequest = onDismiss) {
         DialogCard {
-            Eyebrow(stringResource(R.string.dialog_time_title), Ember)
+            Eyebrow(stringResource(R.string.dialog_time_title), AppColors.ember)
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -169,7 +165,7 @@ fun TimeDialog(
                 Text(
                     text = ":",
                     style = MaterialTheme.typography.displayMedium,
-                    color = Muted,
+                    color = AppColors.muted,
                     modifier = Modifier.padding(horizontal = SpaceSm),
                 )
                 NumberStepper(
@@ -190,7 +186,7 @@ fun TimeDialog(
                     text = stringResource(R.string.dialog_set),
                     onClick = { onConfirm(LocalTime.of(hour, minute)) },
                     modifier = Modifier.weight(1f),
-                    tint = Ember,
+                    tint = AppColors.ember,
                 )
             }
         }
@@ -209,7 +205,7 @@ private fun NumberStepper(
         Text(
             text = format(value),
             style = MaterialTheme.typography.displayMedium,
-            color = Paper,
+            color = AppColors.paper,
             modifier = Modifier.padding(vertical = SpaceXsLocal),
         )
         StepperArrow("▼") { onChange(value - step) }
@@ -221,7 +217,7 @@ private fun StepperArrow(glyph: String, onClick: () -> Unit) {
     Text(
         text = glyph,
         style = MonoLabel,
-        color = Muted,
+        color = AppColors.muted,
         modifier = Modifier
             .clickable(onClick = onClick)
             .padding(horizontal = 18.dp, vertical = 10.dp)

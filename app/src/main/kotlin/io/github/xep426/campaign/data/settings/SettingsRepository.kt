@@ -80,7 +80,23 @@ class SettingsRepository @Inject constructor(
         store.edit { it[KEY_SCHEDULED_FOR] = epochMillis }
     }
 
+    /**
+     * Dusk or daylight.
+     *
+     * Stored rather than read from the system night flag, and that is the
+     * point: the app has an opinion about which it wants (see
+     * [io.github.xep426.campaign.ui.theme.CampaignTheme]) and a user who
+     * runs their phone in light mode has not thereby asked this screen to
+     * be white at 22:00. Defaults to dusk.
+     */
+    val darkTheme: Flow<Boolean> = store.data.map { it[KEY_DARK] ?: true }
+
+    suspend fun setDarkTheme(dark: Boolean) {
+        store.edit { it[KEY_DARK] = dark }
+    }
+
     private companion object {
+        val KEY_DARK = booleanPreferencesKey("dark_theme")
         val KEY_HOUR = intPreferencesKey("end_of_day_hour")
         val KEY_MINUTE = intPreferencesKey("end_of_day_minute")
         val KEY_ENABLED = booleanPreferencesKey("end_of_day_enabled")

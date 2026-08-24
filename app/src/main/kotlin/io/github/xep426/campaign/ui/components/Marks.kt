@@ -23,11 +23,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
-import io.github.xep426.campaign.ui.theme.Ember
-import io.github.xep426.campaign.ui.theme.Ink
-import io.github.xep426.campaign.ui.theme.LineStrong
+import io.github.xep426.campaign.ui.theme.AppColors
 import io.github.xep426.campaign.ui.theme.MonoLabel
-import io.github.xep426.campaign.ui.theme.Sage
 import io.github.xep426.campaign.ui.theme.SpaceXs
 
 /**
@@ -51,15 +48,20 @@ fun CompletionMark(
         label = "tick",
     )
     val fill by animateColorAsState(
-        targetValue = if (completed) Sage else Color.Transparent,
+        targetValue = if (completed) AppColors.sage else Color.Transparent,
         animationSpec = tween(durationMillis = 260),
         label = "fill",
     )
     val ring by animateColorAsState(
-        targetValue = if (completed) Sage else LineStrong,
+        targetValue = if (completed) AppColors.sage else AppColors.lineStrong,
         animationSpec = tween(durationMillis = 260),
         label = "ring",
     )
+
+    // Read outside the draw scope: AppColors resolves a CompositionLocal
+    // and a DrawScope is not a composable context. Hoisting it also means
+    // the tick is not re-reading the palette on every frame it animates.
+    val tickColor = AppColors.ink
 
     Canvas(modifier = modifier.size(size)) {
         val d = this.size.minDimension
@@ -83,10 +85,10 @@ fun CompletionMark(
         // Short leg first, then the long one — the tick writes itself in
         // the direction a hand would.
         val firstEnd = if (drawn >= len1) b else a + (b - a) * (drawn / len1)
-        drawLine(Ink, a, firstEnd, strokeWidth = stroke.width, cap = StrokeCap.Round)
+        drawLine(tickColor, a, firstEnd, strokeWidth = stroke.width, cap = StrokeCap.Round)
         if (drawn > len1) {
             val t = ((drawn - len1) / len2).coerceIn(0f, 1f)
-            drawLine(Ink, b, b + (c - b) * t, strokeWidth = stroke.width, cap = StrokeCap.Round)
+            drawLine(tickColor, b, b + (c - b) * t, strokeWidth = stroke.width, cap = StrokeCap.Round)
         }
     }
 }
@@ -94,7 +96,7 @@ fun CompletionMark(
 /**
  * The campaign chip: which longer effort a task belongs to.
  *
- * Ember, and the only place ember appears on a task row — so a glance at
+ * AppColors.ember, and the only place ember appears on a task row — so a glance at
  * Today separates "something I chose this morning" from "the next step of
  * something I have been carrying for three weeks" without reading a word.
  */
@@ -102,7 +104,7 @@ fun CompletionMark(
 fun CampaignTag(
     text: String,
     modifier: Modifier = Modifier,
-    tint: Color = Ember,
+    tint: Color = AppColors.ember,
 ) {
     Row(
         modifier = modifier
@@ -159,7 +161,7 @@ fun SlotPips(
                 modifier = Modifier
                     .size(width = 22.dp, height = 3.dp)
                     .background(
-                        if (index < completed) Sage else LineStrong,
+                        if (index < completed) AppColors.sage else AppColors.lineStrong,
                         RoundedCornerShape(2.dp),
                     )
             )

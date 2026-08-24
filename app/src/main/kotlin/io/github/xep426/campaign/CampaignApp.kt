@@ -39,17 +39,18 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.xep426.campaign.ui.ThemeViewModel
 import io.github.xep426.campaign.ui.UiMessage
 import io.github.xep426.campaign.ui.components.Hairline
 import io.github.xep426.campaign.ui.campaigns.CampaignsScreen
 import io.github.xep426.campaign.ui.campaigns.CampaignsViewModel
 import io.github.xep426.campaign.ui.history.HistoryScreen
 import io.github.xep426.campaign.ui.history.HistoryViewModel
+import io.github.xep426.campaign.ui.theme.AppColors
 import io.github.xep426.campaign.ui.theme.CampaignTheme
-import io.github.xep426.campaign.ui.theme.Ember
-import io.github.xep426.campaign.ui.theme.Ink
+import io.github.xep426.campaign.ui.theme.DaylightPalette
+import io.github.xep426.campaign.ui.theme.DuskPalette
 import io.github.xep426.campaign.ui.theme.MonoMeta
-import io.github.xep426.campaign.ui.theme.Muted
 import io.github.xep426.campaign.ui.today.TodayScreen
 import io.github.xep426.campaign.ui.today.TodayViewModel
 import kotlinx.coroutines.flow.Flow
@@ -72,18 +73,21 @@ private enum class Tab(@param:StringRes val labelRes: Int) {
  */
 @Composable
 fun CampaignApp() {
-    CampaignTheme {
-        MainShell()
+    val theme: ThemeViewModel = hiltViewModel()
+    val dark by theme.dark.collectAsStateWithLifecycle()
+
+    CampaignTheme(palette = if (dark) DuskPalette else DaylightPalette) {
+        MainShell(dark = dark, onToggleTheme = theme::toggle)
     }
 }
 
 @Composable
-private fun MainShell() {
+private fun MainShell(dark: Boolean, onToggleTheme: () -> Unit) {
     var tab by remember { mutableStateOf(Tab.TODAY) }
     val snackbars = remember { SnackbarHostState() }
 
     Scaffold(
-        containerColor = Ink,
+        containerColor = AppColors.ink,
         snackbarHost = { SnackbarHost(snackbars) },
         bottomBar = { BottomBar(selected = tab, onSelect = { tab = it }) },
     ) { padding ->
@@ -143,8 +147,45 @@ private fun MainShell() {
                     HistoryScreen(state = state, onReopen = vm::reopen)
                 }
             }
+
+            // Above the screens rather than inside one, because it governs
+            // all three. Aligned to the top-right corner, where the screens
+            // keep their margin free — every tab starts with an eyebrow on
+            // the left and nothing on the right.
+            ThemeToggle(
+                dark = dark,
+                onClick = onToggleTheme,
+                modifier = Modifier.align(Alignment.TopEnd),
+            )
         }
     }
+}
+
+/**
+ * Dusk or daylight, as one glyph.
+ *
+ * A half-filled circle rather than a sun or a moon: those need two icons
+ * and a decision about whether the icon shows the state or the action,
+ * which is the classic way a theme toggle ends up meaning the opposite of
+ * what a user reads. A half circle just flips, and the filled half says
+ * which side is currently dark.
+ *
+ * Text rather than a drawable, like the ⋯ menu and the widget's ›. The
+ * app draws its small controls with glyphs and this is one of them.
+ */
+@Composable
+private fun ThemeToggle(dark: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Text(
+        text = if (dark) "◐" else "◑",
+        style = MaterialTheme.typography.titleMedium,
+        color = AppColors.muted,
+        modifier = modifier
+            // Padding inside the clickable, so the target is bigger than
+            // the glyph — it sits in a screen corner where a near-miss
+            // would otherwise land on the title.
+            .clickable(onClick = onClick)
+            .padding(horizontal = 20.dp, vertical = 14.dp),
+    )
 }
 
 @Composable
@@ -163,7 +204,7 @@ private fun Messages(messages: Flow<UiMessage>, host: SnackbarHostState) {
 
 @Composable
 private fun BottomBar(selected: Tab, onSelect: (Tab) -> Unit) {
-    Column(Modifier.background(Ink)) {
+    Column(Modifier.background(AppColors.ink)) {
         Hairline()
         Row(
             modifier = Modifier
@@ -174,7 +215,7 @@ private fun BottomBar(selected: Tab, onSelect: (Tab) -> Unit) {
             Tab.entries.forEach { tab ->
                 val on = tab == selected
                 val tint by animateColorAsState(
-                    targetValue = if (on) Ember else Muted,
+                    targetValue = if (on) AppColors.ember else AppColors.muted,
                     animationSpec = tween(220),
                     label = "tab",
                 )

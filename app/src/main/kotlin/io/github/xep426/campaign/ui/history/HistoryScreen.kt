@@ -37,13 +37,9 @@ import io.github.xep426.campaign.ui.components.Eyebrow
 import io.github.xep426.campaign.ui.components.FootNote
 import io.github.xep426.campaign.ui.components.Hairline
 import io.github.xep426.campaign.ui.components.rememberDateFormat
-import io.github.xep426.campaign.ui.theme.LineStrong
+import io.github.xep426.campaign.ui.theme.AppColors
 import io.github.xep426.campaign.ui.theme.MonoLabel
 import io.github.xep426.campaign.ui.theme.MonoMeta
-import io.github.xep426.campaign.ui.theme.Muted
-import io.github.xep426.campaign.ui.theme.PaperDim
-import io.github.xep426.campaign.ui.theme.Paper
-import io.github.xep426.campaign.ui.theme.Sage
 import io.github.xep426.campaign.ui.theme.ScreenPadding
 import io.github.xep426.campaign.ui.theme.SpaceLg
 import io.github.xep426.campaign.ui.theme.SpaceMd
@@ -98,13 +94,13 @@ fun HistoryScreen(
                             state.tasks.size,
                         )
                     },
-                    Muted,
+                    AppColors.muted,
                 )
                 Spacer(Modifier.height(SpaceSm))
                 Text(
                     text = stringResource(R.string.history_title),
                     style = MaterialTheme.typography.headlineLarge,
-                    color = Paper,
+                    color = AppColors.paper,
                 )
                 Spacer(Modifier.height(SpaceLg))
                 Segmented(tab) { tab = it }
@@ -153,8 +149,8 @@ private fun Segmented(selected: Tab, onSelect: (Tab) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.3f), RoundedCornerShape(10.dp))
-            .border(1.dp, io.github.xep426.campaign.ui.theme.Line, RoundedCornerShape(10.dp))
+            .background(AppColors.void, RoundedCornerShape(10.dp))
+            .border(1.dp, io.github.xep426.campaign.ui.theme.AppColors.line, RoundedCornerShape(10.dp))
             .padding(3.dp),
         horizontalArrangement = Arrangement.spacedBy(2.dp),
     ) {
@@ -164,7 +160,7 @@ private fun Segmented(selected: Tab, onSelect: (Tab) -> Unit) {
                 modifier = Modifier
                     .weight(1f)
                     .background(
-                        if (on) androidx.compose.ui.graphics.Color.White.copy(alpha = 0.07f)
+                        if (on) AppColors.paper.copy(alpha = 0.07f)
                         else androidx.compose.ui.graphics.Color.Transparent,
                         RoundedCornerShape(7.dp),
                     )
@@ -178,7 +174,7 @@ private fun Segmented(selected: Tab, onSelect: (Tab) -> Unit) {
                         else R.string.history_tab_campaigns
                     ).uppercase(Locale.getDefault()),
                     style = MonoLabel,
-                    color = if (on) Paper else Muted,
+                    color = if (on) AppColors.paper else AppColors.muted,
                     textAlign = TextAlign.Center,
                 )
             }
@@ -198,13 +194,13 @@ private fun FinishedTaskRow(task: DailyTask, dayLabel: DateTimeFormatter) {
         Text(
             text = task.title,
             style = MaterialTheme.typography.bodyLarge,
-            color = PaperDim,
+            color = AppColors.paperDim,
         )
         Spacer(Modifier.height(4.dp))
         Text(
             text = task.date.format(dayLabel).uppercase(Locale.getDefault()),
             style = MonoMeta,
-            color = Muted,
+            color = AppColors.muted,
         )
     }
 }
@@ -228,7 +224,7 @@ private fun FinishedCampaignRow(
             Text(
                 text = campaign.title,
                 style = MaterialTheme.typography.headlineSmall,
-                color = Paper,
+                color = AppColors.paper,
                 modifier = Modifier.weight(1f),
             )
             // One tag, because there is one way to close a campaign. It used
@@ -238,7 +234,7 @@ private fun FinishedCampaignRow(
             // pressed.
             CampaignTag(
                 text = stringResource(R.string.status_completed),
-                tint = Sage,
+                tint = AppColors.sage,
             )
         }
         Spacer(Modifier.height(6.dp))
@@ -260,7 +256,7 @@ private fun FinishedCampaignRow(
                 ),
             ).uppercase(Locale.getDefault()),
             style = MonoMeta,
-            color = Muted,
+            color = AppColors.muted,
         )
     }
 }

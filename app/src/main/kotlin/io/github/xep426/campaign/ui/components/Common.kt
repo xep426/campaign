@@ -33,21 +33,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import io.github.xep426.campaign.R
 import io.github.xep426.campaign.domain.model.Progress
-import io.github.xep426.campaign.ui.theme.Ember
-import io.github.xep426.campaign.ui.theme.EmberDeep
-import io.github.xep426.campaign.ui.theme.Line
-import io.github.xep426.campaign.ui.theme.LineStrong
+import io.github.xep426.campaign.ui.theme.AppColors
 import io.github.xep426.campaign.ui.theme.MonoLabel
 import io.github.xep426.campaign.ui.theme.MonoMeta
-import io.github.xep426.campaign.ui.theme.Muted
-import io.github.xep426.campaign.ui.theme.PaperDim
 import io.github.xep426.campaign.ui.theme.ScreenPadding
 import io.github.xep426.campaign.ui.theme.SpaceMd
 import io.github.xep426.campaign.ui.theme.SpaceSm
 
 /** Hairline rule. The app's only divider. */
 @Composable
-fun Hairline(modifier: Modifier = Modifier, color: Color = Line) {
+fun Hairline(modifier: Modifier = Modifier, color: Color = AppColors.line) {
     Box(modifier.fillMaxWidth().height(1.dp).background(color))
 }
 
@@ -64,13 +59,13 @@ fun SectionDivider(label: String, modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(SpaceSm),
     ) {
-        Eyebrow(label, Muted)
+        Eyebrow(label, AppColors.muted)
         Hairline(Modifier.weight(1f))
     }
 }
 
 /**
- * The roman slot numeral. Ember when the slot has focus, its deeper shade
+ * The roman slot numeral. AppColors.ember when the slot has focus, its deeper shade
  * at rest — the only cue the app gives that a field is live, since a
  * focus ring around a bare line of text would be louder than the text.
  */
@@ -81,7 +76,7 @@ fun SlotNumeral(
     modifier: Modifier = Modifier,
 ) {
     val color by animateColorAsState(
-        targetValue = if (focused) Ember else EmberDeep,
+        targetValue = if (focused) AppColors.ember else AppColors.emberDeep,
         animationSpec = tween(220),
         label = "numeral",
     )
@@ -108,7 +103,7 @@ fun GhostAction(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    tint: Color = Muted,
+    tint: Color = AppColors.muted,
 ) {
     TextButton(
         onClick = onClick,
@@ -122,13 +117,13 @@ fun GhostAction(
         Box(
             Modifier
                 .size(width = 12.dp, height = 1.dp)
-                .background(if (enabled) tint else Line)
+                .background(if (enabled) tint else AppColors.line)
         )
         Spacer(Modifier.width(8.dp))
         Text(
             text = text.uppercase(),
             style = MonoLabel,
-            color = if (enabled) tint else Line,
+            color = if (enabled) tint else AppColors.line,
         )
     }
 }
@@ -147,10 +142,10 @@ fun PrimaryButton(
         modifier = modifier.fillMaxWidth().height(54.dp),
         shape = RoundedCornerShape(14.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Ember,
+            containerColor = AppColors.ember,
             contentColor = MaterialTheme.colorScheme.onPrimary,
-            disabledContainerColor = LineStrong,
-            disabledContentColor = Muted,
+            disabledContainerColor = AppColors.lineStrong,
+            disabledContentColor = AppColors.muted,
         ),
     ) {
         Text(text, style = MaterialTheme.typography.labelLarge)
@@ -164,17 +159,17 @@ fun QuietButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    tint: Color = Muted,
+    tint: Color = AppColors.muted,
 ) {
     OutlinedButton(
         onClick = onClick,
         enabled = enabled,
         modifier = modifier.height(44.dp),
         shape = RoundedCornerShape(9.dp),
-        border = BorderStroke(1.dp, if (enabled) LineStrong else Line),
+        border = BorderStroke(1.dp, if (enabled) AppColors.lineStrong else AppColors.line),
         colors = ButtonDefaults.outlinedButtonColors(
             contentColor = tint,
-            disabledContentColor = Muted,
+            disabledContentColor = AppColors.muted,
         ),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 14.dp),
     ) {
@@ -199,8 +194,8 @@ fun SegmentedSwitch(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color.Black.copy(alpha = 0.3f), RoundedCornerShape(10.dp))
-            .border(1.dp, Line, RoundedCornerShape(10.dp))
+            .background(AppColors.void, RoundedCornerShape(10.dp))
+            .border(1.dp, AppColors.line, RoundedCornerShape(10.dp))
             .padding(3.dp),
         horizontalArrangement = Arrangement.spacedBy(2.dp),
     ) {
@@ -210,7 +205,10 @@ fun SegmentedSwitch(
                 modifier = Modifier
                     .weight(1f)
                     .background(
-                        if (on) Color.White.copy(alpha = 0.07f) else Color.Transparent,
+                        // The selected segment lifts toward the light in both
+                        // themes: paper-tinted, not white-tinted, so it does not
+                        // turn into a cold patch on a warm ground.
+                        if (on) AppColors.paper.copy(alpha = 0.07f) else Color.Transparent,
                         RoundedCornerShape(7.dp),
                     )
                     .clickable { onSelect(index) }
@@ -220,7 +218,7 @@ fun SegmentedSwitch(
                 Text(
                     text = label.uppercase(),
                     style = MonoLabel,
-                    color = if (on) MaterialTheme.colorScheme.onSurface else Muted,
+                    color = if (on) MaterialTheme.colorScheme.onSurface else AppColors.muted,
                     textAlign = TextAlign.Center,
                 )
             }
@@ -238,7 +236,7 @@ fun FootNote(text: String, modifier: Modifier = Modifier) {
     Text(
         text = text,
         style = MaterialTheme.typography.bodySmall,
-        color = Muted,
+        color = AppColors.muted,
         textAlign = TextAlign.Center,
         modifier = modifier.fillMaxWidth().padding(horizontal = SpaceMd),
     )
@@ -274,7 +272,7 @@ fun TallyStrip(progress: Progress, modifier: Modifier = Modifier) {
                 text = stringResource(R.string.tally_label, progress.windowDays)
                     .uppercase(java.util.Locale.getDefault()),
                 style = MonoMeta,
-                color = Muted,
+                color = AppColors.muted,
             )
             Text(
                 text = if (progress.possible == 0) {
@@ -291,7 +289,7 @@ fun TallyStrip(progress: Progress, modifier: Modifier = Modifier) {
                     )
                 }.uppercase(java.util.Locale.getDefault()),
                 style = MonoMeta,
-                color = PaperDim,
+                color = AppColors.paperDim,
             )
         }
     }
