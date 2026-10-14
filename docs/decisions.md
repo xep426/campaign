@@ -6,7 +6,14 @@ decision without its failure is just an opinion, and opinions get undone.
 
 The reasoning also lives next to the code it governs — this is the map.
 
-## The day boundary is the load-bearing idea
+## The day was the load-bearing idea, and then it was wrong
+
+**This section describes a design that has been removed.** It is kept
+because the replacement only makes sense against it, and because the
+mistake was not in the mechanism — which worked — but in what it was
+for.
+
+## What the day boundary did, while it lasted
 
 `CampaignDay.of(now, turnsAt)` is four lines and it deleted a Tomorrow
 pane, a draft-and-confirm button, a separate end-of-day screen, and a rule
@@ -26,14 +33,14 @@ from the app. A task finished at 22:15 cannot be ticked off. That is the
 honest consequence of a hard boundary and the price of not having two
 lists.
 
-## One setting, two jobs
+### One setting, two jobs (removed with the day)
 
 The same hour turns the list over *and* fires the notification. Splitting
 them would let the app prompt you to choose tomorrow's three things while
 still showing you today's — which is exactly the mismatch the second screen
 existed to paper over.
 
-## The planning window
+### The planning window (removed with the day)
 
 Between the turn and midnight the campaign day is ahead of the wall clock.
 In that window the three are a plan, not a checklist: no completion marks,
@@ -43,6 +50,43 @@ the app should not offer to make.
 This needed the view model to carry *two* dates. At midnight only the wall
 date changes — the campaign day stays put — so a single date would have
 left the screen stuck in planning mode with nothing to signal the change.
+
+## Why the day had to go
+
+`CampaignDay` was four lines and it deleted three screens. It was also
+throwing away unfinished work every night, and for most of what people
+actually opened this app for, that is not pressure — it is just absence.
+
+A hobby, a side project, the thing half-done since spring: these lose to
+everyday life because they are never the most urgent thing on any
+particular day, not because a particular Tuesday went badly. A list that
+empties nightly asks "what will you do today", which such work can never
+win, and then quietly forgets it was ever asked.
+
+So the cap moved up a level rather than disappearing. It was three tasks a
+day; it is three CAMPAIGNS pinned at once. Still a forcing function —
+three things may be in front of you — but it no longer resets, which is
+what makes it survivable by work that takes months.
+
+**What that cost, listed honestly.** The day boundary, the planning
+window, the evening notification and the whole alarm subsystem, and the
+efficiency percentage — roughly four of the sections that used to be in
+this file, and about 360 lines of notification code. The notification went
+because without a rollover there is nothing for it to announce. The
+percentage went because its denominator was days times three.
+
+**What replaced the nightly reset.** Nothing forces a decision any more, so
+the app needed some other pressure or a campaign could sit untouched for a
+year looking exactly as it did on day one. It counts the days since a
+campaign last moved and says so, louder after a week. That is the one
+honest thing it can say, and it does not need a streak to say it.
+
+**The migration, and the one trap in it.** Three cheap ALTERs — no table
+rebuild, because this database holds real history. The trap was open tasks
+with no campaign: under the new model they have no home, and leaving them
+in a table nothing reads is data loss that merely looks tidy. Each becomes
+a one-step campaign of the same name, which in the new model is exactly
+what it already was.
 
 ## Dusk by default, daylight by choice
 
@@ -84,7 +128,7 @@ which is a dark-theme habit: on cream it is a grey slab. They use
 `AppColors.void` now — the palette already had a name for "below the
 surface", warm in both themes.
 
-## The evening prompt is inexact, and that is Play's doing
+### The evening prompt (removed — there is no evening to announce)
 
 It shipped inexact, on the reasoning that "the day is over" needn't land on
 the minute. A live `dumpsys alarm` disproved that: the platform gave the
@@ -102,7 +146,7 @@ If punctuality ever has to be bought back, `setAlarmClock` is exact without
 the restricted permission, at the price of a permanent alarm icon in the
 status bar.
 
-## Opening the app must not cancel the prompt
+### Opening the app must not cancel the prompt (removed with the alarm)
 
 Every launch called `reschedule()`, which asked for the next 22:00 — and at
 22:04, with the alarm still pending inside its window, "next" is tomorrow.

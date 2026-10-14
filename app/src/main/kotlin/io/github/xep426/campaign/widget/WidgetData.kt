@@ -1,33 +1,35 @@
 package io.github.xep426.campaign.widget
 
 import android.content.Context
-import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.GlanceAppWidget
-import io.github.xep426.campaign.data.settings.SettingsRepository
-import io.github.xep426.campaign.domain.model.CampaignDay
-import io.github.xep426.campaign.domain.model.DailyTask
-import io.github.xep426.campaign.domain.repository.TaskRepository
+import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import io.github.xep426.campaign.domain.model.Campaign
+import io.github.xep426.campaign.domain.repository.CampaignRepository
+import io.github.xep426.campaign.domain.repository.StepRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 /**
- * One row of the widget. Null in a slot list means the slot is empty.
+ * One row of the widget: a pinned campaign and what it wants next.
  *
- * [id] is what makes the row actionable — [ToggleTaskAction] gets nothing
- * but an ActionParameters bundle across the process boundary, so the row
- * has to carry the identity of the thing it will write to.
+ * [stepId] is what makes the row actionable — [ToggleTaskAction] gets
+ * nothing but an ActionParameters bundle across the process boundary, so
+ * the row has to carry the identity of the thing it will write to. It is
+ * null when the campaign has no open step, and the row then opens the app
+ * instead, because there is nothing to tick.
  */
 data class WidgetSlot(
-    val id: Long,
-    val title: String,
-    val completed: Boolean,
+    val campaignTitle: String,
+    val stepId: Long?,
+    val stepTitle: String?,
+    /** Days since this campaign last moved — the card's quiet reproach. */
+    val quietDays: Long,
 )
 
 /**
@@ -37,77 +39,43 @@ data class WidgetSlot(
 @EntryPoint
 @InstallIn(SingletonComponent::class)
 interface WidgetEntryPoint {
-    fun taskRepository(): TaskRepository
-    fun settingsRepository(): SettingsRepository
+    fun campaignRepository(): CampaignRepository
+    fun stepRepository(): StepRepository
 }
 
 /**
- * Which day the widget is showing — by the app's rule, not the calendar's.
+ * The pinned campaigns, positioned.
  *
- * This exists because the widget got it wrong: it kept using
- * `LocalDate.now()` after the app moved its day boundary to the user's
- * chosen hour, so between the turn and midnight the card showed the day
- * that had just ended while the app showed the new one. Two surfaces, two
- * definitions of "today", and the widget is the one people trust because
- * they see it without asking.
+ * Index is the slot, so a campaign pinned to III draws third even with I
+ * and II free — the widget shows the same three places the app does, or
+ * the two surfaces disagree about which one is "the second".
  *
- * There is exactly one rule and it lives in [CampaignDay]; everything that
- * needs to know reads it from there.
+ * The day rule this used to carry is gone with the day. The only date left
+ * is today's, and only so a row can say how long it has been quiet.
  */
-suspend fun currentCampaignDay(context: Context): WidgetDay {
-    val settings = EntryPointAccessors
-        .fromApplication(context.applicationContext, WidgetEntryPoint::class.java)
-        .settingsRepository()
-    val now = LocalDateTime.now()
-    val day = CampaignDay.of(now, settings.endOfDay.first().time)
-    return WidgetDay(date = day, isPlanning = day != now.toLocalDate())
-}
-
-/**
- * The day the widget is showing, and whether it has started yet.
- *
- * [isPlanning] is the same window the app uses: after the turn and before
- * midnight, the three on the card are a plan. Completing one from the home
- * screen would record having finished something on a day that has not
- * begun — the widget must not offer that any more than the app does.
- */
-data class WidgetDay(val date: LocalDate, val isPlanning: Boolean)
-
-/**
- * Today's three slots, positioned. Index is the slot, so a task in slot
- * III with slots I and II empty still draws third — the widget shows the
- * same three positions the app does, or the two surfaces would disagree
- * about which task is "the second one".
- */
-suspend fun loadTodaySlots(context: Context, today: LocalDate): List<WidgetSlot?> =
-    todaySlotsFlow(context, today).first()
-
-/**
- * The same three slots, but as a LIVE flow.
- *
- * This exists because the one-shot version was the bug. Loading the slots
- * in `provideGlance` and closing over the result means the composition
- * holds a snapshot: when Glance recomposes an already-running session — a
- * tap on a warm widget — it re-renders the value it captured, so the card
- * redraws with identical content and the toggle looks dead. The redraw was
- * never missing; it was faithfully redrawing yesterday's answer.
- *
- * Collected inside the composition, the Room flow emits on every write and
- * recomposition sees the new value, which is what makes the widget
- * genuinely reactive rather than reactive-looking.
- */
-fun todaySlotsFlow(context: Context, today: LocalDate): Flow<List<WidgetSlot?>> {
+fun pinnedSlotsFlow(context: Context, today: LocalDate): Flow<List<WidgetSlot?>> {
     val repository = EntryPointAccessors
         .fromApplication(context.applicationContext, WidgetEntryPoint::class.java)
-        .taskRepository()
+        .campaignRepository()
 
-    return repository.tasksFor(today).map { tasks ->
-        (0 until DailyTask.SLOTS_PER_DAY).map { slot ->
-            tasks.firstOrNull { it.slot == slot }
-                ?.let { WidgetSlot(it.id, it.title, it.completed) }
+    return repository.active().map { campaigns ->
+        (0 until Campaign.SLOTS).map { slot ->
+            campaigns.firstOrNull { it.slot == slot }?.let { campaign ->
+                val next = campaign.nextStep
+                WidgetSlot(
+                    campaignTitle = campaign.title,
+                    stepId = next?.id,
+                    stepTitle = next?.title,
+                    quietDays = campaign.daysSinceProgress(today),
+                )
+            }
         }
     }
 }
+
+/** First emission only, for the frame drawn before the flow is collected. */
+suspend fun loadPinnedSlots(context: Context, today: LocalDate): List<WidgetSlot?> =
+    pinnedSlotsFlow(context, today).first()
 
 /**
  * Manifest-registered entry point — the system talks to this receiver;

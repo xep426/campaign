@@ -31,7 +31,7 @@
     <string name="format_widget_date">EEE, d. MMM</string>
 
     <!-- ── Navigation ──────────────────────────────────────────────── -->
-    <string name="tab_today">Heute</string>
+    <string name="tab_today">Vorhaben</string>
     <string name="turns_at">Der Tag schlägt um %1$s um</string>
     <string name="tab_campaigns">Kampagnen</string>
     <string name="tab_history">Verlauf</string>
@@ -149,4 +149,35 @@
     <string name="notification_channel_description">Ein Hinweis am Abend, um die drei Dinge für morgen zu wählen.</string>
     <string name="notification_title">Drei Dinge für morgen?</string>
     <string name="notification_body">Nimm dir eine Minute, solange der Tag noch frisch ist.</string>
+
+    <!-- ===== Questlog ===== -->
+    <string name="questlog_title">Vorhaben</string>
+    <string name="questlog_count">%1$d von %2$d</string>
+    <string name="questlog_add_step">Schritt hinzufügen</string>
+    <string name="questlog_unpin">Nicht mehr verfolgen</string>
+    <string name="questlog_no_step">Nächsten Schritt festlegen</string>
+    <string name="questlog_step_placeholder">Was ist der nächste Schritt?</string>
+    <string name="questlog_slot_free">Platz frei — hier kommt das Nächste hin, das du voranbringen willst.</string>
+    <string name="questlog_slot_first">Noch nichts. Leg unter Kampagnen ein Vorhaben an.</string>
+    <string name="questlog_never">noch kein Schritt</string>
+    <string name="campaign_pin">Verfolgen</string>
+    <string name="campaign_name_placeholder">Wie heißt das Vorhaben?</string>
+    <string name="step_move_up">Nach oben</string>
+    <string name="step_move_down">Nach unten</string>
+    <plurals name="questlog_quiet">
+        <item quantity="one">seit %1$d Tag nichts</item>
+        <item quantity="other">seit %1$d Tagen nichts</item>
+    </plurals>
+    <plurals name="questlog_waiting">
+        <item quantity="one">%1$d weiterer wartet</item>
+        <item quantity="other">%1$d weitere warten</item>
+    </plurals>
+    <plurals name="campaign_open_count">
+        <item quantity="one">%1$d offener Schritt</item>
+        <item quantity="other">%1$d offene Schritte</item>
+    </plurals>
+    <string name="msg_step_done">„%1$s" erledigt</string>
+    <string name="msg_pinned">„%1$s" wird verfolgt</string>
+    <string name="msg_unpinned">„%1$s" nicht mehr verfolgt</string>
+    <string name="msg_slots_full">Alle drei Plätze belegt. Löse erst eins.</string>
 </resources>

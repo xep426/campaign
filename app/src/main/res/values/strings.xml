@@ -21,7 +21,7 @@
     <!-- ── Navigation ──────────────────────────────────────────────── -->
     <!-- Tab and screen share one word, because after the turn the list
          genuinely IS today's — that is the point of moving the boundary. -->
-    <string name="tab_today">Today</string>
+    <string name="tab_today">Undertakings</string>
     <!-- Says what the hour DOES, not that a notification exists: the user
          is choosing when the list empties; the prompt is a consequence. -->
     <string name="turns_at">The day turns at %1$s</string>
@@ -152,4 +152,35 @@
     <string name="notification_channel_description">One evening prompt to choose tomorrow\'s three things.</string>
     <string name="notification_title">Three things for tomorrow?</string>
     <string name="notification_body">Take a minute while the day is still fresh.</string>
+
+    <!-- ===== Questlog ===== -->
+    <string name="questlog_title">Undertakings</string>
+    <string name="questlog_count">%1$d of %2$d</string>
+    <string name="questlog_add_step">Add a step</string>
+    <string name="questlog_unpin">Stop pushing this</string>
+    <string name="questlog_no_step">Set the next step</string>
+    <string name="questlog_step_placeholder">What is the next step?</string>
+    <string name="questlog_slot_free">A free place — for the next thing you want to move.</string>
+    <string name="questlog_slot_first">Nothing yet. Start something under Campaigns.</string>
+    <string name="questlog_never">no step yet</string>
+    <string name="campaign_pin">Push this</string>
+    <string name="campaign_name_placeholder">What is it called?</string>
+    <string name="step_move_up">Move up</string>
+    <string name="step_move_down">Move down</string>
+    <plurals name="questlog_quiet">
+        <item quantity="one">nothing for %1$d day</item>
+        <item quantity="other">nothing for %1$d days</item>
+    </plurals>
+    <plurals name="questlog_waiting">
+        <item quantity="one">%1$d more waiting</item>
+        <item quantity="other">%1$d more waiting</item>
+    </plurals>
+    <plurals name="campaign_open_count">
+        <item quantity="one">%1$d step open</item>
+        <item quantity="other">%1$d steps open</item>
+    </plurals>
+    <string name="msg_step_done">201c%1$s201d done</string>
+    <string name="msg_pinned">Pushing 201c%1$s201d</string>
+    <string name="msg_unpinned">201c%1$s201d no longer pushed</string>
+    <string name="msg_slots_full">All three places taken. Let one go first.</string>
 </resources>

@@ -1,44 +1,45 @@
 # Campaign
 
-**Three things a day. There is nowhere to put a fourth.**
+**Three things at a time. The fourth has to wait.**
 
-An Android app for choosing what matters instead of collecting what might.
-Everything stays on the device — no account, no sync, no server.
+An Android app for the undertakings that lose to everyday life — the
+hobby, the side project, the thing that has been half-done since spring.
+Everything stays on the device: no account, no sync, no server.
 
 ## Why
 
-Most task apps are excellent at capture and useless at choosing. They make
-it frictionless to write everything down, so you do, and then you carry a
-list you will never finish. The list grows, the important things sink, and
-opening the app starts to feel like being handed a bill.
+Some things never lose to a better plan. They lose because they are never
+the most urgent thing on any given day — and a to-do list is a machine for
+surfacing the most urgent thing. Learn the language, fix the damp, finish
+the boat: none of it is due, so none of it ever wins.
 
-You usually already know which two or three things would actually move you
-forward this week. Nothing in a normal to-do app makes you say so.
+Campaign refuses to hold more than three of them at once. You break an
+undertaking into steps and it shows you ONE — the next one — until you do
+it. No deadline, no daily reset, no expiry. It moves at whatever speed you
+move it, and it is still there when you come back.
 
-Campaign is built around that one act. It gives you exactly three slots a
-day and no way to add a fourth. Choosing what goes in them is the work; the
-app has no other feature to distract from it.
+The limit is the whole design. Anything may be written down; only three
+things may be in front of you.
 
 ## How it works
 
-**Three slots, and the day empties them.** At an hour you pick — 22:00 by
-default — the list clears and you choose again. Nothing rolls over on its
-own. If something mattered yesterday and you did not do it, you have to
-decide, today, whether it still matters enough to spend one of three slots
-on. That decision is the entire point.
+**A campaign is an undertaking with its steps written down.** Name the
+thing, list what it takes, reorder it when the order turns out to be
+wrong. Nothing here is due on a date.
 
-**The evening is when you decide.** Because the day turns at 22:00 rather
-than at midnight, the app spends those hours knowing the list belongs to
-tomorrow. It says *"Three things for tomorrow."*, hides the completion
-marks, and a tap edits rather than completes. You cannot tick off a day
-that has not started, so it does not offer to let you pretend.
+**Three of them can be pushed at once.** Pin a campaign and it takes one
+of three places; the rest wait. Each pinned campaign shows only its next
+open step, because the next step is the only one you can act on and
+showing the rest would rebuild the backlog this app exists without.
 
-**Campaigns are for what does not fit in a day.** Selling a flat, learning
-a language, fixing the damp — assign a task to a campaign and it stops
-being a loose end. A campaign is not something you write and maintain: it
-keeps the record of the steps you actually finished, so you can see how far
-a long effort has come. Campaigns are the only way work survives a day
-boundary, which is what keeps the daily list honest.
+**Finishing a step reveals the one behind it.** That is the whole loop. A
+twenty-step campaign is twenty taps spread over however long it takes, and
+the app never asks for more than the next one.
+
+**It counts the silence, not the streak.** A campaign that has not moved
+for a while says so — "nothing for 23 days" — and says it louder the
+longer it goes. That is the only pressure in the app, and it replaced a
+nightly reset that used to throw unfinished work away.
 
 ## What it refuses to do
 
@@ -49,23 +50,19 @@ telemetry.
 Every one of these is a deliberate absence. A tool that can hold everything
 you might do is a tool that never makes you say what you will do.
 
-There is exactly one number, and it lives in a one-line strip at the foot
-of Today: efficiency over the last thirty days — the slots you spent
-against the slots there were. It counts against three a day because that is
-the premise: the three are the most important things available to you, so
-an empty one is capacity that went unused. It shows the fraction beside the
-percentage ("37/60 · 62%"), because a percentage with its arithmetic hidden
-is how a tally turns into a scold. It is a footer, not a headline; the
-three things are the screen.
+There is exactly one number, and it is a reproach rather than a score:
+days since a campaign last moved. It replaced a percentage that measured
+how full your days were, which stopped meaning anything once days stopped
+being the unit.
 
 ## Screens
 
 | Screen | |
 | --- | --- |
-| **Today** | The three slots. Tap to complete, drag to reorder, ⋯ to edit, assign or delete |
-| **Campaigns** | Longer efforts, each keeping the record of what you finished |
+| **Undertakings** | The three pinned campaigns, each showing its next step |
+| **Campaigns** | All of them: build the step list, reorder it, pin and unpin |
 | **History** | Campaigns you finished, and one-off tasks that belonged to none |
-| **Widget** | Today's three on the home screen, tappable |
+| **Widget** | The same three on the home screen; tap to finish a step |
 
 English and German, informal *du*. Two themes, dusk and daylight, on a
 toggle in the top-right corner. Dusk is the default and stays the point:

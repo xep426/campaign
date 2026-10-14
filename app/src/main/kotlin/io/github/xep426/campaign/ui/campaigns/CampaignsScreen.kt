@@ -20,32 +20,25 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import io.github.xep426.campaign.R
 import io.github.xep426.campaign.domain.model.Campaign
-import io.github.xep426.campaign.domain.model.DailyTask
+import io.github.xep426.campaign.domain.model.Step
+import io.github.xep426.campaign.ui.components.CompletionMark
 import io.github.xep426.campaign.ui.components.ConfirmDialog
 import io.github.xep426.campaign.ui.components.Eyebrow
-import io.github.xep426.campaign.ui.components.FootNote
 import io.github.xep426.campaign.ui.components.GhostAction
-import io.github.xep426.campaign.ui.components.QuietButton
-import io.github.xep426.campaign.ui.components.SlotTextField
+import io.github.xep426.campaign.ui.components.InlineEntry
+import io.github.xep426.campaign.ui.components.NotesField
 import io.github.xep426.campaign.ui.components.TextInputDialog
-import io.github.xep426.campaign.ui.components.rememberDateFormat
 import io.github.xep426.campaign.ui.theme.AppColors
 import io.github.xep426.campaign.ui.theme.MonoMeta
 import io.github.xep426.campaign.ui.theme.ScreenPadding
@@ -53,28 +46,37 @@ import io.github.xep426.campaign.ui.theme.SpaceLg
 import io.github.xep426.campaign.ui.theme.SpaceMd
 import io.github.xep426.campaign.ui.theme.SpaceSm
 import io.github.xep426.campaign.ui.theme.SpaceXl
+import java.time.LocalDate
 import java.util.Locale
 
+/**
+ * Everything you are keeping, pinned or not.
+ *
+ * The questlog shows three; this shows all of them, and is where a
+ * campaign is built: named, broken into steps, reordered, pinned when you
+ * are ready to push it.
+ *
+ * THE STEPS ARE EDITABLE HERE AND NOWHERE ELSE. The questlog can add one
+ * in a hurry, but the list, its order and its deletions live here — so
+ * that the screen you look at every day stays a list of three things and
+ * does not drift back into being a backlog with a view.
+ */
 @Composable
 fun CampaignsScreen(
     state: CampaignsUiState,
+    onCreate: (String) -> Unit,
+    onPin: (Campaign) -> Unit,
+    onUnpin: (Campaign) -> Unit,
     onRename: (Campaign, String) -> Unit,
     onSetNotes: (Campaign, String) -> Unit,
     onComplete: (Campaign) -> Unit,
-    onCreate: (String) -> Unit,
     onDelete: (Campaign) -> Unit,
+    onAddStep: (Campaign, String) -> Unit,
+    onToggleStep: (Step) -> Unit,
+    onDeleteStep: (Step) -> Unit,
+    onMoveStep: (Campaign, Int, Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // Which cards are open, by id rather than by index: the list reorders
-    // itself as campaigns are completed, and an index would carry the open
-    // state onto whichever campaign slid into that place.
-    //
-    // Collapsed is the default for all of them. Thirty campaigns with
-    // twenty finished steps each is six hundred lines, and a screen that
-    // opens on six hundred lines is not an overview of anything.
-    var expanded by rememberSaveable(stateSaver = LongSetSaver) {
-        mutableStateOf(emptySet<Long>())
-    }
     var renaming by remember { mutableStateOf<Campaign?>(null) }
     var creating by remember { mutableStateOf(false) }
     var deleting by remember { mutableStateOf<Campaign?>(null) }
@@ -91,7 +93,10 @@ fun CampaignsScreen(
     ) {
         item {
             Column {
-                Eyebrow(stringResource(R.string.campaigns_active_count, state.active.size), AppColors.muted)
+                Eyebrow(
+                    stringResource(R.string.campaigns_active_count, state.active.size),
+                    AppColors.muted,
+                )
                 Spacer(Modifier.height(SpaceSm))
                 Text(
                     text = stringResource(R.string.campaigns_title),
@@ -106,69 +111,55 @@ fun CampaignsScreen(
             CampaignCard(
                 campaign = campaign,
                 today = state.today,
-                expanded = campaign.id in expanded,
-                onToggleExpanded = {
-                    expanded = if (campaign.id in expanded) expanded - campaign.id
-                               else expanded + campaign.id
-                },
+                slotsFree = state.slotsFree,
+                onPin = { onPin(campaign) },
+                onUnpin = { onUnpin(campaign) },
                 onRename = { renaming = campaign },
                 onSetNotes = { onSetNotes(campaign, it) },
                 onComplete = { onComplete(campaign) },
                 onDelete = { deleting = campaign },
+                onAddStep = { onAddStep(campaign, it) },
+                onToggleStep = onToggleStep,
+                onDeleteStep = onDeleteStep,
+                onMoveStep = { from, to -> onMoveStep(campaign, from, to) },
             )
         }
 
-        // No closing note. The screen shows campaigns and offers to start
-        // one; a paragraph explaining what a campaign is would be the
-        // design apologising for itself, and the last one outlived the
-        // model it described by two rewrites.
         item {
             Spacer(Modifier.height(SpaceMd))
-            GhostAction(
-                text = stringResource(R.string.campaign_new),
-                onClick = { creating = true },
-                tint = AppColors.ember,
-            )
+            if (creating) {
+                InlineEntry(
+                    placeholder = stringResource(R.string.campaign_name_placeholder),
+                    onCommit = { creating = false; onCreate(it) },
+                    onCancel = { creating = false },
+                )
+            } else {
+                GhostAction(
+                    text = stringResource(R.string.campaign_new),
+                    onClick = { creating = true },
+                    tint = AppColors.ember,
+                )
+            }
         }
     }
 
     renaming?.let { campaign ->
         TextInputDialog(
-            label = stringResource(R.string.campaign_rename_title),
+            label = stringResource(R.string.campaign_rename),
             initial = campaign.title,
-            placeholder = stringResource(R.string.campaign_rename_placeholder),
+            placeholder = stringResource(R.string.campaign_name_placeholder),
             confirmText = stringResource(R.string.campaign_rename),
-            onConfirm = {
-                onRename(campaign, it)
-                renaming = null
-            },
+            onConfirm = { renaming = null; onRename(campaign, it) },
             onDismiss = { renaming = null },
-        )
-    }
-
-    if (creating) {
-        TextInputDialog(
-            label = stringResource(R.string.campaign_new),
-            initial = "",
-            placeholder = stringResource(R.string.campaign_new_placeholder),
-            confirmText = stringResource(R.string.assign_create),
-            onConfirm = {
-                onCreate(it)
-                creating = false
-            },
-            onDismiss = { creating = false },
         )
     }
 
     deleting?.let { campaign ->
         ConfirmDialog(
-            title = stringResource(R.string.campaign_delete_title),
-            body = stringResource(R.string.campaign_delete_body, campaign.title),
-            confirmText = stringResource(R.string.campaign_delete_confirm),
-            onConfirm = {
-                onDelete(campaign)
-                deleting = null
-            },
+            title = campaign.title,
+            body = stringResource(R.string.campaign_delete_body),
+            confirmText = stringResource(R.string.campaign_delete),
+            onConfirm = { deleting = null; onDelete(campaign) },
             onDismiss = { deleting = null },
         )
     }
@@ -177,46 +168,65 @@ fun CampaignsScreen(
 @Composable
 private fun CampaignCard(
     campaign: Campaign,
-    today: java.time.LocalDate,
-    expanded: Boolean,
-    onToggleExpanded: () -> Unit,
+    today: LocalDate,
+    slotsFree: Boolean,
+    onPin: () -> Unit,
+    onUnpin: () -> Unit,
     onRename: () -> Unit,
     onSetNotes: (String) -> Unit,
     onComplete: () -> Unit,
     onDelete: () -> Unit,
+    onAddStep: (String) -> Unit,
+    onToggleStep: (Step) -> Unit,
+    onDeleteStep: (Step) -> Unit,
+    onMoveStep: (Int, Int) -> Unit,
 ) {
     var menuOpen by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(false) }
     var notesOpen by remember { mutableStateOf(campaign.notes.isNotBlank()) }
-    val started = rememberDateFormat(R.string.format_month_day)
+    var adding by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(AppColors.surfaceCard, RoundedCornerShape(16.dp))
-            .border(1.dp, AppColors.line, RoundedCornerShape(16.dp))
+            .border(
+                1.dp,
+                // A pinned campaign carries an ember edge. It is the only
+                // difference between the two states on this screen, and
+                // the state is worth seeing without reading anything.
+                if (campaign.isPinned) AppColors.ember.copy(alpha = 0.45f) else AppColors.line,
+                RoundedCornerShape(16.dp),
+            )
             .padding(SpaceMd),
     ) {
         Row(verticalAlignment = Alignment.Top) {
             Column(Modifier.weight(1f)) {
-                Text(
-                    text = campaign.title,
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = AppColors.paper,
-                )
-                Spacer(Modifier.height(6.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (campaign.isPinned) {
+                        Text(
+                            text = Campaign.numeralFor(campaign.slot ?: 0),
+                            style = MonoMeta,
+                            color = AppColors.ember,
+                        )
+                        Spacer(Modifier.width(9.dp))
+                    }
+                    Text(
+                        text = campaign.title,
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = AppColors.paper,
+                    )
+                }
+                Spacer(Modifier.height(5.dp))
                 val days = campaign.daysRunning(today).toInt()
                 Text(
-                    // Plurals, not "%d days": German needs Tag/Tage, and
-                    // English needs day/days on a campaign started today.
                     text = listOf(
-                        stringResource(
-                            R.string.campaign_meta_started,
-                            campaign.createdAt.format(started),
-                        ),
-                        // No step count here any more: the strip below carries
-                        // it, and the same number in two places on one
-                        // card is one of them waiting to go stale.
                         pluralStringResource(R.plurals.campaign_meta_days, days, days),
+                        pluralStringResource(
+                            R.plurals.campaign_meta_steps,
+                            campaign.stepsTaken,
+                            campaign.stepsTaken,
+                        ),
                     ).joinToString(" · ").uppercase(Locale.getDefault()),
                     style = MonoMeta,
                     color = AppColors.muted,
@@ -232,6 +242,27 @@ private fun CampaignCard(
                         .padding(horizontal = 8.dp, vertical = 2.dp),
                 )
                 DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                stringResource(
+                                    if (campaign.isPinned) R.string.questlog_unpin
+                                    else R.string.campaign_pin
+                                )
+                            )
+                        },
+                        // Offered even with no slot free: the refusal says
+                        // the limit exists, where a greyed-out row would
+                        // just look broken.
+                        onClick = {
+                            menuOpen = false
+                            if (campaign.isPinned) onUnpin() else onPin()
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.questlog_add_step)) },
+                        onClick = { menuOpen = false; expanded = true; adding = true },
+                    )
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.campaign_rename)) },
                         onClick = { menuOpen = false; onRename() },
@@ -251,9 +282,6 @@ private fun CampaignCard(
                         text = { Text(stringResource(R.string.campaign_complete)) },
                         onClick = { menuOpen = false; onComplete() },
                     )
-                    // Last, and separated in meaning from the one above:
-                    // completing says "this happened", delete says "this
-                    // never should have existed".
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.campaign_delete)) },
                         onClick = { menuOpen = false; onDelete() },
@@ -264,104 +292,61 @@ private fun CampaignCard(
 
         Spacer(Modifier.height(SpaceMd))
 
-        // What the campaign has actually moved.
-        //
-        // Open tasks used to be listed here, and are not any more: an open
-        // task that matters is one of today's three, and Today is where
-        // those are read. Finished steps are what no other screen records —
-        // History keeps completed CAMPAIGNS, not the steps inside a running
-        // one — so this is the campaign's own content.
-        if (campaign.doneTasks.isEmpty()) {
+        // Collapsed by default. A campaign may hold twenty steps and this
+        // screen may hold thirty campaigns; opening on all of it is the
+        // wall of text the whole app is built to avoid.
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { expanded = !expanded }
+                .padding(vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Text(
-                text = stringResource(R.string.campaign_done_none),
-                style = MaterialTheme.typography.bodyMedium,
-                color = AppColors.muted,
+                text = if (expanded) "▾" else "▸",
+                style = MonoMeta,
+                color = AppColors.ember,
             )
-        } else {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        // AppColors.void, not a black wash: an alpha-black overlay is a
-                        // dark-theme habit that turns into a grey slab on cream.
-                        // The palette already names the colour that means "below
-                        // the surface", and it is warm in both themes.
-                        AppColors.void,
-                        RoundedCornerShape(9.dp),
-                    ),
-            ) {
-                // The whole strip toggles, not the triangle. The triangle
-                // says which way it goes; a 12dp glyph is not the target.
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable(onClick = onToggleExpanded)
-                        .padding(horizontal = 13.dp, vertical = 11.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = if (expanded) "▾" else "▸",
-                        style = MonoMeta,
-                        color = AppColors.ember,
-                    )
-                    Spacer(Modifier.width(9.dp))
-                    Text(
-                        text = pluralStringResource(
-                            R.plurals.campaign_meta_steps,
-                            campaign.stepsTaken,
-                            campaign.stepsTaken,
-                        ).uppercase(Locale.getDefault()),
-                        style = MonoMeta,
-                        // Brighter while open, so a card left expanded in a
-                        // long list still reads as the one you opened.
-                        color = if (expanded) AppColors.paper else AppColors.muted,
-                    )
-                }
+            Spacer(Modifier.width(9.dp))
+            Text(
+                text = pluralStringResource(
+                    R.plurals.campaign_open_count,
+                    campaign.openSteps.size,
+                    campaign.openSteps.size,
+                ).uppercase(Locale.getDefault()),
+                style = MonoMeta,
+                color = if (expanded) AppColors.paper else AppColors.muted,
+            )
+        }
 
-                if (expanded) {
-                    Column(
-                        modifier = Modifier.padding(
-                            start = 13.dp,
-                            end = 13.dp,
-                            bottom = 11.dp,
-                        ),
-                    ) {
-                        campaign.doneTasks.forEachIndexed { index, task ->
-                            if (index > 0) Spacer(Modifier.height(SpaceSm))
-                            Row(Modifier.fillMaxWidth()) {
-                                // AppColors.sage rather than the ember of a live line:
-                                // on Today and on the widget sage is what
-                                // done looks like, and this list is nothing
-                                // but done.
-                                Box(
-                                    Modifier
-                                        .width(2.dp)
-                                        .height(34.dp)
-                                        .background(AppColors.sage)
-                                )
-                                Spacer(Modifier.width(11.dp))
-                                Column(Modifier.weight(1f)) {
-                                    Text(
-                                        text = task.title,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = AppColors.paperDim,
-                                    )
-                                    Spacer(Modifier.height(3.dp))
-                                    Text(
-                                        // The day it landed. On the open
-                                        // list this said how long a thing
-                                        // had waited; here it is the record
-                                        // of when the campaign moved.
-                                        text = task.date.format(started)
-                                            .uppercase(Locale.getDefault()),
-                                        style = MonoMeta,
-                                        color = AppColors.muted,
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
+        if (expanded) {
+            Spacer(Modifier.height(SpaceSm))
+            campaign.openSteps.forEachIndexed { index, step ->
+                StepRow(
+                    step = step,
+                    canMoveUp = index > 0,
+                    canMoveDown = index < campaign.openSteps.size - 1,
+                    onToggle = { onToggleStep(step) },
+                    onDelete = { onDeleteStep(step) },
+                    onMoveUp = { onMoveStep(index, index - 1) },
+                    onMoveDown = { onMoveStep(index, index + 1) },
+                )
+            }
+
+            if (adding) {
+                Spacer(Modifier.height(SpaceSm))
+                InlineEntry(
+                    placeholder = stringResource(R.string.questlog_step_placeholder),
+                    onCommit = { adding = false; onAddStep(it) },
+                    onCancel = { adding = false },
+                )
+            } else {
+                Spacer(Modifier.height(SpaceSm))
+                GhostAction(
+                    text = stringResource(R.string.questlog_add_step),
+                    onClick = { adding = true },
+                    tint = AppColors.muted,
+                )
             }
         }
 
@@ -369,72 +354,70 @@ private fun CampaignCard(
             Spacer(Modifier.height(SpaceSm))
             NotesField(initial = campaign.notes, onCommit = onSetNotes)
         }
-
-        Spacer(Modifier.height(SpaceMd))
-
-        // No pull button: the open tasks above ARE the pull targets, and a
-        // button would have to guess which one you meant.
-        // One button, because there is one way to close a campaign. It
-        // sat next to Archive, which wrote the same row with a different
-        // word in it — two controls that differed only by a label, which
-        // is a question the screen asked and never answered.
-        QuietButton(
-            text = stringResource(R.string.campaign_complete),
-            onClick = onComplete,
-            modifier = Modifier.fillMaxWidth(),
-            tint = AppColors.sage,
-        )
     }
 }
 
 @Composable
-private fun NotesField(initial: String, onCommit: (String) -> Unit) {
-    var text by remember { mutableStateOf(initial) }
-    var everFocused by remember { mutableStateOf(false) }
+private fun StepRow(
+    step: Step,
+    canMoveUp: Boolean,
+    canMoveDown: Boolean,
+    onToggle: () -> Unit,
+    onDelete: () -> Unit,
+    onMoveUp: () -> Unit,
+    onMoveDown: () -> Unit,
+) {
+    var menuOpen by remember { mutableStateOf(false) }
 
-    // Same rule as the task editor: Enter, tapping away and the field
-    // simply going away all keep what was typed. Disposal matters most
-    // here — collapsing the notes with the menu is the usual way out, and
-    // that never produces a focus-loss event.
-    val latest = rememberUpdatedState(text)
-    var committed by remember { mutableStateOf(false) }
-    val commit = {
-        if (!committed) {
-            committed = true
-            onCommit(latest.value)
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            Modifier
+                .clickable(onClick = onToggle)
+                .padding(vertical = 4.dp, horizontal = 2.dp)
+        ) {
+            CompletionMark(completed = step.completed, size = 18.dp)
+        }
+        Spacer(Modifier.width(11.dp))
+        Text(
+            text = step.title,
+            style = MaterialTheme.typography.bodyMedium,
+            color = AppColors.paper,
+            modifier = Modifier.weight(1f),
+        )
+        Box {
+            Text(
+                text = "⋯",
+                style = MonoMeta,
+                color = AppColors.muted,
+                modifier = Modifier
+                    .clickable { menuOpen = true }
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+            )
+            DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                // Arrows rather than drag: a step list sits inside a card
+                // inside a scrolling list, and a long-press drag there
+                // fights the scroll it lives in. The order of a campaign
+                // changes rarely enough that two taps is not a cost.
+                if (canMoveUp) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.step_move_up)) },
+                        onClick = { menuOpen = false; onMoveUp() },
+                    )
+                }
+                if (canMoveDown) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.step_move_down)) },
+                        onClick = { menuOpen = false; onMoveDown() },
+                    )
+                }
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.task_delete)) },
+                    onClick = { menuOpen = false; onDelete() },
+                )
+            }
         }
     }
-    DisposableEffect(Unit) { onDispose { commit() } }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(1.dp, AppColors.lineStrong, RoundedCornerShape(9.dp))
-            .padding(13.dp),
-    ) {
-        Eyebrow(stringResource(R.string.campaign_notes), AppColors.muted)
-        Spacer(Modifier.height(6.dp))
-        SlotTextField(
-            value = text,
-            onValueChange = { text = it },
-            placeholder = stringResource(R.string.campaign_notes_placeholder),
-            imeAction = ImeAction.Done,
-            onImeAction = commit,
-            onFocusChanged = { hasFocus ->
-                if (hasFocus) everFocused = true
-                if (!hasFocus && everFocused) commit()
-            },
-        )
-    }
 }
-
-/**
- * Which cards are open, across a rotation or a trip to the background.
- *
- * A LongArray because that is what a Bundle can hold without ceremony;
- * the set itself is the shape the screen wants to ask `id in expanded`.
- */
-private val LongSetSaver = Saver<Set<Long>, LongArray>(
-    save = { it.toLongArray() },
-    restore = { it.toSet() },
-)

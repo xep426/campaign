@@ -5,13 +5,13 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [
-        DailyTaskEntity::class,
+        StepEntity::class,
         CampaignEntity::class,
     ],
-    version = 3,
+    version = 4,
     exportSchema = true,
 )
 abstract class CampaignDatabase : RoomDatabase() {
-    abstract fun dailyTaskDao(): DailyTaskDao
+    abstract fun stepDao(): StepDao
     abstract fun campaignDao(): CampaignDao
 }

@@ -51,8 +51,8 @@ import io.github.xep426.campaign.ui.theme.CampaignTheme
 import io.github.xep426.campaign.ui.theme.DaylightPalette
 import io.github.xep426.campaign.ui.theme.DuskPalette
 import io.github.xep426.campaign.ui.theme.MonoMeta
-import io.github.xep426.campaign.ui.today.TodayScreen
-import io.github.xep426.campaign.ui.today.TodayViewModel
+import io.github.xep426.campaign.ui.questlog.QuestlogScreen
+import io.github.xep426.campaign.ui.questlog.QuestlogViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
@@ -65,11 +65,10 @@ private enum class Tab(@param:StringRes val labelRes: Int) {
 /**
  * One shell, three tabs, no modal screens.
  *
- * The end-of-day screen used to live here as a full-screen route the
- * notification opened. It is gone: once the day turns at the user's chosen
- * hour, the Tasks tab IS the empty list waiting to be filled, so the
- * notification only has to open the app. See
- * [io.github.xep426.campaign.domain.model.CampaignDay].
+ * The first tab was Today, a list of three that emptied every night. It is
+ * now the questlog: three campaigns that stay until they are finished. The
+ * tab enum still says TODAY because renaming it would churn every branch
+ * here for a word no user sees.
  */
 @Composable
 fun CampaignApp() {
@@ -99,7 +98,7 @@ private fun MainShell(dark: Boolean, onToggleTheme: () -> Unit) {
         ) {
             when (tab) {
                 Tab.TODAY -> {
-                    val vm: TodayViewModel = hiltViewModel()
+                    val vm: QuestlogViewModel = hiltViewModel()
                     val state by vm.ui.collectAsStateWithLifecycle()
                     LifecycleResumeEffect(Unit) {
                         vm.refreshDate()
@@ -107,17 +106,13 @@ private fun MainShell(dark: Boolean, onToggleTheme: () -> Unit) {
                     }
                     Messages(vm.messages, snackbars)
 
-                    TodayScreen(
+                    QuestlogScreen(
                         state = state,
-                        onToggle = vm::toggle,
-                        onSetSlot = vm::setSlot,
-                        onDelete = vm::delete,
-                        onAssign = vm::assign,
-                        onPromote = vm::promote,
-                        onUnassign = vm::unassign,
-                        onCarry = vm::carryForward,
-                        onSetTurnTime = vm::setTurnTime,
-                        onMoveSlot = vm::moveSlot,
+                        onComplete = vm::complete,
+                        onAddStep = vm::addStep,
+                        onUnpin = vm::unpin,
+                        onCompleteCampaign = vm::complete,
+                        onGoToCampaigns = { tab = Tab.CAMPAIGNS },
                     )
                 }
 
@@ -132,11 +127,17 @@ private fun MainShell(dark: Boolean, onToggleTheme: () -> Unit) {
 
                     CampaignsScreen(
                         state = state,
+                        onCreate = vm::create,
+                        onPin = vm::pin,
+                        onUnpin = vm::unpin,
                         onRename = vm::rename,
                         onSetNotes = vm::setNotes,
                         onComplete = vm::complete,
-                        onCreate = vm::create,
                         onDelete = vm::delete,
+                        onAddStep = vm::addStep,
+                        onToggleStep = vm::toggleStep,
+                        onDeleteStep = vm::deleteStep,
+                        onMoveStep = vm::moveStep,
                     )
                 }
 

@@ -3,9 +3,9 @@ package io.github.xep426.campaign.ui.history
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.xep426.campaign.domain.model.Campaign
-import io.github.xep426.campaign.domain.model.DailyTask
+import io.github.xep426.campaign.domain.model.Step
 import io.github.xep426.campaign.domain.repository.CampaignRepository
-import io.github.xep426.campaign.domain.repository.TaskRepository
+import io.github.xep426.campaign.domain.repository.StepRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -17,8 +17,8 @@ import javax.inject.Inject
 data class HistoryUiState(
     /** Finished campaigns — the long efforts that landed. */
     val finished: List<Campaign> = emptyList(),
-    /** Finished tasks that were nobody's step but their own. */
-    val tasks: List<DailyTask> = emptyList(),
+    /** Finished steps whose campaign was deleted — see StepDao. */
+    val tasks: List<Step> = emptyList(),
 )
 
 // No date of its own any more. This screen shows finished campaigns and
@@ -26,12 +26,12 @@ data class HistoryUiState(
 // LocalDate.now() that nothing read for exactly that reason.
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
-    tasks: TaskRepository,
+    steps: StepRepository,
     private val campaigns: CampaignRepository,
 ) : ViewModel() {
 
     val ui: StateFlow<HistoryUiState> = combine(
-        tasks.completedStandalone(RECORD_LIMIT),
+        steps.completedOrphans(RECORD_LIMIT),
         campaigns.finished(),
     ) { done, finished ->
         HistoryUiState(finished = finished, tasks = done)

@@ -41,12 +41,10 @@ import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import io.github.xep426.campaign.MainActivity
 import io.github.xep426.campaign.R
-import io.github.xep426.campaign.domain.model.DailyTask
+import io.github.xep426.campaign.domain.model.Campaign
 import io.github.xep426.campaign.ui.theme.DuskPalette
 import kotlinx.coroutines.flow.flowOf
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 /**
  * Today's three slots on the home screen.
@@ -111,28 +109,18 @@ class CampaignWidget : GlanceAppWidget() {
     override val sizeMode = SizeMode.Exact
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        // The app's day, not the calendar's — after the turn hour this is
-        // already tomorrow's date. Using LocalDate.now() here is what made
-        // the card disagree with the screen between 22:00 and midnight.
-        val whichDay = runCatching { currentCampaignDay(context) }
-            .getOrElse { WidgetDay(LocalDate.now(), isPlanning = false) }
-        val today = whichDay.date
+        val today = LocalDate.now()
 
         // A widget that cannot read the database still has to draw
-        // something, and three empty slots is the honest answer — it is
-        // what an untouched day looks like anyway.
-        val empty = List<WidgetSlot?>(DailyTask.SLOTS_PER_DAY) { null }
-        val firstPaint = runCatching { loadTodaySlots(context, today) }.getOrDefault(empty)
-        val live = runCatching { todaySlotsFlow(context, today) }.getOrDefault(flowOf(empty))
+        // something, and three empty places is the honest answer — it is
+        // what an untouched questlog looks like anyway.
+        val empty = List<WidgetSlot?>(Campaign.SLOTS) { null }
+        val firstPaint = runCatching { loadPinnedSlots(context, today) }.getOrDefault(empty)
+        val live = runCatching { pinnedSlotsFlow(context, today) }.getOrDefault(flowOf(empty))
 
         // Resolved here, not in composition: a Glance widget has no
-        // Compose resource environment, so every string and the date
-        // PATTERN itself (German reads "Mi., 19. Aug") come off the
-        // context before content is provided.
-        val dateFormat = DateTimeFormatter.ofPattern(
-            context.getString(R.string.format_widget_date)
-        )
-        val dateLabel = today.format(dateFormat).uppercase(Locale.getDefault())
+        // Compose resource environment, so strings come off the context
+        // before content is provided.
         val title = context.getString(R.string.widget_title)
         val emptyLabel = context.getString(R.string.widget_empty_slot)
 
@@ -140,18 +128,13 @@ class CampaignWidget : GlanceAppWidget() {
             // Collected HERE, not captured from above. A snapshot taken in
             // provideGlance is frozen for the life of the Glance session,
             // so every recomposition redraws the same content and a tap on
-            // a warm widget appears to do nothing — see todaySlotsFlow.
-            //
-            // firstPaint seeds it so the card never flashes three empty
-            // slots on the way to showing the real ones.
+            // a warm widget appears to do nothing.
             val slots by live.collectAsState(initial = firstPaint)
 
             WidgetCard(
                 title = title,
-                dateLabel = dateLabel,
                 emptyLabel = emptyLabel,
                 slots = slots,
-                planning = whichDay.isPlanning,
                 metrics = WidgetMetrics.forSlot(LocalSize.current),
             )
         }
@@ -160,10 +143,8 @@ class CampaignWidget : GlanceAppWidget() {
     @Composable
     private fun WidgetCard(
         title: String,
-        dateLabel: String,
         emptyLabel: String,
         slots: List<WidgetSlot?>,
-        planning: Boolean,
         metrics: WidgetMetrics,
     ) {
         Column(
@@ -219,7 +200,7 @@ class CampaignWidget : GlanceAppWidget() {
                     )
                     Spacer(modifier = GlanceModifier.defaultWeight())
                     Text(
-                        text = dateLabel,
+                        text = slots.count { it != null }.toString() + "/" + Campaign.SLOTS,
                         style = TextStyle(
                             color = ColorProvider(DuskPalette.ember),
                             fontSize = metrics.dateSize,
@@ -264,7 +245,6 @@ class CampaignWidget : GlanceAppWidget() {
                     slot = slot,
                     index = index,
                     emptyLabel = emptyLabel,
-                    planning = planning,
                     metrics = metrics,
                     // defaultWeight() is a ColumnScope extension, so the
                     // share of the height has to be handed to the row from
@@ -280,7 +260,6 @@ class CampaignWidget : GlanceAppWidget() {
         slot: WidgetSlot?,
         index: Int,
         emptyLabel: String,
-        planning: Boolean,
         metrics: WidgetMetrics,
         modifier: GlanceModifier,
     ) {
@@ -288,34 +267,33 @@ class CampaignWidget : GlanceAppWidget() {
             modifier = modifier
                 .padding(vertical = metrics.rowPadding)
                 // The whole row, not the mark. The mark is 13–18dp; the row
-                // is the full width of the card and ~40dp tall even at 4×2,
+                // is ~59dp on the 4×2 slot One UI actually hands over,
                 // which is the difference between a target you hit and one
                 // you hit sometimes.
                 //
-                // Before the day starts a tap opens the app instead of
-                // completing: the row is a plan, and the only useful thing
-                // to do with a plan is edit it — which needs a keyboard the
-                // home screen does not have.
+                // A row with no open step opens the app instead: there is
+                // nothing to finish, and deciding the next move needs a
+                // keyboard the home screen does not have.
                 .clickable(
-                    if (slot == null || planning) {
+                    if (slot?.stepId == null) {
                         actionStartActivity<MainActivity>()
                     } else {
-                        actionRunCallback<ToggleTaskAction>(
-                            actionParametersOf(ToggleTaskAction.TASK_ID to slot.id)
+                        actionRunCallback<CompleteStepAction>(
+                            actionParametersOf(CompleteStepAction.STEP_ID to slot.stepId)
                         )
                     }
                 ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             // The roman numeral appears only once the card is wide enough
-            // to give it a gutter without squeezing the title. It is the
-            // app's signature mark, and a cramped one would read as noise
-            // rather than as "this is the second of three".
+            // to give it a gutter without squeezing the title.
             if (metrics.showNumerals) {
                 Text(
-                    text = DailyTask.numeralFor(index),
+                    text = Campaign.numeralFor(index),
                     style = TextStyle(
-                        color = ColorProvider(if (slot == null) DuskPalette.muted else DuskPalette.emberDeep),
+                        color = ColorProvider(
+                            if (slot == null) DuskPalette.muted else DuskPalette.emberDeep
+                        ),
                         fontSize = metrics.numeralSize,
                         fontWeight = FontWeight.Medium,
                     ),
@@ -323,56 +301,61 @@ class CampaignWidget : GlanceAppWidget() {
                 )
             }
 
-            // Absent while the day has not started — same as in the app.
-            // A checkbox that cannot be checked is worse than no checkbox:
-            // it invites the tap and then refuses it.
-            if (!planning) {
-                // An empty slot gets a plus, not an empty ring. The ring says
-                // "not done yet" and invites a tap that would complete
-                // something; the plus says the row leads into the app, which
-                // is the only thing an unchosen slot can do.
-                if (slot == null) {
+            // A free place gets a plus, a campaign with a step gets a ring,
+            // a campaign without one gets the plus too — in every case the
+            // mark says what a tap will do rather than what the row is.
+            if (slot?.stepId == null) {
+                Text(
+                    text = "+",
+                    style = TextStyle(
+                        color = ColorProvider(DuskPalette.muted),
+                        fontSize = metrics.markSize.value.sp,
+                        fontWeight = FontWeight.Normal,
+                        textAlign = TextAlign.Center,
+                    ),
+                    modifier = GlanceModifier.width(metrics.markSize),
+                )
+            } else {
+                Image(
+                    provider = ImageProvider(R.drawable.widget_dot_open),
+                    contentDescription = null,
+                    modifier = GlanceModifier.size(metrics.markSize),
+                )
+            }
+            Spacer(modifier = GlanceModifier.width(metrics.markGap))
+
+            // TWO LINES, and which one leads matters. The step is what you
+            // can act on, so it is the one in Paper at full size; the
+            // campaign is context and sits above it, small and quiet. The
+            // other way round would make the card a list of projects you
+            // are not doing anything about.
+            Column(modifier = GlanceModifier.defaultWeight()) {
+                Text(
+                    text = slot?.campaignTitle ?: emptyLabel,
+                    maxLines = 1,
+                    style = TextStyle(
+                        color = ColorProvider(
+                            if (slot == null) DuskPalette.muted else DuskPalette.ember
+                        ),
+                        fontSize = metrics.dateSize,
+                        fontWeight = FontWeight.Medium,
+                    ),
+                )
+                if (slot != null) {
                     Text(
-                        text = "+",
+                        text = slot.stepTitle ?: emptyLabel,
+                        maxLines = 1,
                         style = TextStyle(
-                            color = ColorProvider(DuskPalette.muted),
-                            fontSize = metrics.markSize.value.sp,
+                            color = ColorProvider(
+                                if (slot.stepTitle == null) DuskPalette.muted
+                                else DuskPalette.paper
+                            ),
+                            fontSize = metrics.taskSize,
                             fontWeight = FontWeight.Normal,
-                            textAlign = TextAlign.Center,
                         ),
-                        modifier = GlanceModifier.width(metrics.markSize),
-                    )
-                } else {
-                    Image(
-                        provider = ImageProvider(
-                            if (slot.completed) R.drawable.widget_dot_done
-                            else R.drawable.widget_dot_open
-                        ),
-                        contentDescription = null,
-                        modifier = GlanceModifier.size(metrics.markSize),
                     )
                 }
-                Spacer(modifier = GlanceModifier.width(metrics.markGap))
             }
-
-            Text(
-                text = slot?.title ?: emptyLabel,
-                maxLines = metrics.maxLines,
-                style = TextStyle(
-                    color = ColorProvider(
-                        when {
-                            slot == null -> DuskPalette.muted
-                            slot.completed -> DuskPalette.muted
-                            else -> DuskPalette.paper
-                        }
-                    ),
-                    fontSize = metrics.taskSize,
-                    fontWeight = FontWeight.Normal,
-                    textDecoration =
-                        if (slot?.completed == true) TextDecoration.LineThrough
-                        else TextDecoration.None,
-                ),
-            )
         }
     }
 

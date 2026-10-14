@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.BasicTextField
@@ -14,11 +16,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import io.github.xep426.campaign.R
 import io.github.xep426.campaign.ui.theme.AppColors
 
 /**
@@ -86,4 +94,90 @@ fun FieldUnderline(focused: Boolean, modifier: Modifier = Modifier) {
             .height(1.dp)
             .background(if (focused) AppColors.ember.copy(alpha = 0.55f) else AppColors.line)
     )
+}
+
+/**
+ * A one-shot entry line: type a step, press enter, it is written.
+ *
+ * Commits on enter AND on losing focus, which is the rule the rest of the
+ * app follows — tapping away saves rather than discards, because a field
+ * that silently throws away what you typed is the single worst thing a
+ * text input can do. [onCancel] is for the empty case only: nothing typed
+ * means nothing to keep, and the entry should get out of the way.
+ *
+ * Takes focus the moment it appears. It is only ever shown because
+ * somebody asked for it, so making them tap it as well is a tap for
+ * nothing.
+ */
+@Composable
+fun InlineEntry(
+    placeholder: String,
+    onCommit: (String) -> Unit,
+    onCancel: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var text by remember { mutableStateOf("") }
+    var focused by remember { mutableStateOf(false) }
+    // Guards against committing twice: focus loss and disposal both fire
+    // when the row goes away, and two inserts for one typed line is the
+    // kind of bug that only shows up as a duplicate nobody can explain.
+    val done = remember { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
+
+    fun finish() {
+        if (done.value) return
+        done.value = true
+        if (text.isBlank()) onCancel() else onCommit(text)
+    }
+
+    androidx.compose.runtime.LaunchedEffect(Unit) { focusRequester.requestFocus() }
+
+    Column(modifier.fillMaxWidth()) {
+        SlotTextField(
+            value = text,
+            onValueChange = { text = it },
+            placeholder = placeholder,
+            modifier = Modifier.focusRequester(focusRequester),
+            imeAction = ImeAction.Done,
+            onImeAction = { finish() },
+            onFocusChanged = { hasFocus ->
+                if (focused && !hasFocus) finish()
+                focused = hasFocus
+            },
+        )
+        Spacer(Modifier.height(6.dp))
+        FieldUnderline(focused = focused)
+    }
+}
+
+/**
+ * A campaign's notes: free text, saved when you look away.
+ *
+ * Multi-line and unbounded, unlike everything else the app takes as input.
+ * Notes are the one place with no rule about what belongs in them — a
+ * link, a phone number, the thing you worked out last time and will not
+ * remember next time.
+ */
+@Composable
+fun NotesField(initial: String, onCommit: (String) -> Unit, modifier: Modifier = Modifier) {
+    var text by remember(initial) { mutableStateOf(initial) }
+    var focused by remember { mutableStateOf(false) }
+
+    Column(modifier.fillMaxWidth()) {
+        SlotTextField(
+            value = text,
+            onValueChange = { text = it },
+            placeholder = stringResource(R.string.campaign_notes_placeholder),
+            imeAction = ImeAction.Default,
+            onFocusChanged = { hasFocus ->
+                // Commit on the way out only. Writing on every keystroke
+                // would hit the database once per character for text
+                // nothing else reads.
+                if (focused && !hasFocus) onCommit(text)
+                focused = hasFocus
+            },
+        )
+        Spacer(Modifier.height(6.dp))
+        FieldUnderline(focused = focused)
+    }
 }

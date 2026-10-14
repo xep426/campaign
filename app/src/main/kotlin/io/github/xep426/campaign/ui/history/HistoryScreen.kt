@@ -31,7 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.xep426.campaign.R
 import io.github.xep426.campaign.domain.model.Campaign
-import io.github.xep426.campaign.domain.model.DailyTask
+import io.github.xep426.campaign.domain.model.Step
 import io.github.xep426.campaign.ui.components.CampaignTag
 import io.github.xep426.campaign.ui.components.Eyebrow
 import io.github.xep426.campaign.ui.components.FootNote
@@ -110,8 +110,8 @@ fun HistoryScreen(
 
         when (tab) {
             Tab.TASKS -> {
-                items(state.tasks, key = { it.id }) { task ->
-                    FinishedTaskRow(task, dayLabel)
+                items(state.tasks, key = { it.id }) { step ->
+                    FinishedTaskRow(step, dayLabel)
                     Hairline()
                 }
                 item {
@@ -183,22 +183,22 @@ private fun Segmented(selected: Tab, onSelect: (Tab) -> Unit) {
 }
 
 /**
- * A finished standalone task: what it was, and when it landed.
+ * A finished standalone step: what it was, and when it landed.
  *
  * No completion mark. Everything on this list is done — a row of identical
  * ticks would be decoration, and the sage title already says it.
  */
 @Composable
-private fun FinishedTaskRow(task: DailyTask, dayLabel: DateTimeFormatter) {
+private fun FinishedTaskRow(step: Step, dayLabel: DateTimeFormatter) {
     Column(Modifier.fillMaxWidth().padding(vertical = SpaceMd)) {
         Text(
-            text = task.title,
+            text = step.title,
             style = MaterialTheme.typography.bodyLarge,
             color = AppColors.paperDim,
         )
         Spacer(Modifier.height(4.dp))
         Text(
-            text = task.date.format(dayLabel).uppercase(Locale.getDefault()),
+            text = (step.completedOn ?: step.addedOn).format(dayLabel).uppercase(Locale.getDefault()),
             style = MonoMeta,
             color = AppColors.muted,
         )

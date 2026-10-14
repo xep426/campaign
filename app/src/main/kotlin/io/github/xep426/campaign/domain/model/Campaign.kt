@@ -1,31 +1,26 @@
 package io.github.xep426.campaign.domain.model
 
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 
 /**
- * A longer-running effort, and the record of what it has actually moved.
+ * A long-running undertaking, broken into steps, with no deadline.
  *
- * A campaign AUTHORS nothing. It has a name and it has the tasks assigned
- * to it — that is the whole object. The first version gave it a `nextStep`
- * field the user had to write and maintain, which turned out to be a
- * second place to plan the same work: you wrote the step on the campaign,
- * then wrote it again as a task.
+ * THE CAMPAIGN IS NOW THE UNIT. It used to be a lens over tasks that lived
+ * on days; the days are gone and the campaign is what remains. You name
+ * something you want to move — learn the language, sell the flat, get the
+ * damp fixed — break it into steps, and it stays on the list until it is
+ * finished.
  *
- * WHAT IT SHOWS IS THE FINISHED WORK, not the outstanding work. The
- * campaign card listed open tasks first, which put the same information in
- * two places: an open task that matters is in today's three, and Today is
- * where you look at those. What no other screen can answer is "how far has
- * this actually come" — so that is this screen's job, and the list of
- * completed steps is the answer.
+ * THE LIMIT MOVED UP A LEVEL rather than disappearing. It was three tasks
+ * a day; it is now [SLOTS] campaigns pinned at once. That is still a
+ * forcing function — you may only push three things — but it no longer
+ * resets every night, which is what made the old one useless for work that
+ * takes months. You may keep as many campaigns as you like; you may only
+ * have three in front of you.
  *
- * [openTasks] is still carried, because Today's carry-forward picker needs
- * somewhere to read outstanding campaign work from. It is simply not
- * displayed here any more.
- *
- * Both lists are DERIVED, never stored, so neither can drift out of step
- * with the day records:
- *  - [openTasks] — assigned and not completed, oldest day first.
- *  - [doneTasks] — assigned and completed, most recent day first.
+ * A campaign still AUTHORS nothing beyond its name and its steps. The
+ * `nextStep` field it once had was a second place to plan the same work.
  */
 data class Campaign(
     val id: Long = 0,
@@ -34,40 +29,78 @@ data class Campaign(
     val createdAt: LocalDate,
     val closedAt: LocalDate? = null,
     val notes: String = "",
-    val openTasks: List<DailyTask> = emptyList(),
-    val doneTasks: List<DailyTask> = emptyList(),
+    /** 0..2 while pinned to the questlog, null when it is merely kept. */
+    val slot: Int? = null,
+    /** Not yet done, in [Step.position] order. */
+    val openSteps: List<Step> = emptyList(),
+    /** Done, most recent first. */
+    val doneSteps: List<Step> = emptyList(),
 ) {
-    /** Days since it began — the "22 days" half of the card's metadata. */
-    fun daysRunning(today: LocalDate): Long =
-        java.time.temporal.ChronoUnit.DAYS.between(createdAt, closedAt ?: today) + 1
+    val isPinned: Boolean get() = slot != null
 
     /**
-     * How many assigned tasks were completed.
+     * What this campaign is asking of you right now.
      *
-     * Derived from [doneTasks] rather than counted separately in SQL. It
-     * was its own group-by query, which meant the number and the list it
-     * summarised could disagree — and a count that contradicts the rows
-     * under it is worse than no count.
+     * The first open step, not a chosen one: a campaign that needs you to
+     * decide which of its steps is current has handed the deciding back,
+     * and deciding is the work this app is supposed to absorb. Reorder the
+     * steps if the order is wrong.
      */
-    val stepsTaken: Int get() = doneTasks.size
+    val nextStep: Step? get() = openSteps.firstOrNull()
 
-    /** Nothing outstanding — the campaign is quiet, not necessarily done. */
-    val isQuiet: Boolean get() = openTasks.isEmpty()
+    val stepsTaken: Int get() = doneSteps.size
+
+    /** Nothing left to do, but not yet declared finished. */
+    val isSpent: Boolean get() = openSteps.isEmpty()
+
+    /** The day this campaign last actually moved, if it ever has. */
+    val lastProgress: LocalDate?
+        get() = doneSteps.mapNotNull { it.completedOn }.maxOrNull()
+
+    /**
+     * Days since the last completed step, or since it began if there has
+     * never been one.
+     *
+     * THIS IS THE PRESSURE THAT REPLACED THE NIGHTLY RESET, and the app
+     * needs one. The old model made you re-choose every evening whether
+     * you liked it or not; a questlog asks nothing, so a campaign could
+     * sit for a year looking exactly as it did on day one. The number of
+     * days it has been ignored is the one honest thing the app can say
+     * about that, and it says it without inventing a streak to break.
+     */
+    fun daysSinceProgress(today: LocalDate): Long =
+        ChronoUnit.DAYS.between(lastProgress ?: createdAt, today).coerceAtLeast(0)
+
+    /** Days since it began — the "22 days" half of the card's metadata. */
+    fun daysRunning(today: LocalDate): Long =
+        ChronoUnit.DAYS.between(createdAt, closedAt ?: today) + 1
+
+    companion object {
+        /**
+         * How many campaigns can be pinned at once.
+         *
+         * The three that used to be slots in a day. Same number, same
+         * argument — three is what fits on a widget and in a head — but it
+         * now limits how much you are PUSHING rather than how much a
+         * single day may contain.
+         */
+        const val SLOTS = 3
+
+        private val NUMERALS = listOf("I", "II", "III")
+
+        /** I, II, III — the pinned position as the interface names it. */
+        fun numeralFor(slot: Int): String = NUMERALS.getOrElse(slot) { "" }
+    }
 }
 
 /**
  * A campaign is running or it is done. There is no third state.
  *
- * ARCHIVED existed alongside COMPLETED because §8 asked for "archive or
- * complete", and the intent was to separate finishing something from
- * giving up on it. In practice both wrote the same row with a different
- * word in it: same removal from the list, same place in history, same
- * reversibility, counted the same in the history tally. The only
- * difference a user could see was the colour of a tag — and two buttons
- * side by side that differ only by a label are a question the screen asks
- * and never answers.
- *
- * Deleting a campaign is what "this should not be in my history" means,
- * and that already exists.
+ * ARCHIVED existed alongside COMPLETED and wrote the same row with a
+ * different word in it: same removal from the list, same place in history,
+ * same reversibility. The only visible difference was a tag's colour, and
+ * two buttons that differ only by a label are a question the screen asks
+ * and never answers. Deleting is what "this should not be in my history"
+ * means, and that already exists.
  */
 enum class CampaignStatus { ACTIVE, COMPLETED }

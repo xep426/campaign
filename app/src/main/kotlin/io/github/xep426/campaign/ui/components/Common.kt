@@ -32,7 +32,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import io.github.xep426.campaign.R
-import io.github.xep426.campaign.domain.model.Progress
 import io.github.xep426.campaign.ui.theme.AppColors
 import io.github.xep426.campaign.ui.theme.MonoLabel
 import io.github.xep426.campaign.ui.theme.MonoMeta
@@ -242,55 +241,3 @@ fun FootNote(text: String, modifier: Modifier = Modifier) {
     )
 }
 
-/**
- * Efficiency, as a footer strip: one line, pinned above the navigation.
- *
- * SUBORDINATE ON PURPOSE. It was a display-sized number under the three
- * tasks, which made a percentage the loudest thing on the screen the app
- * exists to keep quiet. The three things are the content; this reports on
- * them and should read like a status bar, not a verdict.
- *
- * The fraction survives the shrink because it is what makes the percentage
- * checkable — "22%" is a judgement, "2/9 · 22%" is arithmetic. See
- * [Progress] for why three a day is the denominator.
- *
- * No bar, no chart, no streak: a progress bar lived on Today once and was
- * taken out.
- */
-@Composable
-fun TallyStrip(progress: Progress, modifier: Modifier = Modifier) {
-    Column(modifier.fillMaxWidth()) {
-        Hairline()
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = ScreenPadding, vertical = SpaceSm),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = stringResource(R.string.tally_label, progress.windowDays)
-                    .uppercase(java.util.Locale.getDefault()),
-                style = MonoMeta,
-                color = AppColors.muted,
-            )
-            Text(
-                text = if (progress.possible == 0) {
-                    // Before the first task there is nothing to be a
-                    // fraction of, and 0% would judge a day that has not
-                    // happened.
-                    stringResource(R.string.tally_empty)
-                } else {
-                    stringResource(
-                        R.string.tally_value,
-                        progress.completedInWindow,
-                        progress.possible,
-                        progress.percent,
-                    )
-                }.uppercase(java.util.Locale.getDefault()),
-                style = MonoMeta,
-                color = AppColors.paperDim,
-            )
-        }
-    }
-}
